@@ -40,7 +40,7 @@ public final class Constants {
       public static class ShooterSubsystemsConstants {
         public static final double hoodMotorRatio = (1/1);
         public static final double flywheelMotorRatio = (1/1);
-        public static final double FlywheelMaxSpeed = 200;
+        public static final double FlywheelShootSpeed = 200;
         public static final double FlywheelIdleSpeed = 0;
       }
     

@@ -24,7 +24,7 @@ public class IndexerSubsystem extends SubsystemBase {
 
   public IndexerSubsystem() {
     //Motor
-    indexerMotor = new CANSparkMax(2, MotorType.kBrushless);
+    indexerMotor = new CANSparkMax(30, MotorType.kBrushless);
 
     //CanSparkMax Setup
     indexerMotor.restoreFactoryDefaults();

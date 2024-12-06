@@ -45,8 +45,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public ShooterSubsystem() {
     //Motors
-    hoodMotor = new CANSparkMax(3, MotorType.kBrushless);
-    flywheelMotor = new CANSparkMax(4, MotorType.kBrushless);
+    hoodMotor = new CANSparkMax(31, MotorType.kBrushless);
+    flywheelMotor = new CANSparkMax(10, MotorType.kBrushless);
 
     //Encoders
     hoodEncoder = hoodMotor.getEncoder();
@@ -102,8 +102,12 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public boolean isFlywheelToSpeed() {
-    return Constants.ShooterSubsystemsConstants.FlywheelMaxSpeed <= flywheelEncoder.getVelocity();
+    return Constants.ShooterSubsystemsConstants.FlywheelShootSpeed <= flywheelEncoder.getVelocity();
     
+  }
+
+  public double hoodPostion() {
+    return hoodEncoder.getPosition();
   }
 
   @Override

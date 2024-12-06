@@ -27,7 +27,7 @@ public class ShootCommand extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    shooterSubsytem.setFlywheelVelocity(Constants.ShooterSubsystemsConstants.FlywheelMaxSpeed);
+    shooterSubsytem.setFlywheelVelocity(Constants.ShooterSubsystemsConstants.FlywheelShootSpeed);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
