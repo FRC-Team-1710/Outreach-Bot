@@ -5,112 +5,122 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 /**
- * The VM is configured to automatically run this class, and to call the
- * functions corresponding to
- * each mode, as described in the TimedRobot documentation. If you change the
- * name of this class or
- * the package after creating this project, you must also update the
- * build.gradle file in the
+ * The VM is configured to automatically run this class, and to call the functions corresponding to
+ * each mode, as described in the TimedRobot documentation. If you change the name of this class or
+ * the package after creating this project, you must also update the build.gradle file in the
  * project.
  */
 public class Robot extends TimedRobot {
-    private Command m_autonomousCommand;
+  private RobotContainer m_robotContainer;
 
-    private RobotContainer m_robotContainer;
+  /**
+   * This function is run when the robot is first started up and should be used for any
+   * initialization code.
+   */
+  @Override
+  public void robotInit() {
+    // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
+    // autonomous chooser on the dashboard.
+    m_robotContainer = new RobotContainer();
 
-    /**
-     * This function is run when the robot is first started up and should be used
-     * for any
-     * initialization code.
-     */
-    @Override
-    public void robotInit() {
-        // Instantiate our RobotContainer. This will perform all our button bindings,
-        // and put our
-        // autonomous chooser on the dashboard.
-        m_robotContainer = new RobotContainer();
+    SmartDashboard.putString("Swerve Calibration/Value1", "https://docs.google.com/document/d/1-HPhrcYGxAi4Wp-iK5DzLxNZFJkpnPF0-LEoKPR5bMc/edit?tab=t.0");
+    SmartDashboard.putString("Swerve Calibration/Value2", "Set all offsets to 0");
+    SmartDashboard.putString("Swerve Calibration/Value3", "Deploy, don't enable");
+    SmartDashboard.putString("Swerve Calibration/Value4", "Flip on its side");
+    SmartDashboard.putString("Swerve Calibration/Value5", "Rotate wheels so they are parallel to the floor");
+    SmartDashboard.putString("Swerve Calibration/Value6", "If front of robot is on your left, the gears are all facing up.");
+    SmartDashboard.putString("Swerve Calibration/Value7", "If front of robot is on your right, the gears are all facing down.");
+    SmartDashboard.putString("Swerve Calibration/Value8", "Look on the Swerve Calibration page for all motor angles");
+    SmartDashboard.putString("Swerve Calibration/Value9", "Put those numbers into Constants");
+    SmartDashboard.putString("Swerve Calibration/Value10", "Deploy and enable");
+    SmartDashboard.putString("Swerve Calibration/Value11", "If any wheels not in line, add a negative to the angle offset");
+    SmartDashboard.putString("Swerve Calibration/Value12", "If one spins the wrong direction, add 0.5 rotations to the offset");
 
-    }
+    SmartDashboard.putString("Controlls/Start Button", "Reset Gyro");
+    SmartDashboard.putString("Controlls/Right Bumper", "Intake");
+    SmartDashboard.putString("Controlls/Dpad Down", "Zero Arm");
+    SmartDashboard.putString("Controlls/Dpad Up", "Zero Hood");
+    SmartDashboard.putString("Controlls/Back Button", "Zero Arm and Hood");
+    SmartDashboard.putString("Controlls/Left Bumper", "Shoot");
+    SmartDashboard.putString("Controlls/X", "Hood Down");
+    SmartDashboard.putString("Controlls/Y", "Hood to Preset Position");
+    SmartDashboard.putString("Controlls/Right Stick Button", "Stop Flywheels");
+    SmartDashboard.putString("Controlls/Triggers", "Manual Aim for Hood");
+    SmartDashboard.putBoolean("Slow Mode", false);
+  }
 
-    /**
-     * This function is called every robot packet, no matter the mode. Use this for
-     * items like
-     * diagnostics that you want ran during disabled, autonomous, teleoperated and
-     * test.
-     *
-     * <p>
-     * This runs after the mode specific periodic functions, but before LiveWindow
-     * and
-     * SmartDashboard integrated updating.
-     */
-    @Override
-    public void robotPeriodic() {
-        // Runs the Scheduler. This is responsible for polling buttons, adding
-        // newly-scheduled
-        // commands, running already-scheduled commands, removing finished or
-        // interrupted commands,
-        // and running subsystem periodic() methods. This must be called from the
-        // robot's periodic
-        // block in order for anything in the Command-based framework to work.
-        CommandScheduler.getInstance().run();
-    }
+  /**
+   * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
+   * that you want ran during disabled, autonomous, teleoperated and test.
+   *
+   * <p>This runs after the mode specific periodic functions, but before LiveWindow and
+   * SmartDashboard integrated updating.
+   */
+  @Override
+  public void robotPeriodic() {
+    // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
+    // commands, running already-scheduled commands, removing finished or interrupted commands,
+    // and running subsystem periodic() methods.  This must be called from the robot's periodic
+    // block in order for anything in the Command-based framework to work.
+    CommandScheduler.getInstance().run();
 
-    /** This function is called once each time the robot enters Disabled mode. */
-    @Override
-    public void disabledInit() {
-    }
+    SmartDashboard.putNumber("Total Current", SmartDashboard.getNumber("Flywheel Current", 0) + //Output total current for fun
+      SmartDashboard.getNumber("Hood Current", 0) +
+      SmartDashboard.getNumber("Arm Left Current", 0) +
+      SmartDashboard.getNumber("Arm Right Current", 0) +
+      SmartDashboard.getNumber("Intake Left Current", 0) +
+      SmartDashboard.getNumber("Intake Right Current", 0) +
+      SmartDashboard.getNumber("Inside Intake Current", 0) +
+      SmartDashboard.getNumber("Drivetrain Current", 0));
+  }
 
-    @Override
-    public void disabledPeriodic() {
-    }
+  /** This function is called once each time the robot enters Disabled mode. */
+  @Override
+  public void disabledInit() {}
 
-    /**
-     * This autonomous runs the autonomous command selected by your
-     * {@link RobotContainer} class.
-     */
-    @Override
-    public void autonomousInit() {
-        // m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+  @Override
+  public void disabledPeriodic() {}
 
-        // schedule the autonomous command (example)
-        // if (m_autonomousCommand != null) {
-        // m_autonomousCommand.schedule();
-        // }
-    }
+  /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
+  @Override
+  public void autonomousInit() {}
+  
 
-    /** This function is called periodically during autonomous. */
-    @Override
-    public void autonomousPeriodic() {
-    }
+  /** This function is called periodically during autonomous. */
+  @Override
+  public void autonomousPeriodic() {}
 
-    @Override
-    public void teleopInit() {
-        // This makes sure that the autonomous stops running when
-        // teleop starts running. If you want the autonomous to
-        // continue until interrupted by another command, remove
-        // this line or comment it out.
-        if (m_autonomousCommand != null) {
-            m_autonomousCommand.cancel();
-        }
-    }
+  @Override
+  public void teleopInit() {
+    // This makes sure that the autonomous stops running when
+    // teleop starts running. If you want the autonomous to
+    // continue until interrupted by another command, remove
+    // this line or comment it out.
+  }
 
-    /** This function is called periodically during operator control. */
-    @Override
-    public void teleopPeriodic() {
-    }
+  /** This function is called periodically during operator control. */
+  @Override
+  public void teleopPeriodic() {}
 
-    @Override
-    public void testInit() {
-        // Cancels all running commands at the start of test mode.
-        CommandScheduler.getInstance().cancelAll();
-    }
+  @Override
+  public void testInit() {
+    // Cancels all running commands at the start of test mode.
+    CommandScheduler.getInstance().cancelAll();
+  }
 
-    /** This function is called periodically during test mode. */
-    @Override
-    public void testPeriodic() {
-    }
+  /** This function is called periodically during test mode. */
+  @Override
+  public void testPeriodic() {}
+
+  /** This function is called once when the robot is first started up. */
+  @Override
+  public void simulationInit() {}
+
+  /** This function is called periodically whilst in simulation. */
+  @Override
+  public void simulationPeriodic() {}
 }

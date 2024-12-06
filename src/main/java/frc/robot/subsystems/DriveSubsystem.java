@@ -8,7 +8,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.CANSparkLowLevel;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -20,7 +21,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.utilities.drivers.Gyroscope;
 import frc.utilities.drivers.SwerveModule;
@@ -30,35 +30,40 @@ import frc.utilities.drivers.NavX;
 
 public class DriveSubsystem extends SubsystemBase {
 
-    private static final double TRACKWIDTH = Units.inchesToMeters(23);
+    private static final double TRACKWIDTH = Units.inchesToMeters(23); //TODO change this
     private static final double WHEELBASE = Units.inchesToMeters(23);
 
-    private static final double FRONT_LEFT_ANGLE_OFFSET = -Math.toRadians(220 - 90);
-    private static final double FRONT_RIGHT_ANGLE_OFFSET = -Math.toRadians(338 - 90);
-    private static final double BACK_LEFT_ANGLE_OFFSET = -Math.toRadians(329 - 90);
-    private static final double BACK_RIGHT_ANGLE_OFFSET = -Math.toRadians(114 - 90);
+    private static final double FRONT_LEFT_ANGLE_OFFSET = -Math.toRadians(Constants.Swerve.FLOffset);
+    private static final double FRONT_RIGHT_ANGLE_OFFSET = -Math.toRadians(Constants.Swerve.FROffset);
+    private static final double BACK_LEFT_ANGLE_OFFSET = -Math.toRadians(Constants.Swerve.BLOffset);
+    private static final double BACK_RIGHT_ANGLE_OFFSET = -Math.toRadians(Constants.Swerve.BROffset);
 
-    private CANSparkMax backLeftAngle = new CANSparkMax(Constants.DRIVETRAIN_BACK_LEFT_ANGLE_MOTOR,
-            CANSparkMaxLowLevel.MotorType.kBrushless);
-    private CANSparkMax backRightAngle = new CANSparkMax(Constants.DRIVETRAIN_BACK_RIGHT_ANGLE_MOTOR,
-            CANSparkMaxLowLevel.MotorType.kBrushless);
-    private CANSparkMax backLeftDrive = new CANSparkMax(Constants.DRIVETRAIN_BACK_LEFT_DRIVE_MOTOR,
-            CANSparkMaxLowLevel.MotorType.kBrushless);
-    private CANSparkMax backRightDrive = new CANSparkMax(Constants.DRIVETRAIN_BACK_RIGHT_DRIVE_MOTOR,
-            CANSparkMaxLowLevel.MotorType.kBrushless);
-    private CANSparkMax frontLeftAngle = new CANSparkMax(Constants.DRIVETRAIN_FRONT_LEFT_ANGLE_MOTOR,
-            CANSparkMaxLowLevel.MotorType.kBrushless);
-    private CANSparkMax frontRightAngle = new CANSparkMax(Constants.DRIVETRAIN_FRONT_RIGHT_ANGLE_MOTOR,
-            CANSparkMaxLowLevel.MotorType.kBrushless);
-    private CANSparkMax frontLeftDrive = new CANSparkMax(Constants.DRIVETRAIN_FRONT_LEFT_DRIVE_MOTOR,
-            CANSparkMaxLowLevel.MotorType.kBrushless);
-    private CANSparkMax frontRightDrive = new CANSparkMax(Constants.DRIVETRAIN_FRONT_RIGHT_DRIVE_MOTOR,
-            CANSparkMaxLowLevel.MotorType.kBrushless);
+    private CANSparkMax backLeftAngle = new CANSparkMax(Constants.Swerve.DRIVETRAIN_BACK_LEFT_ANGLE_MOTOR,
+            CANSparkLowLevel.MotorType.kBrushless);
+    private CANSparkMax backRightAngle = new CANSparkMax(Constants.Swerve.DRIVETRAIN_BACK_RIGHT_ANGLE_MOTOR,
+            CANSparkLowLevel.MotorType.kBrushless);
+    private CANSparkMax backLeftDrive = new CANSparkMax(Constants.Swerve.DRIVETRAIN_BACK_LEFT_DRIVE_MOTOR,
+            CANSparkLowLevel.MotorType.kBrushless);
+    private CANSparkMax backRightDrive = new CANSparkMax(Constants.Swerve.DRIVETRAIN_BACK_RIGHT_DRIVE_MOTOR,
+            CANSparkLowLevel.MotorType.kBrushless);
+    private CANSparkMax frontLeftAngle = new CANSparkMax(Constants.Swerve.DRIVETRAIN_FRONT_LEFT_ANGLE_MOTOR,
+            CANSparkLowLevel.MotorType.kBrushless);
+    private CANSparkMax frontRightAngle = new CANSparkMax(Constants.Swerve.DRIVETRAIN_FRONT_RIGHT_ANGLE_MOTOR,
+            CANSparkLowLevel.MotorType.kBrushless);
+    private CANSparkMax frontLeftDrive = new CANSparkMax(Constants.Swerve.DRIVETRAIN_FRONT_LEFT_DRIVE_MOTOR,
+            CANSparkLowLevel.MotorType.kBrushless);
+    private CANSparkMax frontRightDrive = new CANSparkMax(Constants.Swerve.DRIVETRAIN_FRONT_RIGHT_DRIVE_MOTOR,
+            CANSparkLowLevel.MotorType.kBrushless);
+
+        private RelativeEncoder FLEnc = frontLeftDrive.getEncoder();
+        private RelativeEncoder FREnc = frontRightDrive.getEncoder();
+        private RelativeEncoder BLEnc = backLeftDrive.getEncoder();
+        private RelativeEncoder BREnc = backRightDrive.getEncoder();
 
     /** Front left swerve module object */
     private final SwerveModule frontLeftModule = new Mk2SwerveModuleBuilder(
             new Vector2(TRACKWIDTH / 2.0, WHEELBASE / 2.0))
-                    .angleEncoder(new AnalogInput(Constants.DRIVETRAIN_FRONT_LEFT_ANGLE_ENCODER),
+                    .angleEncoder(new AnalogInput(Constants.Swerve.DRIVETRAIN_FRONT_LEFT_ANGLE_ENCODER),
                             FRONT_LEFT_ANGLE_OFFSET)
                     .angleMotor(frontLeftAngle,
                             Mk2SwerveModuleBuilder.MotorType.NEO)
@@ -68,7 +73,7 @@ public class DriveSubsystem extends SubsystemBase {
     /** Front right swerve module object */
     private final SwerveModule frontRightModule = new Mk2SwerveModuleBuilder(
             new Vector2(TRACKWIDTH / 2.0, -WHEELBASE / 2.0))
-                    .angleEncoder(new AnalogInput(Constants.DRIVETRAIN_FRONT_RIGHT_ANGLE_ENCODER),
+                    .angleEncoder(new AnalogInput(Constants.Swerve.DRIVETRAIN_FRONT_RIGHT_ANGLE_ENCODER),
                             FRONT_RIGHT_ANGLE_OFFSET)
                     .angleMotor(frontRightAngle,
                             Mk2SwerveModuleBuilder.MotorType.NEO)
@@ -78,7 +83,7 @@ public class DriveSubsystem extends SubsystemBase {
     /** Back left swerve module object */
     private final SwerveModule backLeftModule = new Mk2SwerveModuleBuilder(
             new Vector2(-TRACKWIDTH / 2.0, WHEELBASE / 2.0))
-                    .angleEncoder(new AnalogInput(Constants.DRIVETRAIN_BACK_LEFT_ANGLE_ENCODER), BACK_LEFT_ANGLE_OFFSET)
+                    .angleEncoder(new AnalogInput(Constants.Swerve.DRIVETRAIN_BACK_LEFT_ANGLE_ENCODER), BACK_LEFT_ANGLE_OFFSET)
                     .angleMotor(backLeftAngle,
                             Mk2SwerveModuleBuilder.MotorType.NEO)
                     .driveMotor(backLeftDrive,
@@ -87,7 +92,7 @@ public class DriveSubsystem extends SubsystemBase {
     /** Back right swerve module object */
     private final SwerveModule backRightModule = new Mk2SwerveModuleBuilder(
             new Vector2(-TRACKWIDTH / 2.0, -WHEELBASE / 2.0))
-                    .angleEncoder(new AnalogInput(Constants.DRIVETRAIN_BACK_RIGHT_ANGLE_ENCODER),
+                    .angleEncoder(new AnalogInput(Constants.Swerve.DRIVETRAIN_BACK_RIGHT_ANGLE_ENCODER),
                             BACK_RIGHT_ANGLE_OFFSET)
                     .angleMotor(backRightAngle,
                             Mk2SwerveModuleBuilder.MotorType.NEO)
@@ -160,6 +165,27 @@ public class DriveSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Front Right", Math.toDegrees(frontRightModule.getCurrentAngle()));
         SmartDashboard.putNumber("Back Left", Math.toDegrees(backLeftModule.getCurrentAngle()));
         SmartDashboard.putNumber("Back Right", Math.toDegrees(backRightModule.getCurrentAngle()));
+
+        SmartDashboard.putNumber("Front Left Speed", FLEnc.getVelocity());
+        SmartDashboard.putNumber("Front Right Speed", FREnc.getVelocity());
+        SmartDashboard.putNumber("Back Left Speed", BLEnc.getVelocity());
+        SmartDashboard.putNumber("Back Right Speed", BREnc.getVelocity());
+
+        SmartDashboard.putNumber("Drivetrain Current", 
+                frontLeftDrive.getOutputCurrent() +
+                frontRightDrive.getOutputCurrent() +
+                backLeftDrive.getOutputCurrent() +
+                backRightDrive.getOutputCurrent() +
+                frontLeftAngle.getOutputCurrent() +
+                frontRightAngle.getOutputCurrent() +
+                backLeftAngle.getOutputCurrent() +
+                backRightAngle.getOutputCurrent());
+
+        SmartDashboard.putNumber("Drive Speed (mph)", 
+                ((((FLEnc.getVelocity() +
+                FREnc.getVelocity() +
+                BLEnc.getVelocity() +
+                BREnc.getVelocity())/4)/8.31)*240*Math.PI)/63360);
     }
 
     /**
