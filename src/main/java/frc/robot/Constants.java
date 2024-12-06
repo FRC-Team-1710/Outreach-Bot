@@ -33,4 +33,18 @@ public final class Constants {
     public static final int DRIVETRAIN_BACK_RIGHT_ANGLE_ENCODER = 2; // Analog
     public static final int DRIVETRAIN_BACK_RIGHT_DRIVE_MOTOR = 7; // CAN
 
+    public static class OperatorConstants {
+        public static final int kDriverControllerPort = 0;
+      }
+    
+      public static class ShooterSubsystemsConstants {
+        public static final double hoodMotorRatio = (1/1);
+        public static final double flywheelMotorRatio = (1/1);
+        public static final double FlywheelMaxSpeed = 200;
+        public static final double FlywheelIdleSpeed = 0;
+      }
+    
+      public static class IndexerSubsystemsConstants {
+        public static final double IndexerMaxSpeed = 0.1;
+      }
 }
