@@ -23,9 +23,9 @@ public class OverBumperSubsystem extends SubsystemBase {
 
   // private SparkPIDController armPID;
 
-  // private double positionP = 0; // TODO change this
-  // private double positionI = 0;
-  // private double positionD = 0;
+  private double positionP = 0; // TODO change this
+  private double positionI = 0;
+  private double positionD = 0;
 
   // private double gearRatio = Constants.Arm.ratio;
 
@@ -62,14 +62,22 @@ public class OverBumperSubsystem extends SubsystemBase {
     // armLeft.burnFlash();
     // armRight.burnFlash();
 
-    // SmartDashboard.putNumber("Over Pos P", positionP);
-    // SmartDashboard.putNumber("Over Pos I", positionI);
-    // SmartDashboard.putNumber("Over Pos D", positionD);
+    SmartDashboard.putNumber("Over Pos P", positionP);
+    SmartDashboard.putNumber("Over Pos I", positionI);
+    SmartDashboard.putNumber("Over Pos D", positionD);
 
-    // SmartDashboard.putBoolean("Over Bumper Coast", armCoast);
+    SmartDashboard.putBoolean("Over Bumper Coast", false);
     SmartDashboard.putBoolean("Over Bumper Intake Enabled", OverBumperEnabled);
     // NOTE: Do not change this value to enable/disable the over bumper subsystem,
     // Change the boolean named OverBumperEnabled
+
+    // NOTE: Everything past here is only here because
+    // Advantage Kit needs it logged before it starts
+    SmartDashboard.putBoolean("Arm up", false);
+    SmartDashboard.putBoolean("Over Bumper Zeroed", false);
+    SmartDashboard.putNumber("Arm Left Current", 0);
+    SmartDashboard.putNumber("Arm Right Current", 0);
+    SmartDashboard.putNumber("Over Bumper Current Position (Degrees)", 0);
   }
 
   public void StopAll() {
@@ -106,11 +114,10 @@ public class OverBumperSubsystem extends SubsystemBase {
 
     // SmartDashboard.putBoolean("Over Bumper Zeroed", zeroed);
 
-    SmartDashboard.putNumber("Arm Left Current", 0); //armLeft.getOutputCurrent());
-    SmartDashboard.putNumber("Arm Right Current", 0); //armRight.getOutputCurrent());
+    // SmartDashboard.putNumber("Arm Left Current", armLeft.getOutputCurrent());
+    // SmartDashboard.putNumber("Arm Right Current", armRight.getOutputCurrent());
 
-    // SmartDashboard.putNumber("Over Bumper Current Position (Degrees)",
-    // Units.rotationsToDegrees(encoderL.getPosition()/gearRatio));
+    // SmartDashboard.putNumber("Over Bumper Current Position (Degrees)", Units.rotationsToDegrees(encoderL.getPosition()/gearRatio));
 
     // if (SmartDashboard.getBoolean("Over Bumper Intake Enabled", OverBumperEnabled) != OverBumperEnabled) {
     //   OverBumperEnabled = SmartDashboard.getBoolean("Over Bumper Intake Enabled", OverBumperEnabled);

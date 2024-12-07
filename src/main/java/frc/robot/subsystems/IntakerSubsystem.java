@@ -41,7 +41,13 @@ public class IntakerSubsystem extends SubsystemBase {
     // intakeR.burnFlash();
     feeder.burnFlash();
 
-    SmartDashboard.putData(this);
+    // NOTE: Everything past here is only here because
+    // Advantage Kit needs it logged before it starts
+    SmartDashboard.putBoolean("Over Bumper Intake Enabled", OverBumperEnabled);
+    SmartDashboard.putBoolean("Inside Beam Break", false);
+    SmartDashboard.putNumber("Intake Left Current", 0);
+    SmartDashboard.putNumber("Intake Right Current", 0);
+    SmartDashboard.putNumber("Inside Intake Current", 0);
   }
 
   public boolean intakeBreak() {
@@ -75,8 +81,8 @@ public class IntakerSubsystem extends SubsystemBase {
 
     SmartDashboard.putBoolean("Inside Beam Break", intakeBreak());
 
-    SmartDashboard.putNumber("Intake Left Current", 0); //intakeL.getOutputCurrent());
-    SmartDashboard.putNumber("Intake Right Current", 0); //intakeR.getOutputCurrent());
+    // SmartDashboard.putNumber("Intake Left Current", intakeL.getOutputCurrent());
+    // SmartDashboard.putNumber("Intake Right Current", intakeR.getOutputCurrent());
     SmartDashboard.putNumber("Inside Intake Current", feeder.getOutputCurrent());
   }
 }

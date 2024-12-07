@@ -10,11 +10,15 @@ import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
-import org.littletonrobotics.junction.LoggedRobot;
-import org.littletonrobotics.urcl.URCL;
+import frc.robot.Constants.AdKit;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import org.littletonrobotics.junction.LogFileUtil;
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import org.littletonrobotics.urcl.URCL;
+import org.littletonrobotics.junction.Logger;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -24,8 +28,6 @@ import java.time.format.DateTimeFormatter;
  */
 public class Robot extends LoggedRobot {
   private RobotContainer m_robotContainer;
-
-  private boolean logStarted = false;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -39,12 +41,10 @@ public class Robot extends LoggedRobot {
 
     LiveWindow.disableAllTelemetry();
     LiveWindow.setEnabled(false);
-
     DriverStation.silenceJoystickConnectionWarning(true);
-
     URCL.start();
 
-    DataLogManager.log("\nF  I  R  S  T    R  O  B  O  T  I  C  S    T  E  A  M\n ______________   _  _____   _  _____   ______________\n\\_____________| / ||___  | / ||  _  | |_____________/\n \\_ _ _ _ _ _ | | |   / /  | || | | | | _ _ _ _ _ _/\n  \\ _ _ _ _ _ | | |  / /   | || |_| | | _ _ _ _ _ /\n   \\__________|_|_|_/_/___ |_||_____|_|__________/\n    \\____________________/ \\____________________/\n");
+    DataLogManager.log("\nF  I  R  S  T    R  O  B  O  T  I  C  S    T  E  A  M\n______________   _  _____   _  _____   ______________\n\\_____________| / ||___  | / ||  _  | |_____________/\n \\_ _ _ _ _ _ | | |   / /  | || | | | | _ _ _ _ _ _/\n  \\ _ _ _ _ _ | | |  / /   | || |_| | | _ _ _ _ _ /\n   \\__________|_|_|_/_/___ |_||_____|_|__________/\n    \\____________________/ \\____________________/\n");
 
     SmartDashboard.putString("Swerve Calibration/Value1", "https://docs.google.com/document/d/1-HPhrcYGxAi4Wp-iK5DzLxNZFJkpnPF0-LEoKPR5bMc/edit?tab=t.0");
     SmartDashboard.putString("Swerve Calibration/Value2", "Set all offsets to 0");
@@ -70,6 +70,53 @@ public class Robot extends LoggedRobot {
     SmartDashboard.putString("Controlls/Right Stick Button", "Stop Flywheels");
     SmartDashboard.putString("Controlls/Triggers", "Manual Aim for Hood");
     SmartDashboard.putBoolean("Slow Mode", false);
+
+    SmartDashboard.putNumber("Total Current", 0);
+
+    Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
+    Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
+    Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
+    Logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
+    Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
+    switch (BuildConstants.DIRTY) {
+      case 0:
+        Logger.recordMetadata("GitDirty", "All changes committed");
+        break;
+      case 1:
+        Logger.recordMetadata("GitDirty", "Uncomitted changes");
+        break;
+      default:
+        Logger.recordMetadata("GitDirty", "Unknown");
+        break;
+    }
+
+    // Set up data receivers & replay source
+    switch (AdKit.getMode()) {
+      case REAL:
+        // Running on a real robot, log to a USB stick ("/U/logs")
+        Logger.addDataReceiver(new WPILOGWriter());
+        Logger.addDataReceiver(new NT4Publisher());
+        SmartDashboard.putString("Case", "Real");
+        break;
+
+      case SIM:
+        // Running a physics simulator, log to NT
+        Logger.addDataReceiver(new NT4Publisher());
+        SmartDashboard.putString("Case", "Sim");
+        break;
+
+      case REPLAY:
+        // Replaying a log, set up replay source
+        setUseTiming(false); // Run as fast as possible
+        String logPath = LogFileUtil.findReplayLog();
+        Logger.setReplaySource(new WPILOGReader(logPath));
+        Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
+        SmartDashboard.putString("Case", "Replay");
+        break;
+    }
+
+    // NOTE!!! SmartDashboard values should be logged at least once BEFORE this starts
+    Logger.start();
   }
 
   /**
@@ -96,12 +143,6 @@ public class Robot extends LoggedRobot {
         + SmartDashboard.getNumber("Intake Right Current", 0)
         + SmartDashboard.getNumber("Inside Intake Current", 0)
         + SmartDashboard.getNumber("Drivetrain Current", 0));
-
-    if (!logStarted && DriverStation.isDSAttached()) {
-      DataLogManager.start("/media/sda1/logs/", DateTimeFormatter.ofPattern("yyyy-MM-dd__HH-mm-ss").format(LocalDateTime.now()) + ".wpilog");
-      DriverStation.startDataLog(DataLogManager.getLog());
-      logStarted = true;
-    }
   }
 
   /** This function is called once each time the robot enters Disabled mode. */

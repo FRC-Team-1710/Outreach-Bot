@@ -102,9 +102,19 @@ public class ShooterSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Flywheel Vel D2", velocityD2);
 
     SmartDashboard.putBoolean("Hood Coast", HoodCoast);
-
     SmartDashboard.putBoolean("Shooter Enabled", ShooterEnabled);
     SmartDashboard.putBoolean("Double PID", doublePID);
+
+    // NOTE: Everything past here is only here because
+    // Advantage Kit needs it logged before it starts
+    SmartDashboard.putBoolean("Is Flywheel Up To Speed", false);
+    SmartDashboard.putNumber("Hood Setpoint (Degrees)", lastSetpoint);
+    SmartDashboard.putNumber("Flywheel Current", flyWheel.getOutputCurrent());
+    SmartDashboard.putNumber("Hood Current", hoodMotor.getOutputCurrent());
+    SmartDashboard.putBoolean("Hood Zeroed", isZeroed);
+    SmartDashboard.putNumber("Hood Current Position (Degrees)", Units.rotationsToDegrees(hoodEncoder.getPosition() / hoodRatio));
+    SmartDashboard.putNumber("Flywheel Current Velocity (RPM)", flyEncoder.getVelocity());
+    SmartDashboard.putNumber("Flywheel Velocity Setpoint", 0);
   }
 
   @Override

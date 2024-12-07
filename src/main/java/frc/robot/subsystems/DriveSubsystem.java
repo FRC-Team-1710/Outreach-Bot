@@ -121,11 +121,6 @@ public class DriveSubsystem extends SubsystemBase {
 
   private final Gyroscope gyroscope = new NavX(SPI.Port.kMXP);
   public ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
-  /*private NetworkTableEntry backLeft;
-  private NetworkTableEntry backRight;
-  private NetworkTableEntry frontLeft;
-  private NetworkTableEntry frontRight;
-  private NetworkTableEntry gyroRot;*/
 
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
@@ -147,11 +142,21 @@ public class DriveSubsystem extends SubsystemBase {
     backLeftModule.setName("Back Left");
     backRightModule.setName("Back Right");
 
-    /*frontRight = tab.add("Front Right Angle", 0).getEntry();
-    frontLeft = tab.add("Front Left Angle", 0).getEntry();
-    backRight = tab.add("Back Right Angle", 0).getEntry();
-    backLeft = tab.add("Back Left Angle", 0).getEntry();
-    gyroRot = tab.add("Gyro Angle", 0).getEntry(); */
+    // NOTE: Everything past here is only here because
+    // Advantage Kit needs it logged before it starts
+    SmartDashboard.putNumber("Left Joystick x", 0);
+    SmartDashboard.putNumber("Left Joystick y", 0);
+    SmartDashboard.putNumber("Rotation", 0);
+    SmartDashboard.putNumber("Front Left", 0);
+    SmartDashboard.putNumber("Front Right", 0);
+    SmartDashboard.putNumber("Back Left", 0);
+    SmartDashboard.putNumber("Back Right", 0);
+    SmartDashboard.putNumber("Front Left Speed", 0);
+    SmartDashboard.putNumber("Front Right Speed", 0);
+    SmartDashboard.putNumber("Back Left Speed", 0);
+    SmartDashboard.putNumber("Back Right Speed", 0);
+    SmartDashboard.putNumber("Drivetrain Current", 0);
+    SmartDashboard.putNumber("Drive Speed (mph)", 0);
   }
 
   @Override
@@ -160,13 +165,6 @@ public class DriveSubsystem extends SubsystemBase {
     frontRightModule.updateSensors();
     backLeftModule.updateSensors();
     backRightModule.updateSensors();
-    // Outputs encoder values to Shuffleboard
-    /*frontRight.setDouble(Math.toDegrees(frontRightModule.getCurrentAngle()));
-    frontLeft.setDouble(Math.toDegrees(frontLeftModule.getCurrentAngle()));
-    backRight.setDouble(Math.toDegrees(backRightModule.getCurrentAngle()));
-    backLeft.setDouble(Math.toDegrees(backLeftModule.getCurrentAngle()));
-
-    gyroRot.setDouble(gyroscope.getAngle().toDegrees());*/
 
     frontLeftModule.updateState(LoggedRobot.defaultPeriodSecs);
     frontRightModule.updateState(LoggedRobot.defaultPeriodSecs);
