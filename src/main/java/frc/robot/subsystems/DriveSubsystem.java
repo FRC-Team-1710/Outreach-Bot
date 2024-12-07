@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import org.littletonrobotics.junction.LoggedRobot;
+
 import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -15,7 +17,6 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -167,10 +168,10 @@ public class DriveSubsystem extends SubsystemBase {
 
     gyroRot.setDouble(gyroscope.getAngle().toDegrees());*/
 
-    frontLeftModule.updateState(TimedRobot.kDefaultPeriod);
-    frontRightModule.updateState(TimedRobot.kDefaultPeriod);
-    backLeftModule.updateState(TimedRobot.kDefaultPeriod);
-    backRightModule.updateState(TimedRobot.kDefaultPeriod);
+    frontLeftModule.updateState(LoggedRobot.defaultPeriodSecs);
+    frontRightModule.updateState(LoggedRobot.defaultPeriodSecs);
+    backLeftModule.updateState(LoggedRobot.defaultPeriodSecs);
+    backRightModule.updateState(LoggedRobot.defaultPeriodSecs);
 
     SmartDashboard.putNumber("Front Left", Math.toDegrees(frontLeftModule.getCurrentAngle()));
     SmartDashboard.putNumber("Front Right", Math.toDegrees(frontRightModule.getCurrentAngle()));
