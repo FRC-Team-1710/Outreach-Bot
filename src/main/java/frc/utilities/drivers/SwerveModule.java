@@ -108,6 +108,11 @@ public abstract class SwerveModule {
      *
      * TODO: Allow implementors to specify the current velocity without overriding this method.
      * @return the velocity of the module.
+     * 
+     * 0=FL
+     * 1=FR
+     * 2=BL
+     * 3=BR
      */
     public double getCurrentVelocity() {
         return 0;

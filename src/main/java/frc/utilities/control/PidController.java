@@ -21,6 +21,10 @@ public class PidController {
         this.constants = constants;
     }
 
+    public PidController(double positionP, double positionI, double positionD) {
+        //TODO Auto-generated constructor stub
+    }
+
     public double calculate(double current, double dt) {
         double error = setpoint - current;
         if (continuous) {

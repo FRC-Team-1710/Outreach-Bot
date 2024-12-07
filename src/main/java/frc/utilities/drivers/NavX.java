@@ -2,7 +2,6 @@ package frc.utilities.drivers;
 
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
-import frc.utilities.drivers.Gyroscope;
 import frc.utilities.math.Rotation2;
 
 public final class NavX extends Gyroscope {
