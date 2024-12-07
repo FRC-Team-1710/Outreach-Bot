@@ -4,8 +4,8 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.IntakerSubsystem;
@@ -35,9 +35,11 @@ public class Shoot extends Command {
   @Override
   public void execute() {
     m_shooterSubsystem.setFlywheelVelocity(Constants.Shooter.shootSpeedRPM);
-    controller.setRumble(RumbleType.kBothRumble, m_shooterSubsystem.getFlywheelVelocity()/Constants.Shooter.shootSpeedRPM);
+    controller.setRumble(
+        RumbleType.kBothRumble,
+        m_shooterSubsystem.getFlywheelVelocity() / Constants.Shooter.shootSpeedRPM);
     if (m_shooterSubsystem.IsUpToSpeed()) {
-      resetHood = true; //If it actually launched, bring hood back down
+      resetHood = true; // If it actually launched, bring hood back down
       m_intakeSubsystem.setInsideVel();
     }
   }

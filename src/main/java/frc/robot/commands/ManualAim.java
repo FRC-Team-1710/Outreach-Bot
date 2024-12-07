@@ -4,13 +4,12 @@
 
 package frc.robot.commands;
 
-import java.util.function.DoubleSupplier;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.ShooterSubsystem;
+import java.util.function.DoubleSupplier;
 
 public class ManualAim extends Command {
   ShooterSubsystem m_shooterSubsystem;
@@ -26,12 +25,12 @@ public class ManualAim extends Command {
 
     if (LEFTspd.getAsDouble() > RIGHTspd.getAsDouble()) {
       this.speed = LEFTspd;
-      isItLeft = true; //TODO change this to invert the controlls
+      isItLeft = true; // TODO change this to invert the controlls
     } else {
       this.speed = RIGHTspd;
-      isItLeft = false; //TODO change this to invert the controlls
+      isItLeft = false; // TODO change this to invert the controlls
     }
-    
+
     SmartDashboard.putNumber("Set Extender Angle", 0);
     SmartDashboard.putBoolean("Left trigger", isItLeft);
     addRequirements(m_shooterSubsystem);
@@ -47,17 +46,17 @@ public class ManualAim extends Command {
     double speedValue = MathUtil.applyDeadband(speed.getAsDouble(), Constants.triggerDeadband);
     speedValue = Math.pow(speedValue, 3);
     if (isItLeft) {
-      speedValue = speedValue*-1; // Invert the power if it's the left trigger
+      speedValue = speedValue * -1; // Invert the power if it's the left trigger
     }
     if (Math.abs(speedValue) > .0) {
       hoodIsLocked = false;
       m_shooterSubsystem.setHoodManual(speedValue);
     } else {
       if (m_shooterSubsystem.isItZeroed()) {
-          if (!hoodIsLocked) {
-              m_shooterSubsystem.setHoodPosition(m_shooterSubsystem.getHoodPosition());
-              hoodIsLocked = true;
-          }
+        if (!hoodIsLocked) {
+          m_shooterSubsystem.setHoodPosition(m_shooterSubsystem.getHoodPosition());
+          hoodIsLocked = true;
+        }
       } else {
         m_shooterSubsystem.setHoodManual(0);
       }

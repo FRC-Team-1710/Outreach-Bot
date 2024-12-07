@@ -4,9 +4,24 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.DriverStation.MatchType;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.urcl.URCL;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -14,8 +29,10 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
  * the package after creating this project, you must also update the build.gradle file in the
  * project.
  */
-public class Robot extends TimedRobot {
+public class Robot extends LoggedRobot {
   private RobotContainer m_robotContainer;
+
+  private boolean logStarted = false;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -26,6 +43,15 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+
+    LiveWindow.disableAllTelemetry();
+    LiveWindow.setEnabled(false);
+
+    DriverStation.silenceJoystickConnectionWarning(true);
+
+    URCL.start();
+
+    DataLogManager.log("\nF  I  R  S  T    R  O  B  O  T  I  C  S    T  E  A  M\n ______________   _  _____   _  _____   ______________\n\\_____________| / ||___  | / ||  _  | |_____________/\n \\_ _ _ _ _ _ | | |   / /  | || | | | | _ _ _ _ _ _/\n  \\ _ _ _ _ _ | | |  / /   | || |_| | | _ _ _ _ _ /\n   \\__________|_|_|_/_/___ |_||_____|_|__________/\n    \\____________________/ \\____________________/\n");
 
     SmartDashboard.putString("Swerve Calibration/Value1", "https://docs.google.com/document/d/1-HPhrcYGxAi4Wp-iK5DzLxNZFJkpnPF0-LEoKPR5bMc/edit?tab=t.0");
     SmartDashboard.putString("Swerve Calibration/Value2", "Set all offsets to 0");
@@ -68,19 +94,28 @@ public class Robot extends TimedRobot {
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
 
-    SmartDashboard.putNumber("Total Current", SmartDashboard.getNumber("Flywheel Current", 0) + //Output total current for fun
-      SmartDashboard.getNumber("Hood Current", 0) +
-      SmartDashboard.getNumber("Arm Left Current", 0) +
-      SmartDashboard.getNumber("Arm Right Current", 0) +
-      SmartDashboard.getNumber("Intake Left Current", 0) +
-      SmartDashboard.getNumber("Intake Right Current", 0) +
-      SmartDashboard.getNumber("Inside Intake Current", 0) +
-      SmartDashboard.getNumber("Drivetrain Current", 0));
+    SmartDashboard.putNumber("Total Current",
+        SmartDashboard.getNumber("Flywheel Current", 0)
+        + SmartDashboard.getNumber("Hood Current", 0)
+        + SmartDashboard.getNumber("Arm Left Current", 0)
+        + SmartDashboard.getNumber("Arm Right Current", 0)
+        + SmartDashboard.getNumber("Intake Left Current", 0)
+        + SmartDashboard.getNumber("Intake Right Current", 0)
+        + SmartDashboard.getNumber("Inside Intake Current", 0)
+        + SmartDashboard.getNumber("Drivetrain Current", 0));
+
+    if (!logStarted && DriverStation.isDSAttached()) {
+      DataLogManager.start("/media/sda1/logs/", DateTimeFormatter.ofPattern("yyyy-MM-dd__HH-mm-ss").format(LocalDateTime.now()) + ".wpilog");
+      DriverStation.startDataLog(DataLogManager.getLog());
+      logStarted = true;
+    }
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    m_robotContainer.stopAll();
+  }
 
   @Override
   public void disabledPeriodic() {}
@@ -88,7 +123,6 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {}
-  
 
   /** This function is called periodically during autonomous. */
   @Override

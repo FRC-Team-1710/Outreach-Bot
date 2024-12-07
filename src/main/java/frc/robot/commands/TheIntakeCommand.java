@@ -18,9 +18,10 @@ public class TheIntakeCommand extends Command {
   private XboxController Driver;
 
   public final Timer timer = new Timer();
-  
+
   /** Creates a new TheIntakeCommand. */
-  public TheIntakeCommand(IntakerSubsystem int_sub, OverBumperSubsystem theArmThing, XboxController driver) {
+  public TheIntakeCommand(
+      IntakerSubsystem int_sub, OverBumperSubsystem theArmThing, XboxController driver) {
     m_intakeSubsystem = int_sub;
     m_overBumperSubsystem = theArmThing;
     this.Driver = driver;

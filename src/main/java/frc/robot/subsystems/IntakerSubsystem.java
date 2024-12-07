@@ -20,15 +20,15 @@ public class IntakerSubsystem extends SubsystemBase {
 
   private DigitalInput feederBeamBreak;
 
-  private boolean OverBumperEnabled = false; //TODO change this
+  private boolean OverBumperEnabled = false;
 
   /** Creates a new IntakerSubsystem. */
   public IntakerSubsystem() {
-    // intakeL = new CANSparkMax(98, MotorType.kBrushless); // TODO change this
-    // intakeR = new CANSparkMax(97, MotorType.kBrushless); // TODO change this
-    feeder = new CANSparkMax(30, MotorType.kBrushless); // TODO change this
+    // intakeL = new CANSparkMax(0, MotorType.kBrushless); // TODO change this
+    // intakeR = new CANSparkMax(0, MotorType.kBrushless); // TODO change this
+    feeder = new CANSparkMax(30, MotorType.kBrushless);
 
-    feederBeamBreak = new DigitalInput(0); // TODO change this
+    // feederBeamBreak = new DigitalInput(0); // TODO change this
 
     // intakeL.setIdleMode(IdleMode.kCoast);
     // intakeR.setIdleMode(IdleMode.kCoast);
@@ -45,7 +45,8 @@ public class IntakerSubsystem extends SubsystemBase {
   }
 
   public boolean intakeBreak() {
-    return !feederBeamBreak.get();
+    //return !feederBeamBreak.get();
+    return false;
   }
 
   public void SetAll() {
@@ -68,12 +69,14 @@ public class IntakerSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    OverBumperEnabled = SmartDashboard.getBoolean("Over Bumper Intake Enabled", false);
+    if (SmartDashboard.getBoolean("Over Bumper Intake Enabled", OverBumperEnabled) != OverBumperEnabled) {
+      OverBumperEnabled = SmartDashboard.getBoolean("Over Bumper Intake Enabled", OverBumperEnabled);
+    }
 
     SmartDashboard.putBoolean("Inside Beam Break", intakeBreak());
 
-    // SmartDashboard.putNumber("Intake Left Current", intakeL.getOutputCurrent());
-    // SmartDashboard.putNumber("Intake Right Current", intakeR.getOutputCurrent());
+    SmartDashboard.putNumber("Intake Left Current", 0); //intakeL.getOutputCurrent());
+    SmartDashboard.putNumber("Intake Right Current", 0); //intakeR.getOutputCurrent());
     SmartDashboard.putNumber("Inside Intake Current", feeder.getOutputCurrent());
   }
 }
