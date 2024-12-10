@@ -30,9 +30,9 @@ public class RobotContainer {
   private final IntakerSubsystem m_intakeSubsystem = new IntakerSubsystem();
   private final OverBumperSubsystem m_overBumperSubsystem = new OverBumperSubsystem();
   private final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
-
+              
   public static final XboxController Driver = new XboxController(0);
-
+              
   /** Driver Start */
   private final JoystickButton resetGyro = new JoystickButton(Driver, XboxController.Button.kStart.value);
   /** Driver RB */
@@ -51,7 +51,7 @@ public class RobotContainer {
   private final JoystickButton shooterup = new JoystickButton(Driver, XboxController.Button.kY.value);
   /** Driver Right Stick */
   private final JoystickButton stopFlywheels = new JoystickButton(Driver, XboxController.Button.kRightStick.value);
-
+              
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
 
@@ -111,10 +111,17 @@ public class RobotContainer {
     // Stop flywheel
     stopFlywheels.onTrue(new InstantCommand(() -> m_shooterSubsystem.setFlywheelVelocity(0)));
   }
-
+              
   public void stopAll() {
     m_intakeSubsystem.StopAll();
     m_overBumperSubsystem.StopAll();
     m_shooterSubsystem.StopAll();
+  }
+  
+  /** If it's a real robot, allow code to use SmartDashboard.get... */
+  public void Real() {
+    m_intakeSubsystem.Real();
+    m_overBumperSubsystem.Real();
+    m_shooterSubsystem.Real();
   }
 }

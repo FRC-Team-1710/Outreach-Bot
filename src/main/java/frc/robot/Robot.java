@@ -11,6 +11,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 import frc.robot.Constants.AdKit;
+import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.IntakerSubsystem;
+import frc.robot.subsystems.OverBumperSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
+import frc.utilities.util.GetHighest;
 
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -29,6 +34,16 @@ import org.littletonrobotics.junction.Logger;
 public class Robot extends LoggedRobot {
   private RobotContainer m_robotContainer;
 
+  private boolean loggerstarted;
+
+  private IntakerSubsystem m_intakeSubsystem;
+  private OverBumperSubsystem m_overBumperSubsystem;
+  private ShooterSubsystem m_shooterSubsystem;
+  private DriveSubsystem m_driveSubsystem;
+
+  private double highTemp = 0;
+  private double runs = 0;
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -38,6 +53,11 @@ public class Robot extends LoggedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+
+    m_driveSubsystem = new DriveSubsystem();
+    m_intakeSubsystem = new IntakerSubsystem();
+    m_overBumperSubsystem = new OverBumperSubsystem();
+    m_shooterSubsystem = new ShooterSubsystem();
 
     LiveWindow.disableAllTelemetry();
     LiveWindow.setEnabled(false);
@@ -97,6 +117,7 @@ public class Robot extends LoggedRobot {
         Logger.addDataReceiver(new WPILOGWriter());
         Logger.addDataReceiver(new NT4Publisher());
         SmartDashboard.putString("Case", "Real");
+        m_robotContainer.Real();
         break;
 
       case SIM:
@@ -115,8 +136,7 @@ public class Robot extends LoggedRobot {
         break;
     }
 
-    // NOTE!!! SmartDashboard values should be logged at least once BEFORE this starts
-    Logger.start();
+    loggerstarted = false;
   }
 
   /**
@@ -133,6 +153,22 @@ public class Robot extends LoggedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+
+    // NOTE!!! SmartDashboard values should be logged at least once BEFORE this starts
+    if (!loggerstarted) {
+      if (runs < 5) { // Give it a few runs to make sure everything has been logged
+        runs = runs + 1;
+      } else {
+        Logger.start();
+        loggerstarted = true;
+      }
+    }
+
+    if (GetHighest.getHighest(m_driveSubsystem.getHighestTemp(), m_intakeSubsystem.getHighestTemp(), m_overBumperSubsystem.getHighestTemp(), m_shooterSubsystem.getHighestTemp()) > highTemp) {
+      highTemp = GetHighest.getHighest(m_driveSubsystem.getHighestTemp(), m_intakeSubsystem.getHighestTemp(), m_overBumperSubsystem.getHighestTemp(), m_shooterSubsystem.getHighestTemp());
+    }
+
+    SmartDashboard.putNumber("Temps/Peak Temp", highTemp);
 
     SmartDashboard.putNumber("Total Current",
         SmartDashboard.getNumber("Flywheel Current", 0)

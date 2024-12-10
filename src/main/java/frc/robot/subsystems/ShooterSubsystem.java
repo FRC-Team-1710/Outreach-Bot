@@ -2,6 +2,8 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
+// hoodMotor.setSmartCurrentLimit(100); //TODO: Mess with this
+
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkBase.ControlType;
@@ -15,6 +17,8 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.utilities.math.TempConvert;
+import frc.utilities.util.GetHighest;
 
 public class ShooterSubsystem extends SubsystemBase {
   private CANSparkMax flyWheel;
@@ -43,6 +47,10 @@ public class ShooterSubsystem extends SubsystemBase {
   private double lastSetpoint = 0;
   private double flySetpoint = 0;
   private double PIDChange = Constants.Shooter.pidChange;
+
+  /** If this is running on the real robot and NOT a replay, it
+   * will be able to use the SmartDashboard getBoolean functions for coast AND tuning/double PID*/
+  private boolean SDget = false;
 
   private boolean HoodCoast = false;
   private boolean isZeroed = false;
@@ -105,49 +113,47 @@ public class ShooterSubsystem extends SubsystemBase {
     SmartDashboard.putBoolean("Shooter Enabled", ShooterEnabled);
     SmartDashboard.putBoolean("Double PID", doublePID);
 
-    // NOTE: Everything past here is only here because
-    // Advantage Kit needs it logged before it starts
-    SmartDashboard.putBoolean("Is Flywheel Up To Speed", false);
-    SmartDashboard.putNumber("Hood Setpoint (Degrees)", lastSetpoint);
-    SmartDashboard.putNumber("Flywheel Current", flyWheel.getOutputCurrent());
-    SmartDashboard.putNumber("Hood Current", hoodMotor.getOutputCurrent());
-    SmartDashboard.putBoolean("Hood Zeroed", isZeroed);
-    SmartDashboard.putNumber("Hood Current Position (Degrees)", Units.rotationsToDegrees(hoodEncoder.getPosition() / hoodRatio));
-    SmartDashboard.putNumber("Flywheel Current Velocity (RPM)", flyEncoder.getVelocity());
     SmartDashboard.putNumber("Flywheel Velocity Setpoint", 0);
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    tempPIDTuning();
-
     SmartDashboard.putNumber("Hood Setpoint (Degrees)", lastSetpoint);
 
     SmartDashboard.putNumber("Flywheel Current", flyWheel.getOutputCurrent());
     SmartDashboard.putNumber("Hood Current", hoodMotor.getOutputCurrent());
+
+    SmartDashboard.putNumber("Temps/Flywheel Temp. (Fahrenheit)", TempConvert.CtoF(flyWheel.getMotorTemperature()));
+    SmartDashboard.putNumber("Temps/Hood Temp. (Fahrenheit)", TempConvert.CtoF(hoodMotor.getMotorTemperature()));
 
     SmartDashboard.putBoolean("Hood Zeroed", isZeroed);
 
     SmartDashboard.putNumber("Hood Current Position (Degrees)", Units.rotationsToDegrees(hoodEncoder.getPosition() / hoodRatio));
     SmartDashboard.putNumber("Flywheel Current Velocity (RPM)", flyEncoder.getVelocity());
 
-    if (SmartDashboard.getBoolean("Double PID", doublePID) != doublePID) {
-      doublePID = SmartDashboard.getBoolean("Double PID", doublePID);
-    }
-
-    if (SmartDashboard.getBoolean("Shooter Enabled", ShooterEnabled) != ShooterEnabled) {
-      ShooterEnabled = SmartDashboard.getBoolean("Shooter Enabled", ShooterEnabled);
-    }
-
-    if (SmartDashboard.getBoolean("Hood Coast", HoodCoast) != HoodCoast) {
-      HoodCoast = SmartDashboard.getBoolean("Hood Coast", HoodCoast);
-      if (HoodCoast) {
-        setHoodToCoast();
-      } else {
-        setHoodToBrake();
+    if (SDget) {
+      if (SmartDashboard.getBoolean("Double PID", doublePID) != doublePID) {
+        doublePID = SmartDashboard.getBoolean("Double PID", doublePID);
       }
-      hoodMotor.burnFlash();
+
+      if (SmartDashboard.getBoolean("Shooter Enabled", ShooterEnabled) != ShooterEnabled) {
+        ShooterEnabled = SmartDashboard.getBoolean("Shooter Enabled", ShooterEnabled);
+      }
+
+      if (SmartDashboard.getBoolean("Hood Coast", HoodCoast) != HoodCoast) {
+        HoodCoast = SmartDashboard.getBoolean("Hood Coast", HoodCoast);
+        if (HoodCoast) {
+          setHoodToCoast();
+        } else {
+          setHoodToBrake();
+        }
+        hoodMotor.burnFlash();
+      }
+
+      tempPIDTuning();
+    } else {
+      ShooterEnabled = true; // During sim replay, it enables the subsystem
     }
 
     if (flyEncoder.getVelocity() >= Constants.Shooter.bufferRPM) {
@@ -185,7 +191,11 @@ public class ShooterSubsystem extends SubsystemBase {
     flyWheel.stopMotor();
   }
 
-  /** DEGREES! */
+  public double getHighestTemp() {
+    return TempConvert.CtoF(GetHighest.getHighest(flyWheel.getMotorTemperature(), hoodMotor.getMotorTemperature()));
+  }
+
+  /** DEGREES */
   public void setHoodPosition(double pos) {
     if (ShooterEnabled) {
       manualAim = false;
@@ -193,12 +203,16 @@ public class ShooterSubsystem extends SubsystemBase {
     }
   }
 
-  /** Degrees! */
+  public void Real() {
+    SDget = true;
+  }
+
+  /** Degrees */
   public double getHoodPosition() {
     return Units.rotationsToDegrees(hoodEncoder.getPosition() / hoodRatio);
   }
 
-  /** Sets current position to the new 0 degree angle, IF YOU DON'T USE DEGREES, DON'T USE THIS */
+  /** Sets current position to the new 0 degree angle */
   public void zeroHood(double degreeOffset) {
     if (ShooterEnabled) {
       manualAim = false;
@@ -241,6 +255,8 @@ public class ShooterSubsystem extends SubsystemBase {
       return false;
     }
   }
+
+  
 
   private void tempPIDTuning() {
     if (positionP != SmartDashboard.getNumber("Hood Pos P", positionP)) {

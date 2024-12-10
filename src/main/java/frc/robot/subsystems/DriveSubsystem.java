@@ -26,7 +26,9 @@ import frc.utilities.drivers.Gyroscope;
 import frc.utilities.drivers.Mk2SwerveModuleBuilder;
 import frc.utilities.drivers.NavX;
 import frc.utilities.drivers.SwerveModule;
+import frc.utilities.math.TempConvert;
 import frc.utilities.math.Vector2;
+import frc.utilities.util.GetHighest;
 
 public class DriveSubsystem extends SubsystemBase {
 
@@ -141,22 +143,6 @@ public class DriveSubsystem extends SubsystemBase {
     frontRightModule.setName("Front Right");
     backLeftModule.setName("Back Left");
     backRightModule.setName("Back Right");
-
-    // NOTE: Everything past here is only here because
-    // Advantage Kit needs it logged before it starts
-    SmartDashboard.putNumber("Left Joystick x", 0);
-    SmartDashboard.putNumber("Left Joystick y", 0);
-    SmartDashboard.putNumber("Rotation", 0);
-    SmartDashboard.putNumber("Front Left", 0);
-    SmartDashboard.putNumber("Front Right", 0);
-    SmartDashboard.putNumber("Back Left", 0);
-    SmartDashboard.putNumber("Back Right", 0);
-    SmartDashboard.putNumber("Front Left Speed", 0);
-    SmartDashboard.putNumber("Front Right Speed", 0);
-    SmartDashboard.putNumber("Back Left Speed", 0);
-    SmartDashboard.putNumber("Back Right Speed", 0);
-    SmartDashboard.putNumber("Drivetrain Current", 0);
-    SmartDashboard.putNumber("Drive Speed (mph)", 0);
   }
 
   @Override
@@ -171,6 +157,10 @@ public class DriveSubsystem extends SubsystemBase {
     backLeftModule.updateState(LoggedRobot.defaultPeriodSecs);
     backRightModule.updateState(LoggedRobot.defaultPeriodSecs);
 
+    SmartDashboard.putNumber("Left Joystick x", 0);
+    SmartDashboard.putNumber("Left Joystick y", 0);
+    SmartDashboard.putNumber("Rotation", 0);
+
     SmartDashboard.putNumber("Front Left", Math.toDegrees(frontLeftModule.getCurrentAngle()));
     SmartDashboard.putNumber("Front Right", Math.toDegrees(frontRightModule.getCurrentAngle()));
     SmartDashboard.putNumber("Back Left", Math.toDegrees(backLeftModule.getCurrentAngle()));
@@ -180,6 +170,25 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Front Right Speed", FREnc.getVelocity());
     SmartDashboard.putNumber("Back Left Speed", BLEnc.getVelocity());
     SmartDashboard.putNumber("Back Right Speed", BREnc.getVelocity());
+
+    SmartDashboard.putNumber("Temps/Front/Right Angle", frontRightAngle.getMotorTemperature());
+    SmartDashboard.putNumber("Temps/Front/Left Angle", frontLeftAngle.getMotorTemperature());
+    SmartDashboard.putNumber("Temps/Front/Right Drive", frontRightDrive.getMotorTemperature());
+    SmartDashboard.putNumber("Temps/Front/Left Drive", frontLeftDrive.getMotorTemperature());
+    SmartDashboard.putNumber("Temps/Back/Right Angle", backRightAngle.getMotorTemperature());
+    SmartDashboard.putNumber("Temps/Back/Left Angle", backLeftAngle.getMotorTemperature());
+    SmartDashboard.putNumber("Temps/Back/Right Drive", backRightDrive.getMotorTemperature());
+    SmartDashboard.putNumber("Temps/Back/Left Drive", backLeftDrive.getMotorTemperature());
+    SmartDashboard.putNumber(
+        "Temps/Drivetrain Average",
+        frontLeftDrive.getMotorTemperature()
+            + frontRightDrive.getMotorTemperature()
+            + backLeftDrive.getMotorTemperature()
+            + backRightDrive.getMotorTemperature()
+            + frontLeftAngle.getMotorTemperature()
+            + frontRightAngle.getMotorTemperature()
+            + backLeftAngle.getMotorTemperature()
+            + backRightAngle.getMotorTemperature());
 
     SmartDashboard.putNumber(
         "Drivetrain Current",
@@ -192,14 +201,11 @@ public class DriveSubsystem extends SubsystemBase {
             + backLeftAngle.getOutputCurrent()
             + backRightAngle.getOutputCurrent());
 
-    SmartDashboard.putNumber(
-        "Drive Speed (mph)",
-        ((((FLEnc.getVelocity() + FREnc.getVelocity() + BLEnc.getVelocity() + BREnc.getVelocity())
-                        / 4)
-                    / 8.31)
-                * 240
-                * Math.PI)
-            / 63360);
+    SmartDashboard.putNumber("Drive Speed (mph)",((((FLEnc.getVelocity() + FREnc.getVelocity() + BLEnc.getVelocity() + BREnc.getVelocity())/4)/ 8.31)*240*Math.PI)/ 63360);
+  }
+
+  public double getHighestTemp() {
+    return TempConvert.CtoF(GetHighest.getHighest(frontLeftDrive.getMotorTemperature(), frontRightDrive.getMotorTemperature(), backLeftDrive.getMotorTemperature(), backRightDrive.getMotorTemperature(), frontLeftAngle.getMotorTemperature(), frontRightAngle.getMotorTemperature(), backLeftAngle.getMotorTemperature(), backRightAngle.getMotorTemperature()));
   }
 
   /**

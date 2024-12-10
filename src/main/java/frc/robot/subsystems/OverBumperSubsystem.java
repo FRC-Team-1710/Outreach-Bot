@@ -14,6 +14,8 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.utilities.math.TempConvert;
+import frc.utilities.util.GetHighest;
 
 public class OverBumperSubsystem extends SubsystemBase {
   // private CANSparkMax armLeft;
@@ -22,6 +24,10 @@ public class OverBumperSubsystem extends SubsystemBase {
   // private RelativeEncoder encoderL;
 
   // private SparkPIDController armPID;
+
+  /** If this is running on the real robot and NOT a replay, it
+   * will be able to use the smartDashboard getBoolean functions for coast AND tuning PID*/
+   private boolean SDGet = false;
 
   private double positionP = 0; // TODO change this
   private double positionI = 0;
@@ -71,18 +77,28 @@ public class OverBumperSubsystem extends SubsystemBase {
     // NOTE: Do not change this value to enable/disable the over bumper subsystem,
     // Change the boolean named OverBumperEnabled
 
-    // NOTE: Everything past here is only here because
-    // Advantage Kit needs it logged before it starts
+    // TODO: Most of this is not needed IF the arm is on the robot
     SmartDashboard.putBoolean("Arm up", false);
     SmartDashboard.putBoolean("Over Bumper Zeroed", false);
     SmartDashboard.putNumber("Arm Left Current", 0);
     SmartDashboard.putNumber("Arm Right Current", 0);
     SmartDashboard.putNumber("Over Bumper Current Position (Degrees)", 0);
+    SmartDashboard.putNumber("Temps/Arm L Temp. (Fahrenheit)", 0);
+    SmartDashboard.putNumber("Temps/Arm R Temp. (Fahrenheit)", 0);
   }
 
   public void StopAll() {
     // armLeft.stopMotor();
     // armRight.stopMotor;
+  }
+
+  public double getHighestTemp() {
+    //return TempConvert.CtoF(GetHighest.getHighest(armRight.getMotorTemperature(), armLeft.getMotorTemperature()))
+    return 0;
+  }
+
+  public void Real() {
+    SDGet = true;
   }
 
   /** THE OFFSET IS IN DEGREES */
@@ -108,8 +124,6 @@ public class OverBumperSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // // This method will be called once per scheduler run
-    // tempPIDTuning();
-
     // SmartDashboard.putBoolean("Arm up", isArmUp);
 
     // SmartDashboard.putBoolean("Over Bumper Zeroed", zeroed);
@@ -117,24 +131,33 @@ public class OverBumperSubsystem extends SubsystemBase {
     // SmartDashboard.putNumber("Arm Left Current", armLeft.getOutputCurrent());
     // SmartDashboard.putNumber("Arm Right Current", armRight.getOutputCurrent());
 
+    // SmartDashboard.putNumber("Temps/Arm L Temp. (Fahrenheit)", TempConvert.CtoF(armLeft.getMotorTemperature()));
+    // SmartDashboard.putNumber("Temps/Arm R Temp. (Fahrenheit)", TempConvert.CtoF(armRight.getMotorTemperature()));
+
     // SmartDashboard.putNumber("Over Bumper Current Position (Degrees)", Units.rotationsToDegrees(encoderL.getPosition()/gearRatio));
 
-    // if (SmartDashboard.getBoolean("Over Bumper Intake Enabled", OverBumperEnabled) != OverBumperEnabled) {
-    //   OverBumperEnabled = SmartDashboard.getBoolean("Over Bumper Intake Enabled", OverBumperEnabled);
-    //   armLeft.stopMotor();
-    //   armRight.stopMotor();
-    // }
+    if (SDGet) {
+      // tempPIDTuning();
 
-    // if (SmartDashboard.getBoolean("Over Bumper Coast", armCoast) != armCoast) {
-    //   armCoast = SmartDashboard.getBoolean("Over Bumper Coast", armCoast);
-    //   if (armCoast) {
-    //       setArmToCoast();
-    //   } else {
-    //       setArmToBrake();
-    //   }
-    //   armLeft.burnFlash();
-    //   armRight.burnFlash();
-    // }
+      // if (SmartDashboard.getBoolean("Over Bumper Intake Enabled", OverBumperEnabled) != OverBumperEnabled) {
+      //   OverBumperEnabled = SmartDashboard.getBoolean("Over Bumper Intake Enabled", OverBumperEnabled);
+      //   armLeft.stopMotor();
+      //   armRight.stopMotor();
+      // }
+
+      // if (SmartDashboard.getBoolean("Over Bumper Coast", armCoast) != armCoast) {
+      //   armCoast = SmartDashboard.getBoolean("Over Bumper Coast", armCoast);
+      //   if (armCoast) {
+      //       setArmToCoast();
+      //   } else {
+      //       setArmToBrake();
+      //   }
+      //   armLeft.burnFlash();
+      //   armRight.burnFlash();
+      // }
+    } else {
+      OverBumperEnabled = true; // During sim replay, it enables the subsystem
+    }
   }
 
   /** DEGREES */
