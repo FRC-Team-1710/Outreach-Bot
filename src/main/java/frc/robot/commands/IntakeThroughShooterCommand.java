@@ -4,49 +4,43 @@
 
 package frc.robot.commands;
 
-import java.io.Console;
-
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Subsystem;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
 import frc.robot.subsystems.IndexerSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 
-public class ShootCommand extends Command {
-  
-  ShooterSubsystem shooterSubsytem;
-  IndexerSubsystem indexerSubsystem;
+public class IntakeThroughShooterCommand extends Command {
 
-  public ShootCommand(ShooterSubsystem m_shooterSubsytem, IndexerSubsystem m_indexerSubsystem) {
-    shooterSubsytem = m_shooterSubsytem;
-    indexerSubsystem = m_indexerSubsystem;
-    addRequirements(m_shooterSubsytem, m_indexerSubsystem);
+  IndexerSubsystem indexerSubsystem;
+  IntakeSubsystem intakeSubsystem;
+
+  public IntakeThroughShooterCommand(IndexerSubsystem m_IndexerSubsystem, IntakeSubsystem m_IntakeSubsystem) {
+    indexerSubsystem = m_IndexerSubsystem;
+    intakeSubsystem = m_IntakeSubsystem;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    shooterSubsytem.setFlywheelVelocity(Constants.ShooterSubsystemsConstants.flywheelShootSpeed);
+    indexerSubsystem.setIndexerPower(Constants.IndexerSubsystemsConstants.indexerIntakeThroughShooterPower);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (shooterSubsytem.isFlywheelToSpeed()) {
-      indexerSubsystem.setIndexerPower(Constants.IndexerSubsystemsConstants.indexerShootPower);
-    }
+
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    shooterSubsytem.setFlywheelVelocity(Constants.ShooterSubsystemsConstants.flywheelIdleSpeed);
+    indexerSubsystem.setIndexerPower(0);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return intakeSubsystem.beamBroken();
   }
 }

@@ -11,9 +11,11 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.DriveCommand;
+import frc.robot.commands.IntakeThroughShooterCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 
 /**
@@ -41,7 +43,7 @@ public class RobotContainer {
     /** Driver X */
     //private final JoystickButton NAME = new JoystickButton(driver, XboxController.Button.kX.value);
     /** Driver A */
-    //private final JoystickButton NAME Shoot = new JoystickButton(driver, XboxController.Button.kA.value);
+    private final JoystickButton IntakeThroughShooterButton = new JoystickButton(driver, XboxController.Button.kA.value);
     /** Driver B */
     //private final JoystickButton NAME = new JoystickButton(driver, XboxController.Button.kB.value);
     /** Driver Y */
@@ -68,6 +70,7 @@ public class RobotContainer {
     /*Subsystems */
     private final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
     private final IndexerSubsystem m_indexerSubsystem = new IndexerSubsystem();
+    private final IntakeSubsystem m_intakeSubsystem = new IntakeSubsystem();
 
     // The robot's subsystems and commands are defined here...
     private final DriveSubsystem m_driveSubsystem = new DriveSubsystem();
@@ -104,6 +107,9 @@ public class RobotContainer {
 
         ShootButton
             .whileTrue(new ShootCommand(m_shooterSubsystem, m_indexerSubsystem));
+
+        IntakeThroughShooterButton
+            .whileTrue(new IntakeThroughShooterCommand(m_indexerSubsystem, m_intakeSubsystem));
     }
 
     /**

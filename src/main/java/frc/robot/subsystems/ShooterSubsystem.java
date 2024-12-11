@@ -15,6 +15,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -45,8 +46,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public ShooterSubsystem() {
     //Motors
-    hoodMotor = new CANSparkMax(31, MotorType.kBrushless);
-    flywheelMotor = new CANSparkMax(10, MotorType.kBrushless);
+    hoodMotor = new CANSparkMax(Constants.IDs.hoodMotorCanID, MotorType.kBrushless);
+    flywheelMotor = new CANSparkMax(Constants.IDs.flywheelMotorCanID, MotorType.kBrushless);
 
     //Encoders
     hoodEncoder = hoodMotor.getEncoder();
@@ -91,21 +92,23 @@ public class ShooterSubsystem extends SubsystemBase {
     flywheelMotor.burnFlash();
   }
 
-  /** DEGREES */
+  /** Degrees */
   public void setHoodPostion(double Position) {
     hoodPID.setReference(Units.degreesToRotations(Position * Constants.ShooterSubsystemsConstants.hoodMotorRatio), ControlType.kPosition);
   }
 
+  /** RPM */
   public void setFlywheelVelocity(double RPM) {
     flywheelPID.setReference(RPM * Constants.ShooterSubsystemsConstants.flywheelMotorRatio, ControlType.kVelocity);
     SmartDashboard.putNumber("Refrence", RPM);
   }
 
+  /** Boolean */
   public boolean isFlywheelToSpeed() {
-    return Constants.ShooterSubsystemsConstants.FlywheelShootSpeed <= flywheelEncoder.getVelocity();
+    return Constants.ShooterSubsystemsConstants.flywheelShootSpeed <= flywheelEncoder.getVelocity();
     
   }
-
+  /** Degrees */
   public double hoodPostion() {
     return hoodEncoder.getPosition();
   }

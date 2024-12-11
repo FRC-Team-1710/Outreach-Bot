@@ -36,15 +36,33 @@ public final class Constants {
     public static class OperatorConstants {
         public static final int kDriverControllerPort = 0;
       }
+
+      public static class IDs {
+        public static final int indexerMotorCanID = 30; //CAN
+
+        public static final int hoodMotorCanID = 31; //CAN
+        public static final int flywheelMotorCanID = 10; //CAN
+        public static final int breakingBeamDigitalInput = 1; //Digital Input
+
+        public static final int leftIntakeMotorCanID = 0; //CAN
+        public static final int rightIntakeMotorCanID = 0; //CAN
+        public static final int leftIntakeArmMotorCanID = 0; //CAN
+        public static final int rightIntakeArmMotorCanID = 0; //CAN
+      }
     
       public static class ShooterSubsystemsConstants {
         public static final double hoodMotorRatio = (1/1);
         public static final double flywheelMotorRatio = (1/1);
-        public static final double FlywheelShootSpeed = 200;
-        public static final double FlywheelIdleSpeed = 0;
+        public static final double flywheelShootSpeed = 200;
+        public static final double flywheelIdleSpeed = 0;
       }
     
       public static class IndexerSubsystemsConstants {
-        public static final double IndexerMaxSpeed = 0.1;
+        public static final double indexerShootPower = 0.1;
+        public static final double indexerIntakeThroughShooterPower = -0.1;
+      }
+
+      public static class IntakeSubsystemConstants {
+        public static final double intakeArmMotorRatio = (1/1);
       }
 }
