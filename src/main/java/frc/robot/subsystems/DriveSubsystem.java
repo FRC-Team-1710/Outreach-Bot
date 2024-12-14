@@ -31,7 +31,7 @@ import frc.utilities.util.GetHighest;
 
 public class DriveSubsystem extends SubsystemBase {
 
-  private static final double TRACKWIDTH = Units.inchesToMeters(23); // TODO change this
+  private static final double TRACKWIDTH = Units.inchesToMeters(23);
   private static final double WHEELBASE = Units.inchesToMeters(23);
 
   private static final double FRONT_LEFT_ANGLE_OFFSET = -Math.toRadians(Constants.Swerve.FLOffset);
