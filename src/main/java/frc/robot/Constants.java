@@ -21,91 +21,49 @@ public final class Constants {
 
   public static final class Intaker {
     public static final double IntakeSpeed = 0.5; // TODO change this
-    public static final double SuckSpeed = 0.25; // TODO change this
+    public static final double SuckSpeed = 0.75; // TODO change this
   }
 
-  public static final class Arm { // EVERYTHING IS DEGREES
-    public static final double ratio = 1 / 1; // TODO change this
-    public static final double ArmUp = 0.0; // TODO change this
-    public static final double ArmDown = 0.0; // TODO change this
-    public static final double Offset = 0.0; // TODO change this
+  public static final class Arm {
+    public static final double ratio = 1 / 1;
+    public static final double ArmUp = 0.0;
+    public static final double ArmDown = 0.0;
+    public static final double Offset = 0.0;
   }
 
   public static final class Shooter { // Angles are degrees
-    public static final double shootSpeedRPM = 5000; // TODO change this
-    public static final double idleSpeedRPM = 1000; // TODO change this
-    public static final double bufferRPM = 4500; // TODO change this
-    public static final double pidChange = 2000; // TODO change this
+    public static final double shootSpeedRPM = 2500; // TODO change this
+    public static final double idleSpeedRPM = 0; // TODO change this
+    public static final double intakeSpeedRPM = 2000; // TODO change this
+    public static final double bufferRPM = 2000; // TODO change this
     public static final double feedPower = 0.5; // TODO change this
-    public static final double Shootangle = 0.0; // TODO change this
-    public static final double extenderRatio = 1 / 1; // TODO change this
-    public static final double Offset = 0.0; // TODO change this
+    public static final double Shootangle = 50; // TODO change this
+    public static final double extenderRatio = 20 / 1; // TODO change this
+    public static final double Offset = 5; // TODO change this
   }
 
   public static final class Swerve {
     public static final double DRIVETRAIN_MAX_SPEED = 1;
     public static final double DRIVETRAIN_SLOW_SPEED = 0.5;
 
-    public static final int DRIVETRAIN_FRONT_LEFT_ANGLE_MOTOR = 4; // CAN
-    public static final int DRIVETRAIN_FRONT_LEFT_ANGLE_ENCODER = 2; // Analog
-    public static final int DRIVETRAIN_FRONT_LEFT_DRIVE_MOTOR = 5; // CAN
+    public static final int DRIVETRAIN_FRONT_LEFT_ANGLE_MOTOR = 2; // CAN
+    public static final int DRIVETRAIN_FRONT_LEFT_ANGLE_ENCODER = 0; // Analog
+    public static final int DRIVETRAIN_FRONT_LEFT_DRIVE_MOTOR = 3; // CAN
     public static final double FLOffset = 0;
 
-    public static final int DRIVETRAIN_FRONT_RIGHT_ANGLE_MOTOR = 2; // CAN
+    public static final int DRIVETRAIN_FRONT_RIGHT_ANGLE_MOTOR = 4; // CAN
     public static final int DRIVETRAIN_FRONT_RIGHT_ANGLE_ENCODER = 1; // Analog
-    public static final int DRIVETRAIN_FRONT_RIGHT_DRIVE_MOTOR = 3; // CAN
+    public static final int DRIVETRAIN_FRONT_RIGHT_DRIVE_MOTOR = 5; // CAN
     public static final double FROffset = 0;
 
     public static final int DRIVETRAIN_BACK_LEFT_ANGLE_MOTOR = 6; // CAN
-    public static final int DRIVETRAIN_BACK_LEFT_ANGLE_ENCODER = 3; // Analog
+    public static final int DRIVETRAIN_BACK_LEFT_ANGLE_ENCODER = 2; // Analog
     public static final int DRIVETRAIN_BACK_LEFT_DRIVE_MOTOR = 7; // CAN
     public static final double BLOffset = 0;
 
     public static final int DRIVETRAIN_BACK_RIGHT_ANGLE_MOTOR = 8; // CAN
-    public static final int DRIVETRAIN_BACK_RIGHT_ANGLE_ENCODER = 4; // Analog
+    public static final int DRIVETRAIN_BACK_RIGHT_ANGLE_ENCODER = 3; // Analog
     public static final int DRIVETRAIN_BACK_RIGHT_DRIVE_MOTOR = 9; // CAN
     public static final double BROffset = 0;
-  }
-
-  public static final class AdKit {
-    private static RobotType robotType = RobotType.COMPBOT;
-
-    public static RobotType getRobot() {
-      if (RobotBase.isReal() && robotType == RobotType.SIMBOT) {
-        new Alert("Invalid Robot Selected, using COMPBOT as default", Alert.AlertType.ERROR).set(true);
-        robotType = RobotType.COMPBOT;
-      }
-      return robotType;
-    }
-
-    public static Mode getMode() {
-      return switch (getRobot()) {
-        case COMPBOT -> RobotBase.isReal() ? Mode.REAL : Mode.REPLAY;
-        case SIMBOT -> Mode.SIM;
-      };
-    }
-
-    public enum Mode {
-      /** Running on a real robot. */
-      REAL,
-
-      /** Running a physics simulator. */
-      SIM,
-
-      /** Replaying from a log file. */
-      REPLAY
-    }
-
-    public enum RobotType {
-      SIMBOT,
-      COMPBOT
-    }
-
-    public static void main(String... args) {
-      if (robotType == RobotType.SIMBOT) {
-        System.err.println("Cannot deploy, invalid robot selected: " + robotType.toString());
-        System.exit(1);
-      }
-    }
   }
 }

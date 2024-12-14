@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.DriveCommand;
+import frc.robot.commands.IntakeThroughShooter;
 import frc.robot.commands.ManualAim;
 import frc.robot.commands.Shoot;
 import frc.robot.commands.TheIntakeCommand;
@@ -26,17 +27,17 @@ import frc.robot.subsystems.ShooterSubsystem;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final DriveSubsystem m_driveSubsystem = new DriveSubsystem();
-  private final IntakerSubsystem m_intakeSubsystem = new IntakerSubsystem();
-  private final OverBumperSubsystem m_overBumperSubsystem = new OverBumperSubsystem();
-  private final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
+  public final DriveSubsystem m_driveSubsystem = new DriveSubsystem();
+  public final IntakerSubsystem m_intakeSubsystem = new IntakerSubsystem();
+  public final OverBumperSubsystem m_overBumperSubsystem = new OverBumperSubsystem();
+  public final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
               
   public static final XboxController Driver = new XboxController(0);
               
   /** Driver Start */
   private final JoystickButton resetGyro = new JoystickButton(Driver, XboxController.Button.kStart.value);
   /** Driver RB */
-  private final JoystickButton intaker = new JoystickButton(Driver, XboxController.Button.kRightBumper.value);
+  private final JoystickButton intakeThroughShooter = new JoystickButton(Driver, XboxController.Button.kRightBumper.value);
   /** Driver Down */
   private final Trigger zeroArm = new Trigger(() -> Driver.getPOV() == 180);
   /** Driver Up */
@@ -45,6 +46,8 @@ public class RobotContainer {
   private final JoystickButton zeroAll = new JoystickButton(Driver, XboxController.Button.kBack.value);
   /** Driver LB */
   private final JoystickButton shoot = new JoystickButton(Driver, XboxController.Button.kLeftBumper.value);
+  /** Driver A */
+  private final JoystickButton intake = new JoystickButton(Driver, XboxController.Button.kA.value);
   /** Driver X */
   private final JoystickButton shooterdown = new JoystickButton(Driver, XboxController.Button.kX.value);
   /** Driver Y */
@@ -60,13 +63,15 @@ public class RobotContainer {
             m_driveSubsystem,
             () -> -Driver.getLeftX(),
             () -> -Driver.getLeftY(),
-            () -> -Driver.getRightX()));
+            () -> -Driver.getRightX(),
+            intakeThroughShooter));
 
     m_shooterSubsystem.setDefaultCommand(
         new ManualAim(
             m_shooterSubsystem,
             () -> Driver.getRawAxis(XboxController.Axis.kLeftTrigger.value),
-            () -> Driver.getRawAxis(XboxController.Axis.kRightTrigger.value)));
+            () -> Driver.getRawAxis(XboxController.Axis.kRightTrigger.value),
+            intakeThroughShooter));
 
     // Configure the button bindings
     configureButtonBindings();
@@ -82,8 +87,12 @@ public class RobotContainer {
     // Reset Gyro
     resetGyro.onTrue(new InstantCommand(() -> m_driveSubsystem.resetGyroscope()));
 
-    // Intaker
-    intaker.whileTrue(new TheIntakeCommand(m_intakeSubsystem, m_overBumperSubsystem, Driver));
+    // Intake through the front
+    intake.whileTrue(new TheIntakeCommand(m_intakeSubsystem, m_overBumperSubsystem, Driver));
+
+    // Intake through the shooter
+    shoot.negate()
+      .and(intakeThroughShooter).whileTrue(new IntakeThroughShooter(m_shooterSubsystem, m_intakeSubsystem, Driver)); //TheIntakeCommand(m_intakeSubsystem, m_overBumperSubsystem, Driver));
 
     // Zero arm and extender
     zeroAll
@@ -98,15 +107,14 @@ public class RobotContainer {
     zeroExtender.onTrue(new InstantCommand(() -> m_shooterSubsystem.zeroHood(Constants.Shooter.Offset)));
 
     // Shoot
-    intaker.negate()
+    intakeThroughShooter.negate()
         .and(shoot).whileTrue(new Shoot(m_shooterSubsystem, m_intakeSubsystem, Driver));
 
     // Bring shooter down
     shooterdown.onTrue(new InstantCommand(() -> m_shooterSubsystem.setHoodPosition(Constants.Shooter.Offset)));
 
     // Bring shooter up to a preset angle
-    shooterup.onTrue(
-        new InstantCommand(() -> m_shooterSubsystem.setHoodPosition(Constants.Shooter.Shootangle)));
+    shooterup.onTrue(new InstantCommand(() -> m_shooterSubsystem.setHoodPosition(Constants.Shooter.Shootangle)));
 
     // Stop flywheel
     stopFlywheels.onTrue(new InstantCommand(() -> m_shooterSubsystem.setFlywheelVelocity(0)));
@@ -116,12 +124,5 @@ public class RobotContainer {
     m_intakeSubsystem.StopAll();
     m_overBumperSubsystem.StopAll();
     m_shooterSubsystem.StopAll();
-  }
-  
-  /** If it's a real robot, allow code to use SmartDashboard.get... */
-  public void Real() {
-    m_intakeSubsystem.Real();
-    m_overBumperSubsystem.Real();
-    m_shooterSubsystem.Real();
   }
 }

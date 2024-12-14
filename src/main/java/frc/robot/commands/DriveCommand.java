@@ -6,6 +6,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.utilities.math.Deadband;
+
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 public class DriveCommand extends Command {
@@ -15,6 +17,7 @@ public class DriveCommand extends Command {
   private final DoubleSupplier m_translationXSupplier;
   private final DoubleSupplier m_translationYSupplier;
   private final DoubleSupplier m_rotationSupplier;
+  private final boolean isIntaking;
 
   private double MaxSpeed;
 
@@ -22,11 +25,13 @@ public class DriveCommand extends Command {
       DriveSubsystem drivetrainSubsystem,
       DoubleSupplier translationXSupplier,
       DoubleSupplier translationYSupplier,
-      DoubleSupplier rotationSupplier) {
+      DoubleSupplier rotationSupplier,
+      BooleanSupplier isItIntaking) {
     this.m_drivetrainSubsystem = drivetrainSubsystem;
     this.m_translationXSupplier = translationXSupplier;
     this.m_translationYSupplier = translationYSupplier;
     this.m_rotationSupplier = rotationSupplier;
+    isIntaking = isItIntaking.getAsBoolean();
     addRequirements(drivetrainSubsystem);
   }
 
@@ -61,7 +66,9 @@ public class DriveCommand extends Command {
     // Square the rotation stick but keep the sign
     rotation = Math.copySign(Math.pow(rotation, 2.0), rotation);
 
-    m_drivetrainSubsystem.drive(new Translation2d(forward, strafe).times(MaxSpeed), rotation, true);
+    if (!isIntaking) {
+      //m_drivetrainSubsystem.drive(new Translation2d(forward, strafe).times(MaxSpeed), rotation, true);
+    }
   }
 
   // Called once the command ends or is interrupted.

@@ -25,10 +25,6 @@ public class OverBumperSubsystem extends SubsystemBase {
 
   // private SparkPIDController armPID;
 
-  /** If this is running on the real robot and NOT a replay, it
-   * will be able to use the smartDashboard getBoolean functions for coast AND tuning PID*/
-   private boolean SDGet = false;
-
   private double positionP = 0; // TODO change this
   private double positionI = 0;
   private double positionD = 0;
@@ -67,24 +63,6 @@ public class OverBumperSubsystem extends SubsystemBase {
 
     // armLeft.burnFlash();
     // armRight.burnFlash();
-
-    SmartDashboard.putNumber("Over Pos P", positionP);
-    SmartDashboard.putNumber("Over Pos I", positionI);
-    SmartDashboard.putNumber("Over Pos D", positionD);
-
-    SmartDashboard.putBoolean("Over Bumper Coast", false);
-    SmartDashboard.putBoolean("Over Bumper Intake Enabled", OverBumperEnabled);
-    // NOTE: Do not change this value to enable/disable the over bumper subsystem,
-    // Change the boolean named OverBumperEnabled
-
-    // TODO: Most of this is not needed IF the arm is on the robot
-    SmartDashboard.putBoolean("Arm up", false);
-    SmartDashboard.putBoolean("Over Bumper Zeroed", false);
-    SmartDashboard.putNumber("Arm Left Current", 0);
-    SmartDashboard.putNumber("Arm Right Current", 0);
-    SmartDashboard.putNumber("Over Bumper Current Position (Degrees)", 0);
-    SmartDashboard.putNumber("Temps/Arm L Temp. (Fahrenheit)", 0);
-    SmartDashboard.putNumber("Temps/Arm R Temp. (Fahrenheit)", 0);
   }
 
   public void StopAll() {
@@ -93,12 +71,13 @@ public class OverBumperSubsystem extends SubsystemBase {
   }
 
   public double getHighestTemp() {
-    //return TempConvert.CtoF(GetHighest.getHighest(armRight.getMotorTemperature(), armLeft.getMotorTemperature()))
+    //return TempConvert.CtoF(GetHighest.getHighest(armRight.getMotorTemperature(), armLeft.getMotorTemperature()));
     return 0;
   }
 
-  public void Real() {
-    SDGet = true;
+  public double getAverageTemp() {
+    // return TempConvert.CtoF((armRight.getMotorTemperature() + armLeft.getMotorTemperature())/2);
+    return 0;
   }
 
   /** THE OFFSET IS IN DEGREES */
@@ -136,28 +115,24 @@ public class OverBumperSubsystem extends SubsystemBase {
 
     // SmartDashboard.putNumber("Over Bumper Current Position (Degrees)", Units.rotationsToDegrees(encoderL.getPosition()/gearRatio));
 
-    if (SDGet) {
-      // tempPIDTuning();
+    // tempPIDTuning();
 
-      // if (SmartDashboard.getBoolean("Over Bumper Intake Enabled", OverBumperEnabled) != OverBumperEnabled) {
-      //   OverBumperEnabled = SmartDashboard.getBoolean("Over Bumper Intake Enabled", OverBumperEnabled);
-      //   armLeft.stopMotor();
-      //   armRight.stopMotor();
-      // }
+    // if (SmartDashboard.getBoolean("Over Bumper Intake Enabled", OverBumperEnabled) != OverBumperEnabled) {
+    //   OverBumperEnabled = SmartDashboard.getBoolean("Over Bumper Intake Enabled", OverBumperEnabled);
+    //   armLeft.stopMotor();
+    //   armRight.stopMotor();
+    // }
 
-      // if (SmartDashboard.getBoolean("Over Bumper Coast", armCoast) != armCoast) {
-      //   armCoast = SmartDashboard.getBoolean("Over Bumper Coast", armCoast);
-      //   if (armCoast) {
-      //       setArmToCoast();
-      //   } else {
-      //       setArmToBrake();
-      //   }
-      //   armLeft.burnFlash();
-      //   armRight.burnFlash();
-      // }
-    } else {
-      OverBumperEnabled = true; // During sim replay, it enables the subsystem
-    }
+    // if (SmartDashboard.getBoolean("Over Bumper Coast", armCoast) != armCoast) {
+    //   armCoast = SmartDashboard.getBoolean("Over Bumper Coast", armCoast);
+    //   if (armCoast) {
+    //       setArmToCoast();
+    //   } else {
+    //       setArmToBrake();
+    //   }
+    //   armLeft.burnFlash();
+    //   armRight.burnFlash();
+    // }
   }
 
   /** DEGREES */

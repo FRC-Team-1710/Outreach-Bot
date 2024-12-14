@@ -15,6 +15,12 @@
           "open": true
         }
       },
+      "SmartDashboard": {
+        "Temps": {
+          "open": true
+        },
+        "open": true
+      },
       "URCL": {
         "Raw": {
           "open": true

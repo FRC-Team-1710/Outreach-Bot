@@ -5,6 +5,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
@@ -29,18 +30,20 @@ public class Shoot extends Command {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    if (SmartDashboard.getNumber("Hood Setpoint (Degrees)", 0) == Constants.Shooter.Offset && m_shooterSubsystem.isItZeroed()) {
+      m_shooterSubsystem.setHoodPosition(Constants.Shooter.Shootangle);
+    }
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     m_shooterSubsystem.setFlywheelVelocity(Constants.Shooter.shootSpeedRPM);
-    controller.setRumble(
-        RumbleType.kBothRumble,
-        m_shooterSubsystem.getFlywheelVelocity() / Constants.Shooter.shootSpeedRPM);
+    controller.setRumble(RumbleType.kBothRumble, m_shooterSubsystem.getFlywheelVelocity() / Constants.Shooter.shootSpeedRPM);
     if (m_shooterSubsystem.IsUpToSpeed()) {
       resetHood = true; // If it actually launched, bring hood back down
-      m_intakeSubsystem.setInsideVel();
+      m_intakeSubsystem.setInsideVel(Constants.Shooter.feedPower);
     }
   }
 
@@ -50,6 +53,7 @@ public class Shoot extends Command {
     m_shooterSubsystem.setFlywheelVelocity(Constants.Shooter.idleSpeedRPM);
     if (resetHood) {
       m_shooterSubsystem.setHoodPosition(Constants.Shooter.Offset);
+      resetHood = false;
     }
     m_intakeSubsystem.StopAll();
     controller.setRumble(RumbleType.kBothRumble, 0);

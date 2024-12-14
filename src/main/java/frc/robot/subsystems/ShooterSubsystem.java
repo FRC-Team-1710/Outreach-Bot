@@ -30,34 +30,23 @@ public class ShooterSubsystem extends SubsystemBase {
   private SparkPIDController flyPID;
   private SparkPIDController hoodPID;
 
-  private double positionP = 0; // TODO change this
+  private double positionP = 0.175;
   private double positionI = 0;
   private double positionD = 0;
 
-  private double velocityP = 0; // TODO change this
-  private double velocityI = 0;
-  private double velocityD = 0;
-
-  private double velocityP2 = 0; // TODO change this
-  private double velocityI2 = 0;
-  private double velocityD2 = 0;
+  private double velocityV = 0.001;
+  private double velocityP = 0.0000005;
 
   private double hoodRatio = Constants.Shooter.extenderRatio;
   /** THIS IS DEGREES */
   private double lastSetpoint = 0;
   private double flySetpoint = 0;
-  private double PIDChange = Constants.Shooter.pidChange;
-
-  /** If this is running on the real robot and NOT a replay, it
-   * will be able to use the SmartDashboard getBoolean functions for coast AND tuning/double PID*/
-  private boolean SDget = false;
 
   private boolean HoodCoast = false;
   private boolean isZeroed = false;
   private boolean manualAim = false;
 
-  private boolean ShooterEnabled = false; // TODO change this to pre-enable/disable the subsystem
-  private boolean doublePID = false; // TODO tune this
+  private boolean ShooterEnabled = true; // TODO change this to pre-enable/disable the subsystem
 
   /** Creates a new ShooterSubsystem. */
   public ShooterSubsystem() {
@@ -73,13 +62,8 @@ public class ShooterSubsystem extends SubsystemBase {
     flyPID = flyWheel.getPIDController();
     hoodPID = hoodMotor.getPIDController();
 
-    flyPID.setP(velocityP, 0);
-    flyPID.setI(velocityI, 0);
-    flyPID.setD(velocityD, 0);
-
-    flyPID.setP(velocityP2, 1);
-    flyPID.setI(velocityI2, 1);
-    flyPID.setD(velocityD2, 1);
+    flyPID.setFF(flySetpoint, 0);
+    flyPID.setP(velocityV, 0);
 
     hoodPID.setP(positionP, 0);
     hoodPID.setI(positionI, 0);
@@ -94,26 +78,17 @@ public class ShooterSubsystem extends SubsystemBase {
     flyWheel.setIdleMode(IdleMode.kCoast);
     hoodMotor.setIdleMode(IdleMode.kBrake);
 
+    hoodMotor.setInverted(true);
+    flyWheel.setInverted(true);
+
     flyWheel.burnFlash();
     hoodMotor.burnFlash();
 
     SmartDashboard.putNumber("Hood Pos P", positionP);
     SmartDashboard.putNumber("Hood Pos I", positionI);
     SmartDashboard.putNumber("Hood Pos D", positionD);
-
     SmartDashboard.putNumber("Flywheel Vel P", velocityP);
-    SmartDashboard.putNumber("Flywheel Vel I", velocityI);
-    SmartDashboard.putNumber("Flywheel Vel D", velocityD);
-
-    SmartDashboard.putNumber("Flywheel Vel P2", velocityP2);
-    SmartDashboard.putNumber("Flywheel Vel I2", velocityI2);
-    SmartDashboard.putNumber("Flywheel Vel D2", velocityD2);
-
-    SmartDashboard.putBoolean("Hood Coast", HoodCoast);
-    SmartDashboard.putBoolean("Shooter Enabled", ShooterEnabled);
-    SmartDashboard.putBoolean("Double PID", doublePID);
-
-    SmartDashboard.putNumber("Flywheel Velocity Setpoint", 0);
+    SmartDashboard.putNumber("Flywheel Vel V", velocityV);
   }
 
   @Override
@@ -132,29 +107,22 @@ public class ShooterSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Hood Current Position (Degrees)", Units.rotationsToDegrees(hoodEncoder.getPosition() / hoodRatio));
     SmartDashboard.putNumber("Flywheel Current Velocity (RPM)", flyEncoder.getVelocity());
 
-    if (SDget) {
-      if (SmartDashboard.getBoolean("Double PID", doublePID) != doublePID) {
-        doublePID = SmartDashboard.getBoolean("Double PID", doublePID);
-      }
-
-      if (SmartDashboard.getBoolean("Shooter Enabled", ShooterEnabled) != ShooterEnabled) {
-        ShooterEnabled = SmartDashboard.getBoolean("Shooter Enabled", ShooterEnabled);
-      }
-
-      if (SmartDashboard.getBoolean("Hood Coast", HoodCoast) != HoodCoast) {
-        HoodCoast = SmartDashboard.getBoolean("Hood Coast", HoodCoast);
-        if (HoodCoast) {
-          setHoodToCoast();
-        } else {
-          setHoodToBrake();
-        }
-        hoodMotor.burnFlash();
-      }
-
-      tempPIDTuning();
-    } else {
-      ShooterEnabled = true; // During sim replay, it enables the subsystem
+    if (SmartDashboard.getBoolean("Shooter Enabled", ShooterEnabled) != ShooterEnabled) {
+      ShooterEnabled = SmartDashboard.getBoolean("Shooter Enabled", ShooterEnabled);
     }
+
+    if (SmartDashboard.getBoolean("Hood Coast", HoodCoast) != HoodCoast) {
+      HoodCoast = SmartDashboard.getBoolean("Hood Coast", HoodCoast);
+      if (HoodCoast) {
+        setHoodToCoast();
+      } else {
+        setHoodToBrake();
+      }
+      hoodMotor.burnFlash();
+    }
+
+    tempPIDTuning();
+    
 
     if (flyEncoder.getVelocity() >= Constants.Shooter.bufferRPM) {
       SmartDashboard.putBoolean("Is Flywheel Up To Speed", true);
@@ -166,24 +134,23 @@ public class ShooterSubsystem extends SubsystemBase {
       if (!manualAim && isZeroed) {
         hoodPID.setReference(Units.degreesToRotations(lastSetpoint * hoodRatio), ControlType.kPosition);
       }
-      flyPidLogic();
+      if (flySetpoint != 0) {
+        flyPID.setReference(flySetpoint, ControlType.kVelocity);
+      } else {
+        flyWheel.stopMotor();
+      }
     } else {
       hoodMotor.stopMotor();
       flyWheel.stopMotor();
     }
   }
 
-  /** Controls PID for the flywheel */
-  private void flyPidLogic() {
-    if (flyEncoder.getVelocity() >= PIDChange && doublePID) { // If it's faster than the change point, it uses new PID values
-      flyPID.setReference(flySetpoint, ControlType.kVelocity, 1);
-    } else {
-      flyPID.setReference(flySetpoint, ControlType.kVelocity, 0);
-    }
-  }
-
   private void setHoodToBrake() {
     hoodMotor.setIdleMode(IdleMode.kBrake);
+  }
+
+  public void Intake() {
+    flyPID.setReference(Constants.Shooter.intakeSpeedRPM*-1, ControlType.kVelocity);
   }
 
   public void StopAll() {
@@ -195,6 +162,10 @@ public class ShooterSubsystem extends SubsystemBase {
     return TempConvert.CtoF(GetHighest.getHighest(flyWheel.getMotorTemperature(), hoodMotor.getMotorTemperature()));
   }
 
+  public double getAverageTemp() {
+    return TempConvert.CtoF((flyWheel.getMotorTemperature() + hoodMotor.getMotorTemperature())/4);
+  }
+
   /** DEGREES */
   public void setHoodPosition(double pos) {
     if (ShooterEnabled) {
@@ -203,20 +174,18 @@ public class ShooterSubsystem extends SubsystemBase {
     }
   }
 
-  public void Real() {
-    SDget = true;
-  }
-
   /** Degrees */
   public double getHoodPosition() {
     return Units.rotationsToDegrees(hoodEncoder.getPosition() / hoodRatio);
   }
 
-  /** Sets current position to the new 0 degree angle */
+  /** Sets current position to the new 0 degree angle
+   * and sets the hodd to the offset
+   */
   public void zeroHood(double degreeOffset) {
     if (ShooterEnabled) {
       manualAim = false;
-      hoodEncoder.setPosition(Units.degreesToRotations(degreeOffset * hoodRatio));
+      hoodEncoder.setPosition(0);
       lastSetpoint = degreeOffset;
       isZeroed = true;
     }
@@ -279,29 +248,9 @@ public class ShooterSubsystem extends SubsystemBase {
       flyPID.setP(velocityP, 0);
     }
 
-    if (velocityI != SmartDashboard.getNumber("Flywheel Vel I", velocityI)) {
-      velocityI = SmartDashboard.getNumber("Flywheel Vel I", velocityI);
-      flyPID.setI(velocityI, 0);
-    }
-
-    if (velocityD != SmartDashboard.getNumber("Flywheel Vel D", velocityD)) {
-      velocityD = SmartDashboard.getNumber("Flywheel Vel D", velocityD);
-      flyPID.setD(velocityD, 0);
-    }
-
-    if (velocityP2 != SmartDashboard.getNumber("Flywheel Vel P2", velocityP2)) {
-      velocityP2 = SmartDashboard.getNumber("Flywheel Vel P2", velocityP2);
-      flyPID.setP(velocityP2, 1);
-    }
-
-    if (velocityI2 != SmartDashboard.getNumber("Flywheel Vel I2", velocityI2)) {
-      velocityI2 = SmartDashboard.getNumber("Flywheel Vel I2", velocityI2);
-      flyPID.setI(velocityI2, 1);
-    }
-
-    if (velocityD2 != SmartDashboard.getNumber("Flywheel Vel D2", velocityD2)) {
-      velocityD2 = SmartDashboard.getNumber("Flywheel Vel D2", velocityD2);
-      flyPID.setD(velocityD2, 1);
+    if (velocityV != SmartDashboard.getNumber("Flywheel Vel V", velocityV)) {
+      velocityV = SmartDashboard.getNumber("Flywheel Vel V", velocityV);
+      flyPID.setI(velocityV, 0);
     }
   }
 }

@@ -4,8 +4,6 @@
 
 package frc.robot.subsystems;
 
-import org.littletonrobotics.junction.LoggedRobot;
-
 import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -17,6 +15,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -152,14 +151,10 @@ public class DriveSubsystem extends SubsystemBase {
     backLeftModule.updateSensors();
     backRightModule.updateSensors();
 
-    frontLeftModule.updateState(LoggedRobot.defaultPeriodSecs);
-    frontRightModule.updateState(LoggedRobot.defaultPeriodSecs);
-    backLeftModule.updateState(LoggedRobot.defaultPeriodSecs);
-    backRightModule.updateState(LoggedRobot.defaultPeriodSecs);
-
-    SmartDashboard.putNumber("Left Joystick x", 0);
-    SmartDashboard.putNumber("Left Joystick y", 0);
-    SmartDashboard.putNumber("Rotation", 0);
+    frontLeftModule.updateState(TimedRobot.kDefaultPeriod);
+    frontRightModule.updateState(TimedRobot.kDefaultPeriod);
+    backLeftModule.updateState(TimedRobot.kDefaultPeriod);
+    backRightModule.updateState(TimedRobot.kDefaultPeriod);
 
     SmartDashboard.putNumber("Front Left", Math.toDegrees(frontLeftModule.getCurrentAngle()));
     SmartDashboard.putNumber("Front Right", Math.toDegrees(frontRightModule.getCurrentAngle()));
@@ -181,14 +176,14 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Temps/Back/Left Drive", backLeftDrive.getMotorTemperature());
     SmartDashboard.putNumber(
         "Temps/Drivetrain Average",
-        frontLeftDrive.getMotorTemperature()
+        (frontLeftDrive.getMotorTemperature()
             + frontRightDrive.getMotorTemperature()
             + backLeftDrive.getMotorTemperature()
             + backRightDrive.getMotorTemperature()
             + frontLeftAngle.getMotorTemperature()
             + frontRightAngle.getMotorTemperature()
             + backLeftAngle.getMotorTemperature()
-            + backRightAngle.getMotorTemperature());
+            + backRightAngle.getMotorTemperature())/8);
 
     SmartDashboard.putNumber(
         "Drivetrain Current",
@@ -206,6 +201,10 @@ public class DriveSubsystem extends SubsystemBase {
 
   public double getHighestTemp() {
     return TempConvert.CtoF(GetHighest.getHighest(frontLeftDrive.getMotorTemperature(), frontRightDrive.getMotorTemperature(), backLeftDrive.getMotorTemperature(), backRightDrive.getMotorTemperature(), frontLeftAngle.getMotorTemperature(), frontRightAngle.getMotorTemperature(), backLeftAngle.getMotorTemperature(), backRightAngle.getMotorTemperature()));
+  }
+
+  public double getAverageTemp() {
+    return TempConvert.CtoF((frontLeftDrive.getMotorTemperature() + frontRightDrive.getMotorTemperature() + backLeftDrive.getMotorTemperature() + backRightDrive.getMotorTemperature() + frontLeftAngle.getMotorTemperature() + frontRightAngle.getMotorTemperature() + backLeftAngle.getMotorTemperature() + backRightAngle.getMotorTemperature())/8);
   }
 
   /**

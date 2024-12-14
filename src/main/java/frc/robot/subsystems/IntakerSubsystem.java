@@ -22,10 +22,6 @@ public class IntakerSubsystem extends SubsystemBase {
 
   private DigitalInput feederBeamBreak;
 
-  /** If this is running on the real robot and NOT a replay, it
-   * will be able to use the getBoolean functions for coast AND tuning PID*/
-  private boolean SDGet = false;
-
   // DO NOT CHANGE THIS, go to OverBumperSubsystem
   private boolean OverBumperEnabled = false; 
 
@@ -35,11 +31,11 @@ public class IntakerSubsystem extends SubsystemBase {
     // intakeR = new CANSparkMax(0, MotorType.kBrushless); // TODO change this
     feeder = new CANSparkMax(30, MotorType.kBrushless);
 
-    // feederBeamBreak = new DigitalInput(0); // TODO change this
+    feederBeamBreak = new DigitalInput(4);
 
     // intakeL.setIdleMode(IdleMode.kCoast);
     // intakeR.setIdleMode(IdleMode.kCoast);
-    feeder.setIdleMode(IdleMode.kCoast);
+    feeder.setIdleMode(IdleMode.kBrake);
     // intakeR.setInverted(true);  // TODO change this to the inverted motor
 
     // intakeR.follow(intakeL);
@@ -47,18 +43,10 @@ public class IntakerSubsystem extends SubsystemBase {
     // intakeL.burnFlash();
     // intakeR.burnFlash();
     feeder.burnFlash();
-
-    // TODO: Some of this is not needed IF the intake is on the robot
-    SmartDashboard.putBoolean("Over Bumper Intake Enabled", OverBumperEnabled);
-    SmartDashboard.putNumber("Intake Left Current", 0);
-    SmartDashboard.putNumber("Intake Right Current", 0);
-    SmartDashboard.putNumber("Temps/Intake L Temp. (Fahrenheit)", 0);
-    SmartDashboard.putNumber("Temps/Intake R Temp. (Fahrenheit)", 0);
   }
 
   public boolean intakeBreak() {
-    //return !feederBeamBreak.get();
-    return false;
+    return !feederBeamBreak.get();
   }
 
   public double getHighestTemp() {
@@ -66,8 +54,9 @@ public class IntakerSubsystem extends SubsystemBase {
     return TempConvert.CtoF(feeder.getMotorTemperature());
   }
 
-  public void Real() {
-    SDGet = true;
+  public double getAverageTemp() {
+    //return TempConvert.CtoF(GetHighest.getHighest(intakeL.getMotorTemperature(), intakeR.getMotorTemperature(), feeder.getMotorTemperature()));
+    return TempConvert.CtoF((feeder.getMotorTemperature() + feeder.getMotorTemperature() + feeder.getMotorTemperature())/3);
   }
 
   public void SetAll() {
@@ -84,18 +73,14 @@ public class IntakerSubsystem extends SubsystemBase {
     feeder.stopMotor();
   }
 
-  public void setInsideVel() {
-    feeder.set(Constants.Intaker.SuckSpeed);
+  public void setInsideVel(double val) {
+    feeder.set(val);
   }
 
   @Override
   public void periodic() {
-    if (SDGet) {
-      if (SmartDashboard.getBoolean("Over Bumper Intake Enabled", OverBumperEnabled) != OverBumperEnabled) {
-        OverBumperEnabled = SmartDashboard.getBoolean("Over Bumper Intake Enabled", OverBumperEnabled);
-      }
-    } else {
-      OverBumperEnabled = true; // During sim replay, it enables the subsystem
+    if (SmartDashboard.getBoolean("Over Bumper Intake Enabled", OverBumperEnabled) != OverBumperEnabled) {
+      OverBumperEnabled = SmartDashboard.getBoolean("Over Bumper Intake Enabled", OverBumperEnabled);
     }
 
     SmartDashboard.putBoolean("Inside Beam Break", intakeBreak());

@@ -8,32 +8,35 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
+import frc.robot.subsystems.IntakerSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 public class ManualAim extends Command {
   ShooterSubsystem m_shooterSubsystem;
   private DoubleSupplier speed;
   private boolean hoodIsLocked = false;
+  private DoubleSupplier LEFTspd;
+  private DoubleSupplier RIGHTspd;
+  private boolean reset = false;
+  private boolean isIntaking;
 
   /** Is the left trigger being prioritized */
   boolean isItLeft = false;
 
   /** Creates a new ManualAim. */
-  public ManualAim(ShooterSubsystem shot, DoubleSupplier LEFTspd, DoubleSupplier RIGHTspd) {
+  public ManualAim(ShooterSubsystem shot, DoubleSupplier lspd, DoubleSupplier rspd, BooleanSupplier a) {
     m_shooterSubsystem = shot;
 
-    if (LEFTspd.getAsDouble() > RIGHTspd.getAsDouble()) {
-      this.speed = LEFTspd;
-      isItLeft = true; // TODO change this to invert the controlls
-    } else {
-      this.speed = RIGHTspd;
-      isItLeft = false; // TODO change this to invert the controlls
-    }
+    LEFTspd = lspd;
+    RIGHTspd = rspd;
+    isIntaking = a.getAsBoolean();
 
-    SmartDashboard.putNumber("Set Extender Angle", 0);
+    SmartDashboard.putNumber("Hood Setpoint (Degrees)", 0);
     SmartDashboard.putBoolean("Left trigger", isItLeft);
-    addRequirements(m_shooterSubsystem);
+    addRequirements(shot);
   }
 
   // Called when the command is initially scheduled.
@@ -43,22 +46,44 @@ public class ManualAim extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    if (MathUtil.applyDeadband(LEFTspd.getAsDouble(), Constants.triggerDeadband) < MathUtil.applyDeadband(RIGHTspd.getAsDouble(), Constants.triggerDeadband)) {
+      speed = RIGHTspd;
+      reset = true;
+      isItLeft = false;
+    } else if (MathUtil.applyDeadband(LEFTspd.getAsDouble(), Constants.triggerDeadband) > MathUtil.applyDeadband(RIGHTspd.getAsDouble(), Constants.triggerDeadband)) {
+      speed = LEFTspd;
+      reset = false;
+      isItLeft = true;
+    } else {
+      speed = LEFTspd;
+    }
+    SmartDashboard.putBoolean("Left trigger", isItLeft);
+
     double speedValue = MathUtil.applyDeadband(speed.getAsDouble(), Constants.triggerDeadband);
-    speedValue = Math.pow(speedValue, 3);
+    speedValue = Math.pow(speedValue, 1);
     if (isItLeft) {
       speedValue = speedValue * -1; // Invert the power if it's the left trigger
     }
-    if (Math.abs(speedValue) > .0) {
-      hoodIsLocked = false;
-      m_shooterSubsystem.setHoodManual(speedValue);
-    } else {
-      if (m_shooterSubsystem.isItZeroed()) {
-        if (!hoodIsLocked) {
-          m_shooterSubsystem.setHoodPosition(m_shooterSubsystem.getHoodPosition());
-          hoodIsLocked = true;
-        }
+    speedValue = speedValue * 0.1;
+    if (!isIntaking) {
+      if (Math.abs(speedValue) > .0) {
+        hoodIsLocked = false;
+        m_shooterSubsystem.setHoodManual(speedValue);
       } else {
-        m_shooterSubsystem.setHoodManual(0);
+        if (m_shooterSubsystem.isItZeroed()) {
+          if (!hoodIsLocked) {
+            if (reset) {
+              m_shooterSubsystem.setHoodPosition(m_shooterSubsystem.getHoodPosition());
+              hoodIsLocked = true;
+              reset = false;
+            } else {
+              hoodIsLocked = true;
+              m_shooterSubsystem.setHoodManual(0);
+            }
+          }
+        } else {
+          m_shooterSubsystem.setHoodManual(0);
+        }
       }
     }
   }

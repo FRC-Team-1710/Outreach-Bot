@@ -6,24 +6,16 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
-import frc.robot.Constants.AdKit;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakerSubsystem;
 import frc.robot.subsystems.OverBumperSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.utilities.util.GetHighest;
-
-import org.littletonrobotics.junction.LogFileUtil;
-import org.littletonrobotics.junction.LoggedRobot;
-import org.littletonrobotics.junction.networktables.NT4Publisher;
-import org.littletonrobotics.junction.wpilog.WPILOGReader;
-import org.littletonrobotics.junction.wpilog.WPILOGWriter;
-import org.littletonrobotics.urcl.URCL;
-import org.littletonrobotics.junction.Logger;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -31,10 +23,8 @@ import org.littletonrobotics.junction.Logger;
  * the package after creating this project, you must also update the build.gradle file in the
  * project.
  */
-public class Robot extends LoggedRobot {
+public class Robot extends TimedRobot {
   private RobotContainer m_robotContainer;
-
-  private boolean loggerstarted;
 
   private IntakerSubsystem m_intakeSubsystem;
   private OverBumperSubsystem m_overBumperSubsystem;
@@ -42,7 +32,6 @@ public class Robot extends LoggedRobot {
   private DriveSubsystem m_driveSubsystem;
 
   private double highTemp = 0;
-  private double runs = 0;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -54,89 +43,17 @@ public class Robot extends LoggedRobot {
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
 
-    m_driveSubsystem = new DriveSubsystem();
-    m_intakeSubsystem = new IntakerSubsystem();
-    m_overBumperSubsystem = new OverBumperSubsystem();
-    m_shooterSubsystem = new ShooterSubsystem();
+    m_driveSubsystem = m_robotContainer.m_driveSubsystem;
+    m_intakeSubsystem = m_robotContainer.m_intakeSubsystem;
+    m_overBumperSubsystem = m_robotContainer.m_overBumperSubsystem;
+    m_shooterSubsystem = m_robotContainer.m_shooterSubsystem;
 
     LiveWindow.disableAllTelemetry();
     LiveWindow.setEnabled(false);
     DriverStation.silenceJoystickConnectionWarning(true);
-    URCL.start();
+    SmDaLog.loggAll();
 
     DataLogManager.log("\nF  I  R  S  T    R  O  B  O  T  I  C  S    T  E  A  M\n______________   _  _____   _  _____   ______________\n\\_____________| / ||___  | / ||  _  | |_____________/\n \\_ _ _ _ _ _ | | |   / /  | || | | | | _ _ _ _ _ _/\n  \\ _ _ _ _ _ | | |  / /   | || |_| | | _ _ _ _ _ /\n   \\__________|_|_|_/_/___ |_||_____|_|__________/\n    \\____________________/ \\____________________/\n");
-
-    SmartDashboard.putString("Swerve Calibration/Value1", "https://docs.google.com/document/d/1-HPhrcYGxAi4Wp-iK5DzLxNZFJkpnPF0-LEoKPR5bMc/edit?tab=t.0");
-    SmartDashboard.putString("Swerve Calibration/Value2", "Set all offsets to 0");
-    SmartDashboard.putString("Swerve Calibration/Value3", "Deploy, don't enable");
-    SmartDashboard.putString("Swerve Calibration/Value4", "Flip on its side");
-    SmartDashboard.putString("Swerve Calibration/Value5", "Rotate wheels so they are parallel to the floor");
-    SmartDashboard.putString("Swerve Calibration/Value6", "If front of robot is on your left, the gears are all facing up.");
-    SmartDashboard.putString("Swerve Calibration/Value7", "If front of robot is on your right, the gears are all facing down.");
-    SmartDashboard.putString("Swerve Calibration/Value8", "Look on the Swerve Calibration page for all motor angles");
-    SmartDashboard.putString("Swerve Calibration/Value9", "Put those numbers into Constants");
-    SmartDashboard.putString("Swerve Calibration/Value10", "Deploy and enable");
-    SmartDashboard.putString("Swerve Calibration/Value11", "If any wheels not in line, add a negative to the angle offset");
-    SmartDashboard.putString("Swerve Calibration/Value12", "If one spins the wrong direction, add 0.5 rotations to the offset");
-
-    SmartDashboard.putString("Controlls/Start Button", "Reset Gyro");
-    SmartDashboard.putString("Controlls/Right Bumper", "Intake");
-    SmartDashboard.putString("Controlls/Dpad Down", "Zero Arm");
-    SmartDashboard.putString("Controlls/Dpad Up", "Zero Hood");
-    SmartDashboard.putString("Controlls/Back Button", "Zero Arm and Hood");
-    SmartDashboard.putString("Controlls/Left Bumper", "Shoot");
-    SmartDashboard.putString("Controlls/X", "Hood Down");
-    SmartDashboard.putString("Controlls/Y", "Hood to Preset Position");
-    SmartDashboard.putString("Controlls/Right Stick Button", "Stop Flywheels");
-    SmartDashboard.putString("Controlls/Triggers", "Manual Aim for Hood");
-    SmartDashboard.putBoolean("Slow Mode", false);
-
-    SmartDashboard.putNumber("Total Current", 0);
-
-    Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
-    Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
-    Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
-    Logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
-    Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
-    switch (BuildConstants.DIRTY) {
-      case 0:
-        Logger.recordMetadata("GitDirty", "All changes committed");
-        break;
-      case 1:
-        Logger.recordMetadata("GitDirty", "Uncomitted changes");
-        break;
-      default:
-        Logger.recordMetadata("GitDirty", "Unknown");
-        break;
-    }
-
-    // Set up data receivers & replay source
-    switch (AdKit.getMode()) {
-      case REAL:
-        // Running on a real robot, log to a USB stick ("/U/logs")
-        Logger.addDataReceiver(new WPILOGWriter());
-        Logger.addDataReceiver(new NT4Publisher());
-        SmartDashboard.putString("Case", "Real");
-        m_robotContainer.Real();
-        break;
-
-      case SIM:
-        // Running a physics simulator, log to NT
-        Logger.addDataReceiver(new NT4Publisher());
-        SmartDashboard.putString("Case", "Sim");
-        break;
-
-      case REPLAY:
-        // Replaying a log, set up replay source
-        setUseTiming(false); // Run as fast as possible
-        String logPath = LogFileUtil.findReplayLog();
-        Logger.setReplaySource(new WPILOGReader(logPath));
-        Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
-        SmartDashboard.putString("Case", "Replay");
-        break;
-    }
-
-    loggerstarted = false;
   }
 
   /**
@@ -154,21 +71,12 @@ public class Robot extends LoggedRobot {
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
 
-    // NOTE!!! SmartDashboard values should be logged at least once BEFORE this starts
-    if (!loggerstarted) {
-      if (runs < 5) { // Give it a few runs to make sure everything has been logged
-        runs = runs + 1;
-      } else {
-        Logger.start();
-        loggerstarted = true;
-      }
-    }
-
     if (GetHighest.getHighest(m_driveSubsystem.getHighestTemp(), m_intakeSubsystem.getHighestTemp(), m_overBumperSubsystem.getHighestTemp(), m_shooterSubsystem.getHighestTemp()) > highTemp) {
       highTemp = GetHighest.getHighest(m_driveSubsystem.getHighestTemp(), m_intakeSubsystem.getHighestTemp(), m_overBumperSubsystem.getHighestTemp(), m_shooterSubsystem.getHighestTemp());
     }
 
     SmartDashboard.putNumber("Temps/Peak Temp", highTemp);
+    SmartDashboard.putNumber("Temps/Average Temp", (m_driveSubsystem.getAverageTemp() + m_intakeSubsystem.getAverageTemp() + m_overBumperSubsystem.getAverageTemp() + m_shooterSubsystem.getAverageTemp())/4);
 
     SmartDashboard.putNumber("Total Current",
         SmartDashboard.getNumber("Flywheel Current", 0)
