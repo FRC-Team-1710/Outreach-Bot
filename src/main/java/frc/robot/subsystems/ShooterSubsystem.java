@@ -2,8 +2,6 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-// hoodMotor.setSmartCurrentLimit(100); //TODO: Mess with this
-
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkBase.ControlType;
@@ -34,8 +32,8 @@ public class ShooterSubsystem extends SubsystemBase {
   private double positionI = 0;
   private double positionD = 0;
 
-  private double velocityV = 0.001;
-  private double velocityP = 0.0000005;
+  private double velocityV = 0.0002;
+  private double velocityP = 0;
 
   private double hoodRatio = Constants.Shooter.extenderRatio;
   /** THIS IS DEGREES */
@@ -46,7 +44,7 @@ public class ShooterSubsystem extends SubsystemBase {
   private boolean isZeroed = false;
   private boolean manualAim = false;
 
-  private boolean ShooterEnabled = true; // TODO change this to pre-enable/disable the subsystem
+  private boolean ShooterEnabled = true; // Change this to pre-enable/disable the subsystem
 
   /** Creates a new ShooterSubsystem. */
   public ShooterSubsystem() {
@@ -62,7 +60,7 @@ public class ShooterSubsystem extends SubsystemBase {
     flyPID = flyWheel.getPIDController();
     hoodPID = hoodMotor.getPIDController();
 
-    flyPID.setFF(flySetpoint, 0);
+    flyPID.setFF(velocityV, 0);
     flyPID.setP(velocityV, 0);
 
     hoodPID.setP(positionP, 0);
@@ -81,6 +79,8 @@ public class ShooterSubsystem extends SubsystemBase {
     hoodMotor.setInverted(true);
     flyWheel.setInverted(true);
 
+    flyWheel.setSmartCurrentLimit(40);
+
     flyWheel.burnFlash();
     hoodMotor.burnFlash();
 
@@ -89,12 +89,14 @@ public class ShooterSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Hood Pos D", positionD);
     SmartDashboard.putNumber("Flywheel Vel P", velocityP);
     SmartDashboard.putNumber("Flywheel Vel V", velocityV);
+    SmartDashboard.putBoolean("Slow Flywheel", true);
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
     SmartDashboard.putNumber("Hood Setpoint (Degrees)", lastSetpoint);
+    SmartDashboard.putNumber("Fly Setpoint (RPM)", flySetpoint);
 
     SmartDashboard.putNumber("Flywheel Current", flyWheel.getOutputCurrent());
     SmartDashboard.putNumber("Hood Current", hoodMotor.getOutputCurrent());
@@ -124,7 +126,7 @@ public class ShooterSubsystem extends SubsystemBase {
     tempPIDTuning();
     
 
-    if (flyEncoder.getVelocity() >= Constants.Shooter.bufferRPM) {
+    if (flyEncoder.getVelocity() > flySetpoint - Constants.Shooter.bufferRPM && flySetpoint > 0) {
       SmartDashboard.putBoolean("Is Flywheel Up To Speed", true);
     } else {
       SmartDashboard.putBoolean("Is Flywheel Up To Speed", false);
@@ -150,7 +152,7 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public void Intake() {
-    flyPID.setReference(Constants.Shooter.intakeSpeedRPM*-1, ControlType.kVelocity);
+    flySetpoint = Constants.Shooter.intakeSpeedRPM*-1;
   }
 
   public void StopAll() {
@@ -218,7 +220,7 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public boolean IsUpToSpeed() {
-    if (flyEncoder.getVelocity() > Constants.Shooter.bufferRPM) {
+    if (flyEncoder.getVelocity() > flySetpoint - Constants.Shooter.bufferRPM && flySetpoint > 0) {
       return true;
     } else {
       return false;
@@ -250,7 +252,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     if (velocityV != SmartDashboard.getNumber("Flywheel Vel V", velocityV)) {
       velocityV = SmartDashboard.getNumber("Flywheel Vel V", velocityV);
-      flyPID.setI(velocityV, 0);
+      flyPID.setFF(velocityV, 0);
     }
   }
 }

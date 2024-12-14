@@ -39,7 +39,11 @@ public class Shoot extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_shooterSubsystem.setFlywheelVelocity(Constants.Shooter.shootSpeedRPM);
+    if (SmartDashboard.getBoolean("Slow Flywheel", true)) {
+      m_shooterSubsystem.setFlywheelVelocity(Constants.Shooter.shootSpeedRPM);
+    } else {
+      m_shooterSubsystem.setFlywheelVelocity(Constants.Shooter.fastShootSpeedRPM);
+    }
     controller.setRumble(RumbleType.kBothRumble, m_shooterSubsystem.getFlywheelVelocity() / Constants.Shooter.shootSpeedRPM);
     if (m_shooterSubsystem.IsUpToSpeed()) {
       resetHood = true; // If it actually launched, bring hood back down

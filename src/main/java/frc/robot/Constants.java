@@ -21,7 +21,7 @@ public final class Constants {
 
   public static final class Intaker {
     public static final double IntakeSpeed = 0.5; // TODO change this
-    public static final double SuckSpeed = 0.75; // TODO change this
+    public static final double SuckSpeed = 0.5; // TODO change this
   }
 
   public static final class Arm {
@@ -33,9 +33,10 @@ public final class Constants {
 
   public static final class Shooter { // Angles are degrees
     public static final double shootSpeedRPM = 2500; // TODO change this
+    public static final double fastShootSpeedRPM = 4500; // TODO change this
     public static final double idleSpeedRPM = 0; // TODO change this
-    public static final double intakeSpeedRPM = 2000; // TODO change this
-    public static final double bufferRPM = 2000; // TODO change this
+    public static final double intakeSpeedRPM = 1500; // TODO change this
+    public static final double bufferRPM = 200; // TODO change this
     public static final double feedPower = 0.5; // TODO change this
     public static final double Shootangle = 50; // TODO change this
     public static final double extenderRatio = 20 / 1; // TODO change this

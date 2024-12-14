@@ -14,6 +14,7 @@ import frc.robot.commands.IntakeThroughShooter;
 import frc.robot.commands.ManualAim;
 import frc.robot.commands.Shoot;
 import frc.robot.commands.TheIntakeCommand;
+import frc.robot.commands.intakeAndShoot;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakerSubsystem;
 import frc.robot.subsystems.OverBumperSubsystem;
@@ -37,7 +38,7 @@ public class RobotContainer {
   /** Driver Start */
   private final JoystickButton resetGyro = new JoystickButton(Driver, XboxController.Button.kStart.value);
   /** Driver RB */
-  private final JoystickButton intakeThroughShooter = new JoystickButton(Driver, XboxController.Button.kRightBumper.value);
+  private final JoystickButton intake = new JoystickButton(Driver, XboxController.Button.kRightBumper.value);
   /** Driver Down */
   private final Trigger zeroArm = new Trigger(() -> Driver.getPOV() == 180);
   /** Driver Up */
@@ -45,9 +46,11 @@ public class RobotContainer {
   /** Driver Back */
   private final JoystickButton zeroAll = new JoystickButton(Driver, XboxController.Button.kBack.value);
   /** Driver LB */
-  private final JoystickButton shoot = new JoystickButton(Driver, XboxController.Button.kLeftBumper.value);
+  private final JoystickButton outake = new JoystickButton(Driver, XboxController.Button.kLeftBumper.value);
   /** Driver A */
-  private final JoystickButton intake = new JoystickButton(Driver, XboxController.Button.kA.value);
+  private final JoystickButton shootNow = new JoystickButton(Driver, XboxController.Button.kA.value);
+  /** Driver B */
+  private final JoystickButton intakeThroughShooter = new JoystickButton(Driver, XboxController.Button.kB.value);
   /** Driver X */
   private final JoystickButton shooterdown = new JoystickButton(Driver, XboxController.Button.kX.value);
   /** Driver Y */
@@ -87,12 +90,16 @@ public class RobotContainer {
     // Reset Gyro
     resetGyro.onTrue(new InstantCommand(() -> m_driveSubsystem.resetGyroscope()));
 
+    // Outake
+    outake.whileTrue(new InstantCommand(() -> m_intakeSubsystem.setInsideVel(Constants.Intaker.IntakeSpeed * -1)))
+      .onFalse(new InstantCommand(() -> m_intakeSubsystem.setInsideVel(0)));
+
     // Intake through the front
     intake.whileTrue(new TheIntakeCommand(m_intakeSubsystem, m_overBumperSubsystem, Driver));
 
     // Intake through the shooter
-    shoot.negate()
-      .and(intakeThroughShooter).whileTrue(new IntakeThroughShooter(m_shooterSubsystem, m_intakeSubsystem, Driver)); //TheIntakeCommand(m_intakeSubsystem, m_overBumperSubsystem, Driver));
+    shootNow.negate()
+      .and(intakeThroughShooter).whileTrue(new IntakeThroughShooter(m_shooterSubsystem, m_intakeSubsystem, Driver));
 
     // Zero arm and extender
     zeroAll
@@ -108,7 +115,7 @@ public class RobotContainer {
 
     // Shoot
     intakeThroughShooter.negate()
-        .and(shoot).whileTrue(new Shoot(m_shooterSubsystem, m_intakeSubsystem, Driver));
+        .and(shootNow).whileTrue(new Shoot(m_shooterSubsystem, m_intakeSubsystem, Driver)); //intakeAndShoot(m_intakeSubsystem, m_shooterSubsystem));
 
     // Bring shooter down
     shooterdown.onTrue(new InstantCommand(() -> m_shooterSubsystem.setHoodPosition(Constants.Shooter.Offset)));
