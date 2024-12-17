@@ -51,15 +51,18 @@ public final class Constants {
       }
     
       public static class ShooterSubsystemsConstants {
-        public static final double hoodMotorRatio = (1/1);
+        public static final double hoodMotorRatio = (20/1);
+        public static final double hoodMotorMax = 40;
+        public static final double hoodMotorMin = 5;
         public static final double flywheelMotorRatio = (1/1);
-        public static final double flywheelShootSpeed = 200;
+        public static final double flywheelShootSpeed = 200; //RPM
+        public static final double flywheelShootPoint = 150; //RPM
         public static final double flywheelIdleSpeed = 0;
       }
     
       public static class IndexerSubsystemsConstants {
-        public static final double indexerShootPower = 0.1;
-        public static final double indexerIntakeThroughShooterPower = -0.1;
+        public static final double indexerShootPower = 0.5;
+        public static final double indexerIntakeThroughShooterPower = -0.5;
       }
 
       public static class IntakeSubsystemConstants {

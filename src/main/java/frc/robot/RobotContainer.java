@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.fasterxml.jackson.databind.introspect.AnnotationCollector.OneAnnotation;
+
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -11,6 +13,8 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.DriveCommand;
+import frc.robot.commands.HoodDownCommand;
+import frc.robot.commands.HoodUpCommand;
 import frc.robot.commands.IntakeThroughShooterCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.subsystems.DriveSubsystem;
@@ -49,9 +53,9 @@ public class RobotContainer {
     /** Driver Y */
     //private final JoystickButton NAME = new JoystickButton(driver, XboxController.Button.kY.value);
     /** Driver RB */
-    //private final JoystickButton NAME = new JoystickButton(driver, XboxController.Button.kRightBumper.value);
+    private final JoystickButton HoodUpButton = new JoystickButton(driver, XboxController.Button.kRightBumper.value);
     /** Driver LB */
-    //private final JoystickButton NAME = new JoystickButton(driver, XboxController.Button.kLeftBumper.value);
+    private final JoystickButton HoodDownButton = new JoystickButton(driver, XboxController.Button.kLeftBumper.value);
     /** Driver LT */
     //private final Trigger NAME = new Trigger(() -> driver.getRawAxis(leftTrigger) > .5);
     /** Driver RT */
@@ -109,7 +113,13 @@ public class RobotContainer {
             .whileTrue(new ShootCommand(m_shooterSubsystem, m_indexerSubsystem));
 
         IntakeThroughShooterButton
-            .whileTrue(new IntakeThroughShooterCommand(m_indexerSubsystem, m_intakeSubsystem));
+            .whileTrue(new IntakeThroughShooterCommand(m_indexerSubsystem, m_intakeSubsystem, m_shooterSubsystem));
+
+        HoodUpButton
+            .whileTrue(new HoodUpCommand(m_indexerSubsystem, m_shooterSubsystem));
+
+        HoodDownButton
+            .whileTrue(new HoodDownCommand(m_indexerSubsystem, m_shooterSubsystem));
     }
 
     /**

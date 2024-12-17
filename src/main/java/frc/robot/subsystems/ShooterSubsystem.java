@@ -4,8 +4,6 @@
 
 package frc.robot.subsystems;
 
-import java.io.Console;
-
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
@@ -13,14 +11,15 @@ import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class ShooterSubsystem extends SubsystemBase {
+
+  public boolean isIntaking = false;
+
   //Motors
   private CANSparkMax hoodMotor;
   private CANSparkMax flywheelMotor;
@@ -36,13 +35,12 @@ public class ShooterSubsystem extends SubsystemBase {
   private SparkPIDController hoodPID;
   private SparkPIDController flywheelPID;
 
-  private double hoodPositionP = 0;
+  private double hoodPositionP = 0.175;
   private double hoodPositionI = 0;
   private double hoodPositionD = 0;
 
-  private double flywheelVeloctiyP = 0.00000001;
-  private double flywheelVeloctiyI = 0;
-  private double flywheelVeloctiyD = 0;
+  private double flywheelVeloctiyP = 0;
+  private double flywheelVeloctiyV = 0.0002;
 
   public ShooterSubsystem() {
     //Motors
@@ -58,11 +56,11 @@ public class ShooterSubsystem extends SubsystemBase {
     flywheelMotor.restoreFactoryDefaults();
 
     //Set Motor Idle Mode
-    flywheelMotor.setIdleMode(IdleMode.kBrake);
+    flywheelMotor.setIdleMode(IdleMode.kCoast);
 
     //Set Motor Inversion
-    hoodMotor.setInverted(false);
-    flywheelMotor.setInverted(false);
+    hoodMotor.setInverted(true);
+    flywheelMotor.setInverted(true);
 
     //PID
     hoodPID = hoodMotor.getPIDController();
@@ -73,44 +71,68 @@ public class ShooterSubsystem extends SubsystemBase {
     hoodPID.setD(hoodPositionD, 0);
 
     flywheelPID.setP(flywheelVeloctiyP, 0);
-    flywheelPID.setI(flywheelVeloctiyI, 0);
-    flywheelPID.setD(flywheelVeloctiyD, 0);
+    flywheelPID.setFF(flywheelVeloctiyV, 0);
+
+    hoodEncoder.setMeasurementPeriod(16);
+    hoodEncoder.setAverageDepth(2);
+
+    flywheelEncoder.setMeasurementPeriod(16);
+    flywheelEncoder.setAverageDepth(2);
+
 
     //Smart Dashboard
     SmartDashboard.putBoolean("Hood Coast", hoodCoast);
 
     SmartDashboard.putNumber("Flywheel Velo P", flywheelVeloctiyP);
-    SmartDashboard.putNumber("Flywheel Velo I", flywheelVeloctiyI);
-    SmartDashboard.putNumber("Flywheel Velo D", flywheelVeloctiyD);
+    SmartDashboard.putNumber("Flywheel Velo V", flywheelVeloctiyV);
 
     SmartDashboard.putBoolean("isFlywheelToSpeed", hoodCoast);
 
-    SmartDashboard.putNumber("Refrence", 0);
+    SmartDashboard.putNumber("Reference", 0);
+    SmartDashboard.putNumber("Reference Hood", 0);
+
+    flywheelMotor.setSmartCurrentLimit(40);
+    hoodMotor.setSmartCurrentLimit(40);
 
     //Burn Flash
     hoodMotor.burnFlash();
     flywheelMotor.burnFlash();
+
+    zeroHood();
   }
 
   /** Degrees */
   public void setHoodPostion(double Position) {
     hoodPID.setReference(Units.degreesToRotations(Position * Constants.ShooterSubsystemsConstants.hoodMotorRatio), ControlType.kPosition);
+    SmartDashboard.putNumber("Reference Hood", Position);
   }
 
   /** RPM */
   public void setFlywheelVelocity(double RPM) {
     flywheelPID.setReference(RPM * Constants.ShooterSubsystemsConstants.flywheelMotorRatio, ControlType.kVelocity);
-    SmartDashboard.putNumber("Refrence", RPM);
+    SmartDashboard.putNumber("Reference", RPM);
+  }
+
+  public void zeroHood(){
+    hoodEncoder.setPosition(0);
   }
 
   /** Boolean */
   public boolean isFlywheelToSpeed() {
-    return Constants.ShooterSubsystemsConstants.flywheelShootSpeed <= flywheelEncoder.getVelocity();
+    return Constants.ShooterSubsystemsConstants.flywheelShootPoint <= flywheelEncoder.getVelocity();
     
   }
   /** Degrees */
-  public double hoodPostion() {
-    return hoodEncoder.getPosition();
+  public double getHoodPosition() {
+    return Units.rotationsToDegrees(hoodEncoder.getPosition() / Constants.ShooterSubsystemsConstants.hoodMotorRatio);
+  }
+
+  public void updateIsIntaking(boolean input) {
+    isIntaking = input;
+  }
+
+  public boolean isIntaking() {
+    return isIntaking;
   }
 
   @Override
@@ -128,8 +150,10 @@ public class ShooterSubsystem extends SubsystemBase {
         hoodMotor.setIdleMode(IdleMode.kBrake);
       }
     }
+    
     //Smart Dashboard
     SmartDashboard.putBoolean("isFlywheelToSpeed", isFlywheelToSpeed());
+    SmartDashboard.putNumber("Hood Degrees", getHoodPosition());
   }
 
   private void tempPIDTuning() {
@@ -138,14 +162,9 @@ public class ShooterSubsystem extends SubsystemBase {
         flywheelPID.setP(flywheelVeloctiyP, 0);
     }
 
-    if (flywheelVeloctiyI != SmartDashboard.getNumber("Flywheel Velo I", flywheelVeloctiyI)) {
-        flywheelVeloctiyI = SmartDashboard.getNumber("Flywheel Velo I", flywheelVeloctiyI);
-        flywheelPID.setI(flywheelVeloctiyI, 0);
+    if (flywheelVeloctiyV != SmartDashboard.getNumber("Flywheel Velo I", flywheelVeloctiyV)) {
+        flywheelVeloctiyV = SmartDashboard.getNumber("Flywheel Velo I", flywheelVeloctiyV);
+        flywheelPID.setI(flywheelVeloctiyV, 0);
     }
-
-    if (flywheelVeloctiyD != SmartDashboard.getNumber("Flywheel Velo D", flywheelVeloctiyD)) {
-        flywheelVeloctiyD = SmartDashboard.getNumber("Flywheel Velo D", flywheelVeloctiyD);
-        flywheelPID.setD(flywheelVeloctiyD, 0);
-    }
-}
+  }
 }

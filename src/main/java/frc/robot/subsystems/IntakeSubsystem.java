@@ -4,8 +4,6 @@
 
 package frc.robot.subsystems;
 
-import java.io.Console;
-
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
@@ -13,10 +11,8 @@ import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -49,6 +45,7 @@ public class IntakeSubsystem extends SubsystemBase {
   private double leftIntakeArmPositionD = 0;
 
   public IntakeSubsystem() {
+    /*
     //Motors
     leftIntakeMotor = new CANSparkMax(Constants.IDs.leftIntakeMotorCanID, MotorType.kBrushless);
     rightIntakeMotor = new CANSparkMax(Constants.IDs.rightIntakeMotorCanID, MotorType.kBrushless);
@@ -59,11 +56,12 @@ public class IntakeSubsystem extends SubsystemBase {
     leftIntakeEncoder = leftIntakeMotor.getEncoder();
     rightIntakeEncoder = rightIntakeMotor.getEncoder();
     leftIntakeArmEncoder = leftIntakeArmMotor.getEncoder();
-    rightIntakeArmEncoder = rightIntakeArmMotor.getEncoder();
+    rightIntakeArmEncoder = rightIntakeArmMotor.getEncoder(); */
 
     //Breaking Beam
     breakingBeam = new DigitalInput(Constants.IDs.breakingBeamDigitalInput);
 
+    /*
     //CANSparkMax Setup
     leftIntakeMotor.restoreFactoryDefaults();
     rightIntakeMotor.restoreFactoryDefaults();
@@ -86,20 +84,21 @@ public class IntakeSubsystem extends SubsystemBase {
     leftIntakeMotor.burnFlash();
     rightIntakeMotor.burnFlash();
     leftIntakeArmMotor.burnFlash();
-    rightIntakeArmMotor.burnFlash();
+    rightIntakeArmMotor.burnFlash(); */
   }
 
-  /** Power */
+  /** Power 
   public void setIntakePower(double Power) {
     leftIntakeMotor.set(Power);
     rightIntakeMotor.set(Power);
-  }
+  } 
+  */
 
-  /** Position */
+  /** Position 
   public void setIntakeArmPosition(double Position) {
     leftIntakeArmPID.setReference(Units.degreesToRotations(Position * Constants.IntakeSubsystemConstants.intakeArmMotorRatio), ControlType.kPosition);
     rightIntakeArmPID.setReference(Units.degreesToRotations(Position * Constants.IntakeSubsystemConstants.intakeArmMotorRatio), ControlType.kPosition);
-  }
+  } */
 
   /** Boolean */
   public boolean beamBroken() {
