@@ -16,9 +16,11 @@ import frc.robot.commands.DriveCommand;
 import frc.robot.commands.HoodDownCommand;
 import frc.robot.commands.HoodUpCommand;
 import frc.robot.commands.IntakeThroughShooterCommand;
+import frc.robot.commands.OuttakeCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
+import frc.robot.subsystems.IntakeCommand;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 
@@ -49,9 +51,9 @@ public class RobotContainer {
     /** Driver A */
     private final JoystickButton IntakeThroughShooterButton = new JoystickButton(driver, XboxController.Button.kA.value);
     /** Driver B */
-    //private final JoystickButton NAME = new JoystickButton(driver, XboxController.Button.kB.value);
+    private final JoystickButton intakeButton = new JoystickButton(driver, XboxController.Button.kB.value);
     /** Driver Y */
-    //private final JoystickButton NAME = new JoystickButton(driver, XboxController.Button.kY.value);
+    private final JoystickButton OuttakeButton = new JoystickButton(driver, XboxController.Button.kY.value);
     /** Driver RB */
     private final JoystickButton HoodUpButton = new JoystickButton(driver, XboxController.Button.kRightBumper.value);
     /** Driver LB */
@@ -120,6 +122,12 @@ public class RobotContainer {
 
         HoodDownButton
             .whileTrue(new HoodDownCommand(m_indexerSubsystem, m_shooterSubsystem));
+
+        intakeButton
+            .whileTrue(new IntakeCommand(m_indexerSubsystem, m_intakeSubsystem, m_shooterSubsystem));
+
+        OuttakeButton
+            .whileTrue(new OuttakeCommand(m_indexerSubsystem));
     }
 
     /**

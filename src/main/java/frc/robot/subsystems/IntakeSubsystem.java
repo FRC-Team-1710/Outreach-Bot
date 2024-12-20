@@ -102,7 +102,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   /** Boolean */
   public boolean beamBroken() {
-    return breakingBeam.get();
+    return !breakingBeam.get();
   }
 
   @Override

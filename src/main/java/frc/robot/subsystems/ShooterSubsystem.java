@@ -40,7 +40,7 @@ public class ShooterSubsystem extends SubsystemBase {
   private double hoodPositionD = 0;
 
   private double flywheelVeloctiyP = 0;
-  private double flywheelVeloctiyV = 0.0002;
+  private double flywheelVeloctiyV = 0.002;
 
   public ShooterSubsystem() {
     //Motors

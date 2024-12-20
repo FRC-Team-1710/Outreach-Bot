@@ -42,7 +42,7 @@ public final class Constants {
 
         public static final int hoodMotorCanID = 31; //CAN
         public static final int flywheelMotorCanID = 10; //CAN
-        public static final int breakingBeamDigitalInput = 1; //Digital Input
+        public static final int breakingBeamDigitalInput = 4; //Digital Input
 
         public static final int leftIntakeMotorCanID = 0; //CAN
         public static final int rightIntakeMotorCanID = 0; //CAN
@@ -57,12 +57,15 @@ public final class Constants {
         public static final double flywheelMotorRatio = (1/1);
         public static final double flywheelShootSpeed = 200; //RPM
         public static final double flywheelShootPoint = 150; //RPM
+        public static final double flyWheelIntakeThroughShooterSpeed = -100; //RPM
         public static final double flywheelIdleSpeed = 0;
       }
     
       public static class IndexerSubsystemsConstants {
         public static final double indexerShootPower = 0.5;
+        public static final double indexerIntakePower = 0.5;
         public static final double indexerIntakeThroughShooterPower = -0.5;
+        public static final double outtakePower = -0.5;
       }
 
       public static class IntakeSubsystemConstants {
