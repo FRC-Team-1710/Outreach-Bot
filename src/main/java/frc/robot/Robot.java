@@ -8,14 +8,7 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-
-import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.IntakerSubsystem;
-import frc.robot.subsystems.OverBumperSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
-import frc.utilities.util.GetHighest;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -26,13 +19,6 @@ import frc.utilities.util.GetHighest;
 public class Robot extends TimedRobot {
   private RobotContainer m_robotContainer;
 
-  private IntakerSubsystem m_intakeSubsystem;
-  private OverBumperSubsystem m_overBumperSubsystem;
-  private ShooterSubsystem m_shooterSubsystem;
-  private DriveSubsystem m_driveSubsystem;
-
-  private double highTemp = 0;
-
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -42,11 +28,6 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
-
-    m_driveSubsystem = m_robotContainer.m_driveSubsystem;
-    m_intakeSubsystem = m_robotContainer.m_intakeSubsystem;
-    m_overBumperSubsystem = m_robotContainer.m_overBumperSubsystem;
-    m_shooterSubsystem = m_robotContainer.m_shooterSubsystem;
 
     LiveWindow.disableAllTelemetry();
     LiveWindow.setEnabled(false);
@@ -70,23 +51,6 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
-
-    if (GetHighest.getHighest(m_driveSubsystem.getHighestTemp(), m_intakeSubsystem.getHighestTemp(), m_overBumperSubsystem.getHighestTemp(), m_shooterSubsystem.getHighestTemp()) > highTemp) {
-      highTemp = GetHighest.getHighest(m_driveSubsystem.getHighestTemp(), m_intakeSubsystem.getHighestTemp(), m_overBumperSubsystem.getHighestTemp(), m_shooterSubsystem.getHighestTemp());
-    }
-
-    SmartDashboard.putNumber("Temps/Peak Temp", highTemp);
-    SmartDashboard.putNumber("Temps/Average Temp", (m_driveSubsystem.getAverageTemp() + m_intakeSubsystem.getAverageTemp() + m_overBumperSubsystem.getAverageTemp() + m_shooterSubsystem.getAverageTemp())/4);
-
-    SmartDashboard.putNumber("Total Current",
-        SmartDashboard.getNumber("Flywheel Current", 0)
-        + SmartDashboard.getNumber("Hood Current", 0)
-        + SmartDashboard.getNumber("Arm Left Current", 0)
-        + SmartDashboard.getNumber("Arm Right Current", 0)
-        + SmartDashboard.getNumber("Intake Left Current", 0)
-        + SmartDashboard.getNumber("Intake Right Current", 0)
-        + SmartDashboard.getNumber("Inside Intake Current", 0)
-        + SmartDashboard.getNumber("Drivetrain Current", 0));
   }
 
   /** This function is called once each time the robot enters Disabled mode. */

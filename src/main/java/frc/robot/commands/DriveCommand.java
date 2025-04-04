@@ -37,7 +37,8 @@ public class DriveCommand extends Command {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
@@ -60,20 +61,25 @@ public class DriveCommand extends Command {
     // Square the strafe stick but keep the sign
     strafe = Math.copySign(Math.pow(strafe, 2.0), strafe);
 
-    double rotation = m_rotationSupplier.getAsDouble();
+    double rotation;
+
+    rotation = -m_rotationSupplier.getAsDouble();
     // Filter out values less than 0.15
     rotation = Deadband.deadband(rotation, 0.15);
     // Square the rotation stick but keep the sign
     rotation = Math.copySign(Math.pow(rotation, 2.0), rotation);
 
     if (!isIntaking) {
-      //m_drivetrainSubsystem.drive(new Translation2d(forward, strafe).times(MaxSpeed), rotation, true);
+      m_drivetrainSubsystem.drive(new Translation2d(forward, strafe).times(MaxSpeed), rotation, false);
+    } else {
+      m_drivetrainSubsystem.drive(new Translation2d(0, 0).times(MaxSpeed), 0, false);
     }
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+  }
 
   // Returns true when the command should end.
   @Override

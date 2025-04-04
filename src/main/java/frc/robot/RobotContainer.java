@@ -11,8 +11,8 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.DriveCommand;
 import frc.robot.commands.IntakeThroughShooter;
-import frc.robot.commands.ManualAim;
 import frc.robot.commands.Shoot;
+import frc.robot.commands.Target;
 import frc.robot.commands.TheIntakeCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakerSubsystem;
@@ -21,21 +21,24 @@ import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.Targeting;
 
 /**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
+ * This class is where the bulk of the robot should be declared. Since
+ * Command-based is a
+ * "declarative" paradigm, very little robot logic should actually be handled in
+ * the {@link Robot}
+ * periodic methods (other than the scheduler calls). Instead, the structure of
+ * the robot (including
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  public final DriveSubsystem m_driveSubsystem = null;//new DriveSubsystem();
-  public final IntakerSubsystem m_intakeSubsystem = null;//new IntakerSubsystem();
-  public final OverBumperSubsystem m_overBumperSubsystem = null;//new OverBumperSubsystem();
-  public final ShooterSubsystem m_shooterSubsystem = null;//new ShooterSubsystem();
+  public final DriveSubsystem m_driveSubsystem = new DriveSubsystem();
+  public final IntakerSubsystem m_intakeSubsystem = new IntakerSubsystem();
+  public final OverBumperSubsystem m_overBumperSubsystem = new OverBumperSubsystem();
+  public final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
   public final Targeting m_targeting = new Targeting();
-              
+
   public static final XboxController Driver = new XboxController(0);
-              
+
   /** Driver Start */
   private final JoystickButton resetGyro = new JoystickButton(Driver, XboxController.Button.kStart.value);
   /** Driver RB */
@@ -44,6 +47,8 @@ public class RobotContainer {
   private final Trigger zeroArm = new Trigger(() -> Driver.getPOV() == 180);
   /** Driver Up */
   private final Trigger zeroExtender = new Trigger(() -> Driver.getPOV() == 0);
+  /** Driver RT */
+  private final Trigger target = new Trigger(() -> Driver.getRightTriggerAxis() > 0.75);
   /** Driver Back */
   private final JoystickButton zeroAll = new JoystickButton(Driver, XboxController.Button.kBack.value);
   /** Driver LB */
@@ -58,41 +63,37 @@ public class RobotContainer {
   private final JoystickButton shooterup = new JoystickButton(Driver, XboxController.Button.kY.value);
   /** Driver Right Stick */
   private final JoystickButton stopFlywheels = new JoystickButton(Driver, XboxController.Button.kRightStick.value);
-              
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
+
+  /**
+   * The container for the robot. Contains subsystems, OI devices, and commands.
+   */
   public RobotContainer() {
 
-    // m_driveSubsystem.setDefaultCommand(
-    //     new DriveCommand(
-    //         m_driveSubsystem,
-    //         () -> -Driver.getLeftX(),
-    //         () -> -Driver.getLeftY(),
-    //         () -> -Driver.getRightX(),
-    //         intakeThroughShooter));
-
-    // m_driveSubsystem.setDefaultCommand(
-    //     new DriveCommand(
-    //         m_driveSubsystem,
-    //         () -> 0,
-    //         () -> 0,
-    //         () -> 0,
-    //         intakeThroughShooter));
+    m_driveSubsystem.setDefaultCommand(
+        new DriveCommand(
+            m_driveSubsystem,
+            () -> -Driver.getLeftX(),
+            () -> -Driver.getLeftY(),
+            () -> -Driver.getRightX(),
+            intakeThroughShooter));
 
     // m_shooterSubsystem.setDefaultCommand(
-    //     new ManualAim(
-    //         m_shooterSubsystem,
-    //         () -> Driver.getRawAxis(XboxController.Axis.kLeftTrigger.value),
-    //         () -> Driver.getRawAxis(XboxController.Axis.kRightTrigger.value),
-    //         intakeThroughShooter));
+    // new ManualAim(
+    // m_shooterSubsystem,
+    // () -> Driver.getRawAxis(XboxController.Axis.kLeftTrigger.value),
+    // () -> Driver.getRawAxis(XboxController.Axis.kRightTrigger.value),
+    // intakeThroughShooter));
 
     // Configure the button bindings
-    //configureButtonBindings();
+    configureButtonBindings();
   }
 
   /**
-   * Use this method to define your button->command mappings. Buttons can be created by
+   * Use this method to define your button->command mappings. Buttons can be
+   * created by
    * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
+   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing
+   * it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
@@ -101,14 +102,14 @@ public class RobotContainer {
 
     // Outake
     outake.whileTrue(new InstantCommand(() -> m_intakeSubsystem.setInsideVel(Constants.Intaker.IntakeSpeed * -1)))
-      .onFalse(new InstantCommand(() -> m_intakeSubsystem.setInsideVel(0)));
+        .onFalse(new InstantCommand(() -> m_intakeSubsystem.setInsideVel(0)));
 
     // Intake through the front
     intake.whileTrue(new TheIntakeCommand(m_intakeSubsystem, m_overBumperSubsystem, Driver));
 
     // Intake through the shooter
     shootNow.negate()
-      .and(intakeThroughShooter).whileTrue(new IntakeThroughShooter(m_shooterSubsystem, m_intakeSubsystem, Driver));
+        .and(intakeThroughShooter).whileTrue(new IntakeThroughShooter(m_shooterSubsystem, m_intakeSubsystem, Driver));
 
     // Zero arm and extender
     zeroAll
@@ -124,7 +125,7 @@ public class RobotContainer {
 
     // Shoot
     intakeThroughShooter.negate()
-        .and(shootNow).whileTrue(new Shoot(m_shooterSubsystem, m_intakeSubsystem, Driver)); //intakeAndShoot(m_intakeSubsystem, m_shooterSubsystem));
+        .and(shootNow).whileTrue(new Shoot(m_shooterSubsystem, m_intakeSubsystem, Driver));
 
     // Bring shooter down
     shooterdown.onTrue(new InstantCommand(() -> m_shooterSubsystem.setHoodPosition(Constants.Shooter.Offset)));
@@ -134,8 +135,13 @@ public class RobotContainer {
 
     // Stop flywheel
     stopFlywheels.onTrue(new InstantCommand(() -> m_shooterSubsystem.setFlywheelVelocity(0)));
+
+    // Target tags
+    target.whileTrue(
+        new Target(m_driveSubsystem, m_intakeSubsystem, m_shooterSubsystem, m_targeting, () -> -Driver.getLeftX(),
+            () -> -Driver.getLeftY(), () -> -Driver.getRightX()));
   }
-              
+
   public void stopAll() {
     m_intakeSubsystem.StopAll();
     m_overBumperSubsystem.StopAll();

@@ -4,21 +4,25 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.revrobotics.spark.SparkMax;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.utilities.math.TempConvert;
-import frc.utilities.util.GetHighest;
 
 public class IntakerSubsystem extends SubsystemBase {
   // private CANSparkMax intakeL;
   // private CANSparkMax intakeR;
-  private CANSparkMax feeder;
+  private TalonFX feeder;
 
   private DigitalInput feederBeamBreak;
 
@@ -29,34 +33,27 @@ public class IntakerSubsystem extends SubsystemBase {
   public IntakerSubsystem() {
     // intakeL = new CANSparkMax(0, MotorType.kBrushless); // TODO change this
     // intakeR = new CANSparkMax(0, MotorType.kBrushless); // TODO change this
-    feeder = new CANSparkMax(30, MotorType.kBrushless);
+    feeder = new TalonFX(30);
 
     feederBeamBreak = new DigitalInput(4);
 
+    TalonFXConfiguration config = new TalonFXConfiguration();
+    config.MotorOutput.withNeutralMode(NeutralModeValue.Brake);
+    config.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
+
     // intakeL.setIdleMode(IdleMode.kCoast);
     // intakeR.setIdleMode(IdleMode.kCoast);
-    feeder.setIdleMode(IdleMode.kBrake);
     // intakeR.setInverted(true);  // TODO change this to the inverted motor
 
     // intakeR.follow(intakeL);
 
     // intakeL.burnFlash();
     // intakeR.burnFlash();
-    feeder.burnFlash();
+    feeder.getConfigurator().apply(config);
   }
 
   public boolean intakeBreak() {
     return !feederBeamBreak.get();
-  }
-
-  public double getHighestTemp() {
-    //return TempConvert.CtoF(GetHighest.getHighest(intakeL.getMotorTemperature(), intakeR.getMotorTemperature(), feeder.getMotorTemperature()));
-    return TempConvert.CtoF(feeder.getMotorTemperature());
-  }
-
-  public double getAverageTemp() {
-    //return TempConvert.CtoF(GetHighest.getHighest(intakeL.getMotorTemperature(), intakeR.getMotorTemperature(), feeder.getMotorTemperature()));
-    return TempConvert.CtoF((feeder.getMotorTemperature() + feeder.getMotorTemperature() + feeder.getMotorTemperature())/3);
   }
 
   public void SetAll() {
@@ -87,10 +84,10 @@ public class IntakerSubsystem extends SubsystemBase {
 
     // SmartDashboard.putNumber("Intake Left Current", intakeL.getOutputCurrent());
     // SmartDashboard.putNumber("Intake Right Current", intakeR.getOutputCurrent());
-    SmartDashboard.putNumber("Inside Intake Current", feeder.getOutputCurrent());
+    SmartDashboard.putNumber("Inside Intake Current", feeder.getStatorCurrent().getValueAsDouble());
 
     // SmartDashboard.putNumber("Temps/Intake L Temp. (Fahrenheit)", TempConvert.CtoF(intakeL.getMotorTemperature()));
     // SmartDashboard.putNumber("Temps/Intake R Temp. (Fahrenheit)", TempConvert.CtoF(intakeR.getMotorTemperature()));
-    SmartDashboard.putNumber("Temps/Feeder Temp. (Fahrenheit)", TempConvert.CtoF(feeder.getMotorTemperature()));
+    SmartDashboard.putNumber("Temps/Feeder Temp. (Fahrenheit)", TempConvert.CtoF(feeder.getDeviceTemp().getValueAsDouble()));
   }
 }

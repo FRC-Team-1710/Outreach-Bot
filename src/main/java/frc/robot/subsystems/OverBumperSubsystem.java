@@ -4,11 +4,7 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkPIDController;
-import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -68,16 +64,6 @@ public class OverBumperSubsystem extends SubsystemBase {
   public void StopAll() {
     // armLeft.stopMotor();
     // armRight.stopMotor;
-  }
-
-  public double getHighestTemp() {
-    //return TempConvert.CtoF(GetHighest.getHighest(armRight.getMotorTemperature(), armLeft.getMotorTemperature()));
-    return 0;
-  }
-
-  public double getAverageTemp() {
-    // return TempConvert.CtoF((armRight.getMotorTemperature() + armLeft.getMotorTemperature())/2);
-    return 0;
   }
 
   /** THE OFFSET IS IN DEGREES */

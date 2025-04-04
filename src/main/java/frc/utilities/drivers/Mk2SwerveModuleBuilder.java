@@ -1,13 +1,26 @@
 package frc.utilities.drivers;
 
-import com.revrobotics.CANSparkBase;
-import com.revrobotics.CANSparkMax;
+import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkPIDController;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.utilities.control.PidConstants;
 import frc.utilities.control.PidController;
 import frc.utilities.math.Vector2;
@@ -43,6 +56,10 @@ public class Mk2SwerveModuleBuilder {
   private static final PidConstants DEFAULT_CAN_SPARK_MAX_ANGLE_CONSTANTS =
       new PidConstants(1.5, 0.0, 0.5);
 
+  /** Constants for angle pid running on a Spark MAX using NEOs. */
+  private static final PidConstants FALCON_500_ANGLE_CONSTANTS =
+      new PidConstants(3.0, 0.0, 0.0);
+
   private final Vector2 modulePosition;
 
   private DoubleSupplier angleSupplier;
@@ -55,6 +72,8 @@ public class Mk2SwerveModuleBuilder {
 
   private DoubleConsumer initializeAngleCallback;
   private List<BiConsumer<SwerveModule, Double>> updateCallbacks = new ArrayList<>();
+
+  private boolean angleInverted = true; // Don't touch
 
   public Mk2SwerveModuleBuilder(Vector2 modulePosition) {
     this.modulePosition = modulePosition;
@@ -80,7 +99,7 @@ public class Mk2SwerveModuleBuilder {
             angle += 2.0 * Math.PI;
           }
 
-          return angle;
+          return 0;//angle;
         };
 
     return this;
@@ -92,17 +111,17 @@ public class Mk2SwerveModuleBuilder {
    * <p>The default PID constants and angle reduction are used. These values have been determined to
    * work with all Mk2 modules controlled by this motor.
    *
-   * <p>To override this values see {@link #angleMotor(CANSparkMax, PidConstants, double)}
+   * <p>To override this values see {@link #angleMotor(SparkMax, PidConstants, double)}
    *
    * @param motor The CAN Spark MAX to use as the angle motor. The NEO's encoder is set to output
    *     the module's angle in radians.
    * @return The builder.
    */
-  public Mk2SwerveModuleBuilder angleMotor(CANSparkMax motor) {
+  public Mk2SwerveModuleBuilder angleMotor(SparkMax motor) {
     return angleMotor(motor, DEFAULT_CAN_SPARK_MAX_ANGLE_CONSTANTS, DEFAULT_ANGLE_REDUCTION);
   }
 
-  public Mk2SwerveModuleBuilder angleMotor(CANSparkMax motor, MotorType motorType) {
+  public Mk2SwerveModuleBuilder angleMotor(SparkMax motor, MotorType motorType) {
     if (motorType == MotorType.NEO) {
       return angleMotor(motor, DEFAULT_CAN_SPARK_MAX_ANGLE_CONSTANTS, DEFAULT_ANGLE_REDUCTION);
     }
@@ -110,11 +129,72 @@ public class Mk2SwerveModuleBuilder {
     return angleMotor((MotorController) motor, motorType);
   }
 
+  public Mk2SwerveModuleBuilder angleMotor(TalonFX motor, MotorType motorType) {
+    return angleMotor(motor, FALCON_500_ANGLE_CONSTANTS, DEFAULT_ANGLE_REDUCTION);
+  }
+
+  public Mk2SwerveModuleBuilder angleMotor(
+      TalonFX motor, PidConstants constants, double reduction) {
+        TalonFXConfiguration config = new TalonFXConfiguration();
+        config.CurrentLimits.StatorCurrentLimit = 40;
+        config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        config.Slot0.kP = constants.p;
+        config.Slot0.kI = constants.i;
+        config.Slot0.kD = constants.d;
+        motor.getConfigurator().apply(config);
+
+      motor.setPosition(0);
+
+    SmartDashboard.putNumber("angle, P", constants.p);
+    SmartDashboard.putNumber("angle, I", constants.i);
+    SmartDashboard.putNumber("angle, D", constants.d);
+
+    final PositionVoltage m_request = new PositionVoltage(0).withSlot(0);
+
+    targetAngleConsumer =
+        targetAngle -> {
+          double currentAngle = Units.radiansToDegrees(motor.getPosition().getValueAsDouble()*(2.0 * Math.PI / reduction));
+
+          if (SmartDashboard.getNumber("angle, P", constants.p) != config.Slot0.kP) {
+            config.Slot0.kP = SmartDashboard.getNumber("angle, P", constants.p);
+            motor.getConfigurator().apply(config);
+          }
+          if (SmartDashboard.getNumber("angle, I", constants.i) != config.Slot0.kI) {
+            config.Slot0.kI = SmartDashboard.getNumber("angle, I", constants.i);
+            motor.getConfigurator().apply(config);
+          }
+          if (SmartDashboard.getNumber("angle, D", constants.d) != config.Slot0.kD) {
+            config.Slot0.kD = SmartDashboard.getNumber("angle, D", constants.d);
+            motor.getConfigurator().apply(config);
+          }
+
+          double newTarget = Units.radiansToDegrees(targetAngle);
+          angleInverted = true;
+          while (newTarget >= currentAngle+91 || newTarget <= currentAngle-91) {
+            if (newTarget >= currentAngle+91) {
+              newTarget-=180;
+              angleInverted = angleInverted ? false : true;
+            } else if (newTarget <= currentAngle-91) {
+              newTarget+=180;
+              angleInverted = angleInverted ? false : true;
+            }
+            SmartDashboard.putNumberArray(Double.toString(motor.getDeviceID()), new Double[] {targetAngle, newTarget, currentAngle});
+          }
+          SmartDashboard.putNumberArray(Double.toString(motor.getDeviceID()), new Double[] {targetAngle, newTarget, currentAngle});
+          newTarget = Units.degreesToRadians(newTarget/(2.0 * Math.PI / reduction));
+
+          motor.setControl(m_request.withPosition(newTarget));
+        };
+    initializeAngleCallback = motor::setPosition;
+
+    return this;
+  }
+
   /**
    * Configures the swerve module to use a CAN Spark MAX driving a NEO as it's angle motor.
    *
    * <p>This method is usually used when custom PID tuning is required. If using the standard angle
-   * reduction and a NEO, {@link #angleMotor(CANSparkMax)} uses already tuned constants so no tuning
+   * reduction and a NEO, {@link #angleMotor(SparkMax)} uses already tuned constants so no tuning
    * is required.
    *
    * @param motor The CAN Spark MAX to use as the angle motor. The NEO's encoder is set to output
@@ -125,34 +205,51 @@ public class Mk2SwerveModuleBuilder {
    * @return The builder.
    */
   public Mk2SwerveModuleBuilder angleMotor(
-      CANSparkMax motor, PidConstants constants, double reduction) {
-    RelativeEncoder encoder = motor.getEncoder();
-    encoder.setPositionConversionFactor(2.0 * Math.PI / reduction);
+      SparkMax motor, PidConstants constants, double reduction) {
+        SparkMaxConfig config = new SparkMaxConfig();
+        config.smartCurrentLimit(20);
+        config.idleMode(IdleMode.kBrake);
+        config.closedLoop.p(constants.p);
+        config.closedLoop.i(constants.i);
+        config.closedLoop.d(constants.d);
+        config.encoder.positionConversionFactor(2.0 * Math.PI / reduction);
+        motor.configure(config, null, null);
+        RelativeEncoder encoder = motor.getEncoder();
 
-    SparkPIDController controller = motor.getPIDController();
-
-    controller.setP(constants.p);
-    controller.setI(constants.i);
-    controller.setD(constants.i);
+    SparkClosedLoopController controller = motor.getClosedLoopController();
 
     targetAngleConsumer =
         targetAngle -> {
-          double currentAngle = encoder.getPosition();
+          double currentAngle = Units.radiansToDegrees(encoder.getPosition());
           // Calculate the current angle in the range [0, 2pi)
-          double currentAngleMod = currentAngle % (2.0 * Math.PI);
-          if (currentAngleMod < 0.0) {
-            currentAngleMod += 2.0 * Math.PI;
-          }
+          // double currentAngleMod = currentAngle % (2.0 * Math.PI);
+          // if (currentAngleMod < 0.0) {
+          //   currentAngleMod += 2.0 * Math.PI;
+          // }
 
           // Figure out target to send to Spark MAX because the encoder is continuous
-          double newTarget = targetAngle + currentAngle - currentAngleMod;
-          if (targetAngle - currentAngleMod > Math.PI) {
-            newTarget -= 2.0 * Math.PI;
-          } else if (targetAngle - currentAngleMod < -Math.PI) {
-            newTarget += 2.0 * Math.PI;
-          }
+          // double newTarget = targetAngle + currentAngle - currentAngleMod;
+          // if (targetAngle - currentAngleMod > Math.PI) {
+          //   newTarget -= 2.0 * Math.PI;
+          // } else if (targetAngle - currentAngleMod < -Math.PI) {
+          //   newTarget += 2.0 * Math.PI;
+          // }
 
-          controller.setReference(newTarget, CANSparkBase.ControlType.kPosition);
+          double newTarget = Units.radiansToDegrees(targetAngle);
+          angleInverted = true;
+          while (newTarget >= currentAngle+91 || newTarget <= currentAngle-91) {
+            if (newTarget >= currentAngle+91) {
+              newTarget-=180;
+              angleInverted = angleInverted ? false : true;
+            } else if (newTarget <= currentAngle-91) {
+              newTarget+=180;
+              angleInverted = angleInverted ? false : true;
+            }
+            SmartDashboard.putNumberArray(Double.toString(motor.getDeviceId()), new Double[] {targetAngle, newTarget, currentAngle});
+          }
+          newTarget = Units.degreesToRadians(newTarget);
+
+          controller.setReference(newTarget, ControlType.kPosition);
         };
     initializeAngleCallback = encoder::setPosition;
 
@@ -178,7 +275,7 @@ public class Mk2SwerveModuleBuilder {
         // Spark MAXs are special and drive brushed motors in the opposite direction of every other
         // motor
         // controller
-        if (motor instanceof Spark || motor instanceof CANSparkMax) {
+        if (motor instanceof Spark || motor instanceof SparkMax) {
           motor.setInverted(true);
         }
 
@@ -186,7 +283,7 @@ public class Mk2SwerveModuleBuilder {
       case MINI_CIM:
         // Spark MAXs are special and drive brushed motors in the opposite direction of every other
         // motor controller
-        if (motor instanceof Spark || motor instanceof CANSparkMax) {
+        if (motor instanceof Spark || motor instanceof SparkMax) {
           motor.setInverted(true);
         }
 
@@ -230,16 +327,40 @@ public class Mk2SwerveModuleBuilder {
    *     the module's driven distance and current velocity in inches and inches per second.
    * @return The builder.
    */
-  public Mk2SwerveModuleBuilder driveMotor(CANSparkMax motor) {
+  public Mk2SwerveModuleBuilder driveMotor(SparkMax motor) {
     return driveMotor(motor, MotorType.NEO);
   }
 
-  public Mk2SwerveModuleBuilder driveMotor(CANSparkMax motor, MotorType motorType) {
+  public Mk2SwerveModuleBuilder driveMotor(TalonFX motor, MotorType motorType) {
+    return driveMotor(motor, DEFAULT_DRIVE_REDUCTION, DEFAULT_WHEEL_DIAMETER);
+  }
+
+  public Mk2SwerveModuleBuilder driveMotor(SparkMax motor, MotorType motorType) {
     if (motorType == MotorType.NEO) {
       return driveMotor(motor, DEFAULT_DRIVE_REDUCTION, DEFAULT_WHEEL_DIAMETER);
     }
 
     return driveMotor((MotorController) motor, motorType);
+  }
+
+  public Mk2SwerveModuleBuilder driveMotor(
+      TalonFX motor, double reduction, double wheelDiameter) {
+        TalonFXConfiguration config = new TalonFXConfiguration();
+        config.MotorOutput.withNeutralMode(NeutralModeValue.Brake);
+        config.CurrentLimits.StatorCurrentLimitEnable = false;
+
+        motor.getConfigurator().apply(config);
+
+    StatusSignal<AngularVelocity> velocity = motor.getVelocity();
+    StatusSignal<Angle> distance = motor.getPosition();
+    StatusSignal<Current> current = motor.getStatorCurrent();
+
+    currentDrawSupplier = () -> current.getValueAsDouble();
+    distanceSupplier = () -> distance.getValueAsDouble()*(wheelDiameter * Math.PI / reduction);
+    velocitySupplier = () -> velocity.getValueAsDouble()*(wheelDiameter * Math.PI / reduction * (1.0 / 60.0));
+    driveOutputConsumer = motor::set;
+
+    return this;
   }
 
   /**
@@ -255,11 +376,13 @@ public class Mk2SwerveModuleBuilder {
    * @return The builder.
    */
   public Mk2SwerveModuleBuilder driveMotor(
-      CANSparkMax motor, double reduction, double wheelDiameter) {
+      SparkMax motor, double reduction, double wheelDiameter) {
+        SparkMaxConfig config = new SparkMaxConfig();
+        config.idleMode(IdleMode.kBrake);
+        config.smartCurrentLimit(20);
+        config.encoder.positionConversionFactor(wheelDiameter * Math.PI / reduction);
+        config.encoder.velocityConversionFactor(wheelDiameter * Math.PI / reduction * (1.0 / 60.0));
     RelativeEncoder encoder = motor.getEncoder();
-    encoder.setPositionConversionFactor(wheelDiameter * Math.PI / reduction);
-    encoder.setVelocityConversionFactor(
-        wheelDiameter * Math.PI / reduction * (1.0 / 60.0)); // RPM to units per second
 
     currentDrawSupplier = motor::getOutputCurrent;
     distanceSupplier = encoder::getPosition;
@@ -279,7 +402,7 @@ public class Mk2SwerveModuleBuilder {
   public Mk2SwerveModuleBuilder driveMotor(MotorController motor, MotorType motorType) {
     // Spark MAXs are special and drive brushed motors in the opposite direction of every other
     // motor controller
-    if (motorType != MotorType.NEO && (motor instanceof Spark || motor instanceof CANSparkMax)) {
+    if (motorType != MotorType.NEO && (motor instanceof Spark || motor instanceof SparkMax)) {
       motor.setInverted(true);
     }
 
@@ -362,6 +485,10 @@ public class Mk2SwerveModuleBuilder {
       }
     }
 
+    private double getInverted() {
+      return angleInverted ? 1 : -1;
+    }
+
     @Override
     public double getDriveCurrent() {
       synchronized (sensorLock) {
@@ -376,7 +503,7 @@ public class Mk2SwerveModuleBuilder {
 
     @Override
     protected void setDriveOutput(double output) {
-      driveOutputConsumer.accept(output);
+      driveOutputConsumer.accept(output*getInverted());
     }
 
     @Override
