@@ -90,6 +90,8 @@ public class ShooterSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Flywheel Vel P", velocityP);
     SmartDashboard.putNumber("Flywheel Vel V", velocityV);
     SmartDashboard.putBoolean("Slow Flywheel", true);
+    SmartDashboard.putNumber("Flywheel speed (RPM)", 2000);
+
   }
 
   @Override
@@ -253,6 +255,10 @@ public class ShooterSubsystem extends SubsystemBase {
     if (velocityV != SmartDashboard.getNumber("Flywheel Vel V", velocityV)) {
       velocityV = SmartDashboard.getNumber("Flywheel Vel V", velocityV);
       flyPID.setFF(velocityV, 0);
+    }
+
+    if (Constants.Shooter.fastShootSpeedRPM != SmartDashboard.getNumber("Flywheel speed (RPM)", 2000)) {
+      Constants.Shooter.fastShootSpeedRPM = SmartDashboard.getNumber("Flywheel speed (RPM)", 2000);
     }
   }
 }

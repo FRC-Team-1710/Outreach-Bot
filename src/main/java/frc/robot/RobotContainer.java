@@ -14,11 +14,11 @@ import frc.robot.commands.IntakeThroughShooter;
 import frc.robot.commands.ManualAim;
 import frc.robot.commands.Shoot;
 import frc.robot.commands.TheIntakeCommand;
-import frc.robot.commands.intakeAndShoot;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakerSubsystem;
 import frc.robot.subsystems.OverBumperSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.Targeting;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -28,10 +28,11 @@ import frc.robot.subsystems.ShooterSubsystem;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  public final DriveSubsystem m_driveSubsystem = new DriveSubsystem();
-  public final IntakerSubsystem m_intakeSubsystem = new IntakerSubsystem();
-  public final OverBumperSubsystem m_overBumperSubsystem = new OverBumperSubsystem();
-  public final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
+  public final DriveSubsystem m_driveSubsystem = null;//new DriveSubsystem();
+  public final IntakerSubsystem m_intakeSubsystem = null;//new IntakerSubsystem();
+  public final OverBumperSubsystem m_overBumperSubsystem = null;//new OverBumperSubsystem();
+  public final ShooterSubsystem m_shooterSubsystem = null;//new ShooterSubsystem();
+  public final Targeting m_targeting = new Targeting();
               
   public static final XboxController Driver = new XboxController(0);
               
@@ -61,23 +62,31 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
 
-    m_driveSubsystem.setDefaultCommand(
-        new DriveCommand(
-            m_driveSubsystem,
-            () -> -Driver.getLeftX(),
-            () -> -Driver.getLeftY(),
-            () -> -Driver.getRightX(),
-            intakeThroughShooter));
+    // m_driveSubsystem.setDefaultCommand(
+    //     new DriveCommand(
+    //         m_driveSubsystem,
+    //         () -> -Driver.getLeftX(),
+    //         () -> -Driver.getLeftY(),
+    //         () -> -Driver.getRightX(),
+    //         intakeThroughShooter));
 
-    m_shooterSubsystem.setDefaultCommand(
-        new ManualAim(
-            m_shooterSubsystem,
-            () -> Driver.getRawAxis(XboxController.Axis.kLeftTrigger.value),
-            () -> Driver.getRawAxis(XboxController.Axis.kRightTrigger.value),
-            intakeThroughShooter));
+    // m_driveSubsystem.setDefaultCommand(
+    //     new DriveCommand(
+    //         m_driveSubsystem,
+    //         () -> 0,
+    //         () -> 0,
+    //         () -> 0,
+    //         intakeThroughShooter));
+
+    // m_shooterSubsystem.setDefaultCommand(
+    //     new ManualAim(
+    //         m_shooterSubsystem,
+    //         () -> Driver.getRawAxis(XboxController.Axis.kLeftTrigger.value),
+    //         () -> Driver.getRawAxis(XboxController.Axis.kRightTrigger.value),
+    //         intakeThroughShooter));
 
     // Configure the button bindings
-    configureButtonBindings();
+    //configureButtonBindings();
   }
 
   /**

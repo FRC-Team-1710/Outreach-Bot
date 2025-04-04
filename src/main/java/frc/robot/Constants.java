@@ -4,6 +4,15 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -15,6 +24,10 @@ package frc.robot;
 public final class Constants {
   public static final double triggerDeadband = 0.07;
   public static final double controllerRumble = 0.75;
+
+  public static final class Vision {
+    public static final String kAprilTagCamera = "ICanSeeYou";
+  }
 
   public static final class Intaker {
     public static final double IntakeSpeed = 0.5;
@@ -29,13 +42,13 @@ public final class Constants {
   }
 
   public static final class Shooter { // Angles are degrees
-    public static final double shootSpeedRPM = 2500;
-    public static final double fastShootSpeedRPM = 4500;
+    public static final double shootSpeedRPM = 2000;
+    public static double fastShootSpeedRPM = 3000;
     public static final double idleSpeedRPM = 0;
     public static final double intakeSpeedRPM = 1500;
     public static final double bufferRPM = 200;
     public static final double feedPower = 0.5;
-    public static final double Shootangle = 50;
+    public static final double Shootangle = 30;
     public static final double extenderRatio = 20 / 1;
     public static final double Offset = 5;
   }

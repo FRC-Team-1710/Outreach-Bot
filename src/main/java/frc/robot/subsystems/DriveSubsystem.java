@@ -13,6 +13,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.AnalogEncoder;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -34,10 +35,10 @@ public class DriveSubsystem extends SubsystemBase {
   private static final double TRACKWIDTH = Units.inchesToMeters(23);
   private static final double WHEELBASE = Units.inchesToMeters(23);
 
-  private static final double FRONT_LEFT_ANGLE_OFFSET = -Math.toRadians(Constants.Swerve.FLOffset);
-  private static final double FRONT_RIGHT_ANGLE_OFFSET = -Math.toRadians(Constants.Swerve.FROffset);
-  private static final double BACK_LEFT_ANGLE_OFFSET = -Math.toRadians(Constants.Swerve.BLOffset);
-  private static final double BACK_RIGHT_ANGLE_OFFSET = -Math.toRadians(Constants.Swerve.BROffset);
+  private static final double FRONT_LEFT_ANGLE_OFFSET = Math.toRadians(Constants.Swerve.FLOffset);
+  private static final double FRONT_RIGHT_ANGLE_OFFSET = Math.toRadians(Constants.Swerve.FROffset);
+  private static final double BACK_LEFT_ANGLE_OFFSET = Math.toRadians(Constants.Swerve.BLOffset);
+  private static final double BACK_RIGHT_ANGLE_OFFSET = Math.toRadians(Constants.Swerve.BROffset);
 
   private CANSparkMax backLeftAngle =
       new CANSparkMax(
@@ -69,62 +70,62 @@ public class DriveSubsystem extends SubsystemBase {
       new CANSparkMax(
           Constants.Swerve.DRIVETRAIN_FRONT_RIGHT_DRIVE_MOTOR,
           CANSparkLowLevel.MotorType.kBrushless);
-
-  private RelativeEncoder FLEnc = frontLeftDrive.getEncoder();
-  private RelativeEncoder FREnc = frontRightDrive.getEncoder();
-  private RelativeEncoder BLEnc = backLeftDrive.getEncoder();
-  private RelativeEncoder BREnc = backRightDrive.getEncoder();
-
-  /** Front left swerve module object */
-  private final SwerveModule frontLeftModule =
-      new Mk2SwerveModuleBuilder(new Vector2(TRACKWIDTH / 2.0, WHEELBASE / 2.0))
+          
+          private RelativeEncoder FLEnc = frontLeftDrive.getEncoder();
+          private RelativeEncoder FREnc = frontRightDrive.getEncoder();
+          private RelativeEncoder BLEnc = backLeftDrive.getEncoder();
+          private RelativeEncoder BREnc = backRightDrive.getEncoder();
+          
+          /** Front left swerve module object */
+          private final SwerveModule frontLeftModule =
+          new Mk2SwerveModuleBuilder(new Vector2(TRACKWIDTH / 2.0, WHEELBASE / 2.0))
           .angleEncoder(
               new AnalogInput(Constants.Swerve.DRIVETRAIN_FRONT_LEFT_ANGLE_ENCODER),
               FRONT_LEFT_ANGLE_OFFSET)
-          .angleMotor(frontLeftAngle, Mk2SwerveModuleBuilder.MotorType.NEO)
-          .driveMotor(frontLeftDrive, Mk2SwerveModuleBuilder.MotorType.NEO)
-          .build();
-  /** Front right swerve module object */
-  private final SwerveModule frontRightModule =
-      new Mk2SwerveModuleBuilder(new Vector2(TRACKWIDTH / 2.0, -WHEELBASE / 2.0))
-          .angleEncoder(
-              new AnalogInput(Constants.Swerve.DRIVETRAIN_FRONT_RIGHT_ANGLE_ENCODER),
-              FRONT_RIGHT_ANGLE_OFFSET)
-          .angleMotor(frontRightAngle, Mk2SwerveModuleBuilder.MotorType.NEO)
-          .driveMotor(frontRightDrive, Mk2SwerveModuleBuilder.MotorType.NEO)
-          .build();
-  /** Back left swerve module object */
-  private final SwerveModule backLeftModule =
-      new Mk2SwerveModuleBuilder(new Vector2(-TRACKWIDTH / 2.0, WHEELBASE / 2.0))
-          .angleEncoder(
-              new AnalogInput(Constants.Swerve.DRIVETRAIN_BACK_LEFT_ANGLE_ENCODER),
-              BACK_LEFT_ANGLE_OFFSET)
-          .angleMotor(backLeftAngle, Mk2SwerveModuleBuilder.MotorType.NEO)
-          .driveMotor(backLeftDrive, Mk2SwerveModuleBuilder.MotorType.NEO)
-          .build();
-  /** Back right swerve module object */
-  private final SwerveModule backRightModule =
-      new Mk2SwerveModuleBuilder(new Vector2(-TRACKWIDTH / 2.0, -WHEELBASE / 2.0))
-          .angleEncoder(
-              new AnalogInput(Constants.Swerve.DRIVETRAIN_BACK_RIGHT_ANGLE_ENCODER),
-              BACK_RIGHT_ANGLE_OFFSET)
-          .angleMotor(backRightAngle, Mk2SwerveModuleBuilder.MotorType.NEO)
-          .driveMotor(backRightDrive, Mk2SwerveModuleBuilder.MotorType.NEO)
-          .build();
-
-  /** Ratios for swerve calculations */
-  public final SwerveDriveKinematics kinematics =
-      new SwerveDriveKinematics(
-          new Translation2d(TRACKWIDTH / 2.0, WHEELBASE / 2.0),
-          new Translation2d(TRACKWIDTH / 2.0, -WHEELBASE / 2.0),
-          new Translation2d(-TRACKWIDTH / 2.0, WHEELBASE / 2.0),
-          new Translation2d(-TRACKWIDTH / 2.0, -WHEELBASE / 2.0));
-
-  private final Gyroscope gyroscope = new NavX(SPI.Port.kMXP);
-  public ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
-
-  /** Creates a new DriveSubsystem. */
-  public DriveSubsystem() {
+              .angleMotor(frontLeftAngle, Mk2SwerveModuleBuilder.MotorType.NEO)
+              .driveMotor(frontLeftDrive, Mk2SwerveModuleBuilder.MotorType.NEO)
+              .build();
+              /** Front right swerve module object */
+              private final SwerveModule frontRightModule =
+              new Mk2SwerveModuleBuilder(new Vector2(TRACKWIDTH / 2.0, -WHEELBASE / 2.0))
+              .angleEncoder(
+                  new AnalogInput(Constants.Swerve.DRIVETRAIN_FRONT_RIGHT_ANGLE_ENCODER),
+                  FRONT_RIGHT_ANGLE_OFFSET)
+                  .angleMotor(frontRightAngle, Mk2SwerveModuleBuilder.MotorType.NEO)
+                  .driveMotor(frontRightDrive, Mk2SwerveModuleBuilder.MotorType.NEO)
+                  .build();
+                  /** Back left swerve module object */
+                  private final SwerveModule backLeftModule =
+                  new Mk2SwerveModuleBuilder(new Vector2(-TRACKWIDTH / 2.0, WHEELBASE / 2.0))
+                  .angleEncoder(
+                      new AnalogInput(Constants.Swerve.DRIVETRAIN_BACK_LEFT_ANGLE_ENCODER),
+                      BACK_LEFT_ANGLE_OFFSET)
+                      .angleMotor(backLeftAngle, Mk2SwerveModuleBuilder.MotorType.NEO)
+                      .driveMotor(backLeftDrive, Mk2SwerveModuleBuilder.MotorType.NEO)
+                      .build();
+                      /** Back right swerve module object */
+                      private final SwerveModule backRightModule =
+                      new Mk2SwerveModuleBuilder(new Vector2(-TRACKWIDTH / 2.0, -WHEELBASE / 2.0))
+                      .angleEncoder(
+                          new AnalogInput(Constants.Swerve.DRIVETRAIN_BACK_RIGHT_ANGLE_ENCODER),
+                          BACK_RIGHT_ANGLE_OFFSET)
+                          .angleMotor(backRightAngle, Mk2SwerveModuleBuilder.MotorType.NEO)
+                          .driveMotor(backRightDrive, Mk2SwerveModuleBuilder.MotorType.NEO)
+                          .build();
+                          
+                          /** Ratios for swerve calculations */
+                          public final SwerveDriveKinematics kinematics =
+                          new SwerveDriveKinematics(
+                              new Translation2d(TRACKWIDTH / 2.0, WHEELBASE / 2.0),
+                              new Translation2d(TRACKWIDTH / 2.0, -WHEELBASE / 2.0),
+                              new Translation2d(-TRACKWIDTH / 2.0, WHEELBASE / 2.0),
+                              new Translation2d(-TRACKWIDTH / 2.0, -WHEELBASE / 2.0));
+                              
+                              private final Gyroscope gyroscope = new NavX(SPI.Port.kMXP);
+                              public ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
+                              
+                              /** Creates a new DriveSubsystem. */
+                              public DriveSubsystem() {
     gyroscope.calibrate();
     gyroscope.setInverted(true); // You might not need to invert the gyro
 
