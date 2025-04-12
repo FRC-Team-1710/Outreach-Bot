@@ -39,7 +39,7 @@ public class IntakerSubsystem extends SubsystemBase {
 
     TalonFXConfiguration config = new TalonFXConfiguration();
     config.MotorOutput.withNeutralMode(NeutralModeValue.Brake);
-    config.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
+    config.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
 
     // intakeL.setIdleMode(IdleMode.kCoast);
     // intakeR.setIdleMode(IdleMode.kCoast);

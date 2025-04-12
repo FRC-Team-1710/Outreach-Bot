@@ -1,7 +1,9 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
@@ -89,7 +91,7 @@ public class Target extends Command {
       rotation = Math.copySign(Math.pow(rotation, 2.0), rotation);
     } else {
       targeting.setCurrentGyro(m_drivetrainSubsystem.getGyro());
-      rotation = -pid.calculate(m_drivetrainSubsystem.getGyro().in(Degrees), targeting.getRotationOffset().in(Degrees));
+      rotation = -pid.calculate(new Rotation2d(Units.degreesToRadians(m_drivetrainSubsystem.getGyro().in(Degrees))).minus(new Rotation2d(Units.degreesToRadians(targeting.getRotationOffset().in(Degrees)))).getDegrees(), 0);
       SmartDashboard.putNumber("Robot Offset 2", m_drivetrainSubsystem.getGyro().in(Degrees)-targeting.getRotationOffset().in(Degrees));
     }
 
@@ -101,7 +103,7 @@ public class Target extends Command {
       intake.setInsideVel(Constants.Shooter.feedPower);
     }
 
-    m_drivetrainSubsystem.drive(new Translation2d(forward, strafe).times(MaxSpeed), rotation, false);
+    m_drivetrainSubsystem.drive(new Translation2d(forward, strafe).times(MaxSpeed), rotation, true);
   }
 
   // Called once the command ends or is interrupted.

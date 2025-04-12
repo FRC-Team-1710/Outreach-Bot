@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Timer;
@@ -8,9 +9,11 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Feet;
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 
 import frc.robot.Constants;
+import frc.utilities.util.TargetingTableMaker;
 
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
@@ -21,6 +24,8 @@ import java.util.List;
 
 public class Targeting extends SubsystemBase {
   private final PhotonCamera aprilTagCameraFront;
+
+  private final InterpolatingDoubleTreeMap map = TargetingTableMaker.generateTargetingMap();
 
   private Angle gyro = Degrees.of(0);
   private Angle currentAngle = Degrees.of(0);
@@ -48,15 +53,16 @@ public class Targeting extends SubsystemBase {
   }
 
   public Angle getRotationOffset() {
-    if (!cameraTargets.isEmpty() && timer.get() < 0.05) {
-      currentAngle = Degrees.of((gyro.in(Degrees)-cameraTargets.get(0).getYaw()));
+    if (!cameraTargets.isEmpty()) {
+      currentAngle = Degrees.of((gyro.in(Degrees)-map.get(cameraTargets.get(0).getYaw())));
+      SmartDashboard.putNumber("Viewed angle", cameraTargets.get(0).getYaw());
     }
     return currentAngle;
     //return Degrees.of(cameraTargets.get(0).getBestCameraToTarget().getTranslation().toTranslation2d().getAngle().getDegrees());
   }
 
   public Distance getDistanceToTag() {
-    if (cameraTargets.isEmpty() || timer.get() > 0.05) {
+    if (cameraTargets.isEmpty()) {
       return Feet.of(-1);
     }
     return Meters.of(cameraTargets.get(0).getBestCameraToTarget().getTranslation().getDistance(Constants.Vision.cameraToShooter));
@@ -67,10 +73,10 @@ public class Targeting extends SubsystemBase {
   }
 
   public boolean isInRange() {
-    if (cameraTargets.isEmpty() || timer.get() > 0.05) {
+    if (cameraTargets.isEmpty()) {
       return false;
     }
-    return Degrees.of(cameraTargets.get(0).getYaw()).isNear(Degrees.of(0), Constants.Vision.tolarence);
+    return Degrees.of(map.get(cameraTargets.get(0).getYaw())).isNear(Degrees.of(0), Constants.Vision.tolarence);
     //return Degrees.of(cameraTargets.get(0).getBestCameraToTarget().getTranslation().toTranslation2d().getAngle().getDegrees()).isNear(Degrees.of(0), Constants.Vision.tolarence);
   }
 
@@ -84,12 +90,9 @@ public class Targeting extends SubsystemBase {
     }
     if (latestResult.hasTargets()) {
       cameraTargets = latestResult.targets;
-      timer.stop();
-      timer.reset();
     } else {
-      timer.start();
     }
     SmartDashboard.putBoolean("Is Robot In Range", isInRange());
-    SmartDashboard.putNumber("Robot Offset", getRotationOffset().magnitude());
+    SmartDashboard.putNumber("Target Distance", getDistanceToTag().in(Inches));
   }
 }

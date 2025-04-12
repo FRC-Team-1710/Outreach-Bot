@@ -9,12 +9,22 @@ import frc.robot.Constants;
 
 public class TargetingTableMaker {
     /** Returns map of hood angles and velocities, trust. map[0].get(foots) = velocity | map[1].get(foots) = angle */
-    public static InterpolatingDoubleTreeMap[] generateMap() {
+    public static InterpolatingDoubleTreeMap[] generateShooterMap() {
         InterpolatingDoubleTreeMap[] map = {new InterpolatingDoubleTreeMap(), new InterpolatingDoubleTreeMap()};
         double[][] constants = Constants.Shooter.velandang;
         for (int i = 0; i < constants.length; i++) {
             map[0].put(constants[i][0], constants[i][1]);
             map[1].put(constants[i][0], constants[i][2]);
+        }
+        return map;
+    }
+
+    /** Returns map of hood angles and velocities, trust. map[0].get(angle) = correctedAngle */
+    public static InterpolatingDoubleTreeMap generateTargetingMap() {
+        InterpolatingDoubleTreeMap map = new InterpolatingDoubleTreeMap();
+        double[][] constants = Constants.Vision.wideCam;
+        for (int i = 0; i < constants.length; i++) {
+            map.put(constants[i][0], constants[i][1]);
         }
         return map;
     }

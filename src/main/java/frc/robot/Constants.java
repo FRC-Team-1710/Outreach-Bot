@@ -25,6 +25,17 @@ public final class Constants {
     public static final String kAprilTagCamera = "ICanSeeYou";
     public static final Translation3d cameraToShooter = new Translation3d(0, -0.2, 0); // Meters
     public static final Angle tolarence = Degrees.of(1.5);
+    public static final double[][] wideCam = new double[][] {
+      new double[] {20, 18.3},
+      new double[] {15, 13.5},
+      new double[] {10, 9.6},
+      new double[] {5, 5},
+      new double[] {0, 0},
+      new double[] {-20, -18.3},
+      new double[] {-15, -13.5},
+      new double[] {-10, -9.6},
+      new double[] {-5, -5}
+    };
   }
   
   public static final class Intaker {
@@ -44,16 +55,16 @@ public final class Constants {
     public static double fastShootSpeedRPM = 3000;
     public static final double idleSpeedRPM = 0;
     public static final double intakeSpeedRPM = 1500;
-    public static final double bufferRPM = 200;
+    public static final double bufferRPM = 750;
     public static final double feedPower = 0.5;
-    public static final double Shootangle = 30;
+    public static final double Shootangle = 25;
     public static final double extenderRatio = 20 / 1;
     public static final double Offset = 5;
 
 
     /** Target velocity and hood angle constants. Feet, Velocity, Angle */
     public static final double[][] velandang = new double[][] {
-      new double[] {100, 0, 0},
+      new double[] {100, 2000, 40},
       // new double[] {0, 0, 0},
       // new double[] {0, 0, 0},
       // new double[] {0, 0, 0},
@@ -62,7 +73,7 @@ public final class Constants {
       // new double[] {0, 0, 0},
       // new double[] {0, 0, 0},
       // new double[] {0, 0, 0},
-      new double[] {0, 0, 0}
+      new double[] {0, 2000, 40}
     };
   }
 

@@ -138,7 +138,8 @@ public class RobotContainer {
 
     // Target tags
     target.whileTrue(
-        new Target(m_driveSubsystem, m_intakeSubsystem, m_shooterSubsystem, m_targeting, () -> -Driver.getLeftX(),
+        new Target(m_driveSubsystem, m_intakeSubsystem, m_shooterSubsystem, 
+        m_targeting, () -> -Driver.getLeftX(),
             () -> -Driver.getLeftY(), () -> -Driver.getRightX()));
   }
 

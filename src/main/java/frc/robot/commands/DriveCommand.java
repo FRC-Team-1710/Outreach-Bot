@@ -7,6 +7,8 @@ import frc.robot.Constants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.utilities.math.Deadband;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
@@ -69,10 +71,12 @@ public class DriveCommand extends Command {
     // Square the rotation stick but keep the sign
     rotation = Math.copySign(Math.pow(rotation, 2.0), rotation);
 
+    SmartDashboard.putNumber("Current angle", m_drivetrainSubsystem.getGyro().in(Degrees));
+
     if (!isIntaking) {
-      m_drivetrainSubsystem.drive(new Translation2d(forward, strafe).times(MaxSpeed), rotation, false);
+      m_drivetrainSubsystem.drive(new Translation2d(forward, strafe).times(MaxSpeed), rotation, true);
     } else {
-      m_drivetrainSubsystem.drive(new Translation2d(0, 0).times(MaxSpeed), 0, false);
+      m_drivetrainSubsystem.drive(new Translation2d(0, 0).times(MaxSpeed), 0, true);
     }
   }
 

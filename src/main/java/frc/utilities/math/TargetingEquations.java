@@ -11,7 +11,7 @@ import edu.wpi.first.units.measure.Distance;
 import frc.utilities.util.TargetingTableMaker;
 
 public class TargetingEquations {
-    public static InterpolatingDoubleTreeMap[] map = TargetingTableMaker.generateMap();
+    public static InterpolatingDoubleTreeMap[] map = TargetingTableMaker.generateShooterMap();
 
     public static double[] BestVelocityAndAngle(Distance distanceFromTarget) {
         return new double[] {map[0].get(distanceFromTarget.in(Feet)), map[1].get(distanceFromTarget.in(Feet))};
