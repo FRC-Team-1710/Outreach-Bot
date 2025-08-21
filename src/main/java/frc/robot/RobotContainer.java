@@ -74,7 +74,7 @@ public class RobotContainer {
             m_driveSubsystem,
             () -> -Driver.getLeftX(),
             () -> -Driver.getLeftY(),
-            () -> -Driver.getRightX(),
+            () -> Driver.getRightX(),
             intakeThroughShooter));
 
     // m_shooterSubsystem.setDefaultCommand(
