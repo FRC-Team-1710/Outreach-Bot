@@ -4,21 +4,22 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.DriveCommand;
-import frc.robot.commands.IntakeThroughShooter;
-import frc.robot.commands.Shoot;
-import frc.robot.commands.Target;
-import frc.robot.commands.TheIntakeCommand;
-import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.IntakerSubsystem;
-import frc.robot.subsystems.OverBumperSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
-import frc.robot.subsystems.Targeting;
+import static edu.wpi.first.units.Units.Degrees;
+
+import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.math.geometry.Translation2d;
+import frc.robot.subsystems.simplySwerve.SimplyEstimator;
+import frc.robot.subsystems.simplySwerve.SimplySwerve;
+import frc.robot.subsystems.simplySwerve.SimplySwerveIO;
+import frc.robot.subsystems.simplySwerve.SimplySwerveIOCTRE;
+import frc.robot.subsystems.simplySwerve.SimplySwerveIOSIM;
+import frc.robot.subsystems.simplySwerve.SimplySwerveRequest;
+import frc.robot.subsystems.simplySwerve.SimplySwerveRequest.RequestType;
+import frc.robot.subsystems.simplySwerve.simplyModule.SimplyModule;
+import frc.robot.subsystems.simplySwerve.simplyModule.SimplyModuleConfig;
+import frc.robot.subsystems.simplySwerve.simplyModule.SimplyModuleIOCTRE;
+import frc.robot.subsystems.simplySwerve.simplyModule.SimplyModuleIOSIM;
+import frc.robot.utils.TunableController;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -30,122 +31,179 @@ import frc.robot.subsystems.Targeting;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  // The robot's subsystems and commands are defined here...
-  public final DriveSubsystem m_driveSubsystem = new DriveSubsystem();
-  public final IntakerSubsystem m_intakeSubsystem = new IntakerSubsystem();
-  public final OverBumperSubsystem m_overBumperSubsystem = new OverBumperSubsystem();
-  public final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
-  public final Targeting m_targeting = new Targeting();
+        // The robot's subsystems and commands are defined here...
+        // public final DriveSubsystem m_driveSubsystem = new DriveSubsystem();
+        // public final IntakerSubsystem m_intakeSubsystem = new IntakerSubsystem();
+        // public final OverBumperSubsystem m_overBumperSubsystem = new
+        // OverBumperSubsystem();
+        // public final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
+        private final SimplySwerve drive;
+        private final SimplyEstimator estimator;
 
-  public static final XboxController Driver = new XboxController(0);
+        private final TunableController driver = new TunableController(0);
 
-  /** Driver Start */
-  private final JoystickButton resetGyro = new JoystickButton(Driver, XboxController.Button.kStart.value);
-  /** Driver RB */
-  private final JoystickButton intake = new JoystickButton(Driver, XboxController.Button.kRightBumper.value);
-  /** Driver Down */
-  private final Trigger zeroArm = new Trigger(() -> Driver.getPOV() == 180);
-  /** Driver Up */
-  private final Trigger zeroExtender = new Trigger(() -> Driver.getPOV() == 0);
-  /** Driver RT */
-  private final Trigger target = new Trigger(() -> Driver.getRightTriggerAxis() > 0.75);
-  /** Driver Back */
-  private final JoystickButton zeroAll = new JoystickButton(Driver, XboxController.Button.kBack.value);
-  /** Driver LB */
-  private final JoystickButton outake = new JoystickButton(Driver, XboxController.Button.kLeftBumper.value);
-  /** Driver A */
-  private final JoystickButton shootNow = new JoystickButton(Driver, XboxController.Button.kA.value);
-  /** Driver B */
-  private final JoystickButton intakeThroughShooter = new JoystickButton(Driver, XboxController.Button.kB.value);
-  /** Driver X */
-  private final JoystickButton shooterdown = new JoystickButton(Driver, XboxController.Button.kX.value);
-  /** Driver Y */
-  private final JoystickButton shooterup = new JoystickButton(Driver, XboxController.Button.kY.value);
-  /** Driver Right Stick */
-  private final JoystickButton stopFlywheels = new JoystickButton(Driver, XboxController.Button.kRightStick.value);
+        private final SimplySwerveRequest request = new SimplySwerveRequest().withRequestType(RequestType.FIELD)
+                        .withDeadband(0.075);
 
-  /**
-   * The container for the robot. Contains subsystems, OI devices, and commands.
-   */
-  public RobotContainer() {
+        // /** Driver Start */
+        // private final JoystickButton resetGyro = new JoystickButton(Driver,
+        // XboxController.Button.kStart.value);
+        // /** Driver RB */
+        // private final JoystickButton intake = new JoystickButton(Driver,
+        // XboxController.Button.kRightBumper.value);
+        // /** Driver Down */
+        // private final Trigger zeroArm = new Trigger(() -> Driver.getPOV() == 180);
+        // /** Driver Up */
+        // private final Trigger zeroExtender = new Trigger(() -> Driver.getPOV() == 0);
+        // /** Driver RT */
+        // private final Trigger target = new Trigger(() -> Driver.getRightTriggerAxis()
+        // > 0.75);
+        // /** Driver Back */
+        // private final JoystickButton zeroAll = new JoystickButton(Driver,
+        // XboxController.Button.kBack.value);
+        // /** Driver LB */
+        // private final JoystickButton outake = new JoystickButton(Driver,
+        // XboxController.Button.kLeftBumper.value);
+        // /** Driver A */
+        // private final JoystickButton shootNow = new JoystickButton(Driver,
+        // XboxController.Button.kA.value);
+        // /** Driver B */
+        // private final JoystickButton intakeThroughShooter = new
+        // JoystickButton(Driver, XboxController.Button.kB.value);
+        // /** Driver X */
+        // private final JoystickButton shooterdown = new JoystickButton(Driver,
+        // XboxController.Button.kX.value);
+        // /** Driver Y */
+        // private final JoystickButton shooterup = new JoystickButton(Driver,
+        // XboxController.Button.kY.value);
+        // /** Driver Right Stick */
+        // private final JoystickButton stopFlywheels = new JoystickButton(Driver,
+        // XboxController.Button.kRightStick.value);
 
-    m_driveSubsystem.setDefaultCommand(
-        new DriveCommand(
-            m_driveSubsystem,
-            () -> -Driver.getLeftX(),
-            () -> -Driver.getLeftY(),
-            () -> Driver.getRightX(),
-            intakeThroughShooter));
+        public RobotContainer() {
+                switch (Constants.currentMode) {
+                        case REAL:
+                                SimplyModule module0 = new SimplyModule(
+                                                new SimplyModuleIOCTRE(
+                                                                new SimplyModuleConfig()
+                                                                                .withDriveId(Constants.Swerve.DRIVETRAIN_FRONT_LEFT_DRIVE_MOTOR)
+                                                                                .withSteerId(Constants.Swerve.DRIVETRAIN_FRONT_LEFT_ANGLE_MOTOR)
+                                                                                .withModuleId(0)
+                                                                                .withEncoderOffset(Degrees.of(0))),
+                                                0);
+                                SimplyModule module1 = new SimplyModule(
+                                                new SimplyModuleIOCTRE(
+                                                                new SimplyModuleConfig()
+                                                                                .withDriveId(Constants.Swerve.DRIVETRAIN_FRONT_RIGHT_DRIVE_MOTOR)
+                                                                                .withSteerId(Constants.Swerve.DRIVETRAIN_FRONT_RIGHT_ANGLE_MOTOR)
+                                                                                .withModuleId(1)
+                                                                                .withEncoderOffset(Degrees.of(0))),
+                                                1);
+                                SimplyModule module2 = new SimplyModule(
+                                                new SimplyModuleIOCTRE(
+                                                                new SimplyModuleConfig()
+                                                                                .withDriveId(Constants.Swerve.DRIVETRAIN_BACK_LEFT_DRIVE_MOTOR)
+                                                                                .withSteerId(Constants.Swerve.DRIVETRAIN_BACK_LEFT_ANGLE_MOTOR)
+                                                                                .withModuleId(2)
+                                                                                .withEncoderOffset(Degrees.of(0))),
+                                                2);
+                                SimplyModule module3 = new SimplyModule(
+                                                new SimplyModuleIOCTRE(
+                                                                new SimplyModuleConfig()
+                                                                                .withDriveId(Constants.Swerve.DRIVETRAIN_BACK_RIGHT_DRIVE_MOTOR)
+                                                                                .withSteerId(Constants.Swerve.DRIVETRAIN_BACK_RIGHT_ANGLE_MOTOR)
+                                                                                .withModuleId(3)
+                                                                                .withEncoderOffset(Degrees.of(0))),
+                                                3);
+                                drive = new SimplySwerve(
+                                                new SimplySwerveIOCTRE(
+                                                                new Translation2d[] {
+                                                                                new Translation2d(11.5, 11.5), // fl
+                                                                                new Translation2d(11.5, -11.5), // fr
+                                                                                new Translation2d(-11.5, 11.5), // bl
+                                                                                new Translation2d(-11.5, -11.5) // br
+                                                                },
+                                                                SPI.Port.kMXP,
+                                                                module0,
+                                                                module1,
+                                                                module2,
+                                                                module3));
 
-    // m_shooterSubsystem.setDefaultCommand(
-    // new ManualAim(
-    // m_shooterSubsystem,
-    // () -> Driver.getRawAxis(XboxController.Axis.kLeftTrigger.value),
-    // () -> Driver.getRawAxis(XboxController.Axis.kRightTrigger.value),
-    // intakeThroughShooter));
+                                estimator = new SimplyEstimator(drive);
 
-    // Configure the button bindings
-    configureButtonBindings();
-  }
+                                estimator.addModule(module0, new Translation2d(11.5, 11.5));
+                                estimator.addModule(module1, new Translation2d(11.5, -11.5));
+                                estimator.addModule(module2, new Translation2d(-11.5, 11.5));
+                                estimator.addModule(module3, new Translation2d(-11.5, -11.5));
+                                break;
+                        case SIM:
+                                SimplyModule module0sim = new SimplyModule(
+                                                new SimplyModuleIOSIM(
+                                                                new SimplyModuleConfig()
+                                                                                .withDriveId(Constants.Swerve.DRIVETRAIN_FRONT_LEFT_DRIVE_MOTOR)
+                                                                                .withSteerId(Constants.Swerve.DRIVETRAIN_FRONT_LEFT_ANGLE_MOTOR)
+                                                                                .withModuleId(0)
+                                                                                .withEncoderOffset(Degrees.of(0))),
+                                                0);
+                                SimplyModule module1sim = new SimplyModule(
+                                                new SimplyModuleIOSIM(
+                                                                new SimplyModuleConfig()
+                                                                                .withDriveId(Constants.Swerve.DRIVETRAIN_FRONT_RIGHT_DRIVE_MOTOR)
+                                                                                .withSteerId(Constants.Swerve.DRIVETRAIN_FRONT_RIGHT_ANGLE_MOTOR)
+                                                                                .withModuleId(1)
+                                                                                .withEncoderOffset(Degrees.of(0))),
+                                                1);
+                                SimplyModule module2sim = new SimplyModule(
+                                                new SimplyModuleIOSIM(
+                                                                new SimplyModuleConfig()
+                                                                                .withDriveId(Constants.Swerve.DRIVETRAIN_BACK_LEFT_DRIVE_MOTOR)
+                                                                                .withSteerId(Constants.Swerve.DRIVETRAIN_BACK_LEFT_ANGLE_MOTOR)
+                                                                                .withModuleId(2)
+                                                                                .withEncoderOffset(Degrees.of(0))),
+                                                2);
+                                SimplyModule module3sim = new SimplyModule(
+                                                new SimplyModuleIOSIM(
+                                                                new SimplyModuleConfig()
+                                                                                .withDriveId(Constants.Swerve.DRIVETRAIN_BACK_RIGHT_DRIVE_MOTOR)
+                                                                                .withSteerId(Constants.Swerve.DRIVETRAIN_BACK_RIGHT_ANGLE_MOTOR)
+                                                                                .withModuleId(3)
+                                                                                .withEncoderOffset(Degrees.of(0))),
+                                                3);
+                                drive = new SimplySwerve(
+                                                new SimplySwerveIOSIM(
+                                                                new Translation2d[] {
+                                                                                new Translation2d(11.5, 11.5), // fl
+                                                                                new Translation2d(11.5, -11.5), // fr
+                                                                                new Translation2d(-11.5, 11.5), // bl
+                                                                                new Translation2d(-11.5, -11.5) // br
+                                                                },
+                                                                SPI.Port.kMXP,
+                                                                module0sim,
+                                                                module1sim,
+                                                                module2sim,
+                                                                module3sim));
 
-  /**
-   * Use this method to define your button->command mappings. Buttons can be
-   * created by
-   * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing
-   * it to a {@link
-   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
-   */
-  private void configureButtonBindings() {
-    // Reset Gyro
-    resetGyro.onTrue(new InstantCommand(() -> m_driveSubsystem.resetGyroscope()));
+                                estimator = new SimplyEstimator(drive);
 
-    // Outake
-    outake.whileTrue(new InstantCommand(() -> m_intakeSubsystem.setInsideVel(Constants.Intaker.IntakeSpeed * -1)))
-        .onFalse(new InstantCommand(() -> m_intakeSubsystem.setInsideVel(0)));
+                                estimator.addModule(module0sim, new Translation2d(11.5, 11.5));
+                                estimator.addModule(module1sim, new Translation2d(11.5, -11.5));
+                                estimator.addModule(module2sim, new Translation2d(-11.5, 11.5));
+                                estimator.addModule(module3sim, new Translation2d(-11.5, -11.5));
+                                break;
+                        default:
+                                drive = new SimplySwerve(new SimplySwerveIO() {
+                                });
+                                estimator = new SimplyEstimator(drive);
+                                break;
+                }
 
-    // Intake through the front
-    intake.whileTrue(new TheIntakeCommand(m_intakeSubsystem, m_overBumperSubsystem, Driver));
+                configureButtonBindings();
+        }
 
-    // Intake through the shooter
-    shootNow.negate()
-        .and(intakeThroughShooter).whileTrue(new IntakeThroughShooter(m_shooterSubsystem, m_intakeSubsystem, Driver));
-
-    // Zero arm and extender
-    zeroAll
-        .onTrue(new InstantCommand(() -> m_overBumperSubsystem.setZero(Constants.Arm.Offset))
-            .alongWith(new InstantCommand(() -> m_shooterSubsystem.zeroHood(Constants.Shooter.Offset))))
-        .onFalse(new InstantCommand(() -> m_overBumperSubsystem.setUporDown(true, Constants.Arm.ArmUp)));
-
-    // Zero arm
-    zeroArm.onTrue(new InstantCommand(() -> m_overBumperSubsystem.setZero(Constants.Arm.Offset)));
-
-    // Zero extender
-    zeroExtender.onTrue(new InstantCommand(() -> m_shooterSubsystem.zeroHood(Constants.Shooter.Offset)));
-
-    // Shoot
-    intakeThroughShooter.negate()
-        .and(shootNow).whileTrue(new Shoot(m_shooterSubsystem, m_intakeSubsystem, Driver));
-
-    // Bring shooter down
-    shooterdown.onTrue(new InstantCommand(() -> m_shooterSubsystem.setHoodPosition(Constants.Shooter.Offset)));
-
-    // Bring shooter up to a preset angle
-    shooterup.onTrue(new InstantCommand(() -> m_shooterSubsystem.setHoodPosition(Constants.Shooter.Shootangle)));
-
-    // Stop flywheel
-    stopFlywheels.onTrue(new InstantCommand(() -> m_shooterSubsystem.setFlywheelVelocity(0)));
-
-    // Target tags
-    target.whileTrue(
-        new Target(m_driveSubsystem, m_intakeSubsystem, m_shooterSubsystem, 
-        m_targeting, () -> -Driver.getLeftX(),
-            () -> -Driver.getLeftY(), () -> -Driver.getRightX()));
-  }
-
-  public void stopAll() {
-    m_intakeSubsystem.StopAll();
-    m_overBumperSubsystem.StopAll();
-    m_shooterSubsystem.StopAll();
-  }
+        private void configureButtonBindings() {
+                drive.setDefaultCommand(drive.run(() -> request
+                                .withX(-driver.customLeft().getY())
+                                .withY(-driver.customLeft().getX())
+                                .withRotation(driver.customRight().getX())));
+        }
 }

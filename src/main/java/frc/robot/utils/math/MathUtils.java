@@ -1,4 +1,4 @@
-package frc.utilities.math;
+package frc.robot.utils.math;
 
 import static java.lang.Math.abs;
 import static java.lang.Math.max;

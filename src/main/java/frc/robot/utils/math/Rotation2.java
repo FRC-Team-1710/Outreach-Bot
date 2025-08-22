@@ -1,9 +1,10 @@
-package frc.utilities.math;
+package frc.robot.utils.math;
 
-import frc.utilities.util.Interpolable;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.Objects;
+
+import frc.robot.utils.Interpolable;
 
 /**
  * A rotation is a representation of an angle by trigonometric functions. This is useful because it

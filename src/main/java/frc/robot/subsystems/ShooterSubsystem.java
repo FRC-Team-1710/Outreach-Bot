@@ -27,7 +27,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.utilities.math.TempConvert;
 
 public class ShooterSubsystem extends SubsystemBase {
   private TalonFX flyWheel;
