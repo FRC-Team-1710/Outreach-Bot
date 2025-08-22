@@ -8,6 +8,8 @@ import static edu.wpi.first.units.Units.Degrees;
 
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.simplySwerve.SimplyEstimator;
 import frc.robot.subsystems.simplySwerve.SimplySwerve;
 import frc.robot.subsystems.simplySwerve.SimplySwerveIO;
@@ -31,19 +33,14 @@ import frc.robot.utils.TunableController;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-        // The robot's subsystems and commands are defined here...
-        // public final DriveSubsystem m_driveSubsystem = new DriveSubsystem();
-        // public final IntakerSubsystem m_intakeSubsystem = new IntakerSubsystem();
-        // public final OverBumperSubsystem m_overBumperSubsystem = new
-        // OverBumperSubsystem();
-        // public final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
         private final SimplySwerve drive;
         private final SimplyEstimator estimator;
+        private final Intake intake;
 
         private final TunableController driver = new TunableController(0);
 
         private final SimplySwerveRequest request = new SimplySwerveRequest().withRequestType(RequestType.FIELD)
-                        .withDeadband(0.075);
+                        .withDeadband(0.1);
 
         // /** Driver Start */
         // private final JoystickButton resetGyro = new JoystickButton(Driver,
@@ -81,6 +78,7 @@ public class RobotContainer {
         // XboxController.Button.kRightStick.value);
 
         public RobotContainer() {
+                intake = new Intake();
                 switch (Constants.currentMode) {
                         case REAL:
                                 SimplyModule module0 = new SimplyModule(
@@ -118,10 +116,10 @@ public class RobotContainer {
                                 drive = new SimplySwerve(
                                                 new SimplySwerveIOCTRE(
                                                                 new Translation2d[] {
-                                                                                new Translation2d(11.5, 11.5), // fl
-                                                                                new Translation2d(11.5, -11.5), // fr
-                                                                                new Translation2d(-11.5, 11.5), // bl
-                                                                                new Translation2d(-11.5, -11.5) // br
+                                                                                new Translation2d(Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)), // fl
+                                                                                new Translation2d(Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)), // fr
+                                                                                new Translation2d(-Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)), // bl
+                                                                                new Translation2d(-Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)) // br
                                                                 },
                                                                 SPI.Port.kMXP,
                                                                 module0,
@@ -131,10 +129,10 @@ public class RobotContainer {
 
                                 estimator = new SimplyEstimator(drive);
 
-                                estimator.addModule(module0, new Translation2d(11.5, 11.5));
-                                estimator.addModule(module1, new Translation2d(11.5, -11.5));
-                                estimator.addModule(module2, new Translation2d(-11.5, 11.5));
-                                estimator.addModule(module3, new Translation2d(-11.5, -11.5));
+                                estimator.addModule(module0, new Translation2d(Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)));
+                                estimator.addModule(module1, new Translation2d(Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)));
+                                estimator.addModule(module2, new Translation2d(-Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)));
+                                estimator.addModule(module3, new Translation2d(-Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)));
                                 break;
                         case SIM:
                                 SimplyModule module0sim = new SimplyModule(
@@ -172,10 +170,10 @@ public class RobotContainer {
                                 drive = new SimplySwerve(
                                                 new SimplySwerveIOSIM(
                                                                 new Translation2d[] {
-                                                                                new Translation2d(11.5, 11.5), // fl
-                                                                                new Translation2d(11.5, -11.5), // fr
-                                                                                new Translation2d(-11.5, 11.5), // bl
-                                                                                new Translation2d(-11.5, -11.5) // br
+                                                                                new Translation2d(Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)), // fl
+                                                                                new Translation2d(Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)), // fr
+                                                                                new Translation2d(-Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)), // bl
+                                                                                new Translation2d(-Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)) // br
                                                                 },
                                                                 SPI.Port.kMXP,
                                                                 module0sim,
@@ -185,10 +183,10 @@ public class RobotContainer {
 
                                 estimator = new SimplyEstimator(drive);
 
-                                estimator.addModule(module0sim, new Translation2d(11.5, 11.5));
-                                estimator.addModule(module1sim, new Translation2d(11.5, -11.5));
-                                estimator.addModule(module2sim, new Translation2d(-11.5, 11.5));
-                                estimator.addModule(module3sim, new Translation2d(-11.5, -11.5));
+                                estimator.addModule(module0sim, new Translation2d(Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)));
+                                estimator.addModule(module1sim, new Translation2d(Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)));
+                                estimator.addModule(module2sim, new Translation2d(-Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)));
+                                estimator.addModule(module3sim, new Translation2d(-Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)));
                                 break;
                         default:
                                 drive = new SimplySwerve(new SimplySwerveIO() {

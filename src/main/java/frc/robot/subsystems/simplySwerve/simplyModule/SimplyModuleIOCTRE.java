@@ -9,15 +9,17 @@ import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
-import com.ctre.phoenix6.configs.ClosedLoopGeneralConfigs;
-import com.ctre.phoenix6.configs.CustomParamsConfigs;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SimplyModuleIOCTRE implements SimplyModuleIO {
   private final double kDriveGearRatio = 5.90277777777778;
@@ -34,58 +36,85 @@ public class SimplyModuleIOCTRE implements SimplyModuleIO {
   private final TalonFX drive;
   private final TalonFX steer;
 
-  private final PositionTorqueCurrentFOC request = new PositionTorqueCurrentFOC(0).withSlot(0);
+  // private final PositionTorqueCurrentFOC request = new
+  // PositionTorqueCurrentFOC(0).withSlot(0);
+  private final PositionVoltage request = new PositionVoltage(0).withSlot(1).withEnableFOC(true);
 
   public SimplyModuleIOCTRE(SimplyModuleConfig config) {
     this.moduleId = config.moduleId;
     drive = new TalonFX(config.driveId);
     steer = new TalonFX(config.steerId);
 
-    var steerConfig = new TalonFXConfiguration().withClosedLoopGeneral(new ClosedLoopGeneralConfigs().withContinuousWrap(true));
+    var steerConfig = new TalonFXConfiguration()
+        .withSlot0(
+            new Slot0Configs()
+                .withKP(0)
+                .withKI(0)
+                .withKD(0))
+        .withSlot1(
+            new Slot1Configs()
+                .withKP(0)
+                .withKI(0)
+                .withKD(0))
+        .withCurrentLimits(
+            new CurrentLimitsConfigs()
+                .withStatorCurrentLimitEnable(false)
+                .withSupplyCurrentLimitEnable(false))
+        .withMotorOutput(
+            new MotorOutputConfigs()
+                .withInverted(InvertedValue.Clockwise_Positive)
+                .withNeutralMode(NeutralModeValue.Coast));
+
+    var driveConfig = new TalonFXConfiguration()
+        .withCurrentLimits(
+            new CurrentLimitsConfigs()
+                .withStatorCurrentLimit(40)
+                .withStatorCurrentLimitEnable(true)
+                .withSupplyCurrentLimitEnable(false))
+        .withMotorOutput(
+            new MotorOutputConfigs()
+                .withInverted(InvertedValue.Clockwise_Positive)
+                .withNeutralMode(NeutralModeValue.Brake));
+
+    steer.getConfigurator().apply(steerConfig);
+    drive.getConfigurator().apply(driveConfig);
   }
 
   @Override
   public void updateInputs(SimplyModuleIOInputs inputs) {
-    invertSteer =
-        Math.abs(
-                getShortestDistance(
-                    speeds.getSteerSetpoint().in(Degrees),
-                    steer.getPosition().getValue().in(Degrees) % 360))
-            > Math.abs(
+    invertSteer = Math.abs(
+        getShortestDistance(
+            speeds.getSteerSetpoint().in(Degrees),
+            getSteerPosition())) > Math.abs(
                 getShortestDistance(
                     speeds.getSteerSetpoint().in(Degrees),
                     (steer.getPosition().getValue().in(Degrees) + 180) % 360));
 
     drive.setVoltage(speeds.getDriveVelocity().in(MetersPerSecond) / 5.16 * (invertSteer ? -1 : 1));
 
-    steer.setControl(request.withPosition(speeds.getSteerSetpoint().in(Rotations)%0.5));
+    steer.setControl(request.withPosition((speeds.getSteerSetpoint().in(Rotations) * kSteerGearRatio) % 0.5));
 
-    inputs.wheelRotation =
-        Meters.of(
-            4
-                * Math.PI
-                * drive.getPosition().getValue().in(Rotations)
-                * kWheelRadius.in(Meters)
-                * kDriveGearRatio);
-    inputs.driveVelocity =
-        MetersPerSecond.of(
-            4
-                * Math.PI
-                * drive.getVelocity().getValue().in(RotationsPerSecond)
-                * kWheelRadius.in(Meters)
-                * kDriveGearRatio);
-    inputs.driveAcceleration =
-        MetersPerSecondPerSecond.of(
-            4
-                * drive.getAcceleration().getValue().in(RotationsPerSecondPerSecond)
-                * kWheelRadius.in(Meters)
-                * kDriveGearRatio);
-    inputs.rotation = Rotations.of(steer.getPosition().getValue().in(Rotations));
-    inputs.rotationVelocity =
-        RotationsPerSecond.of(steer.getVelocity().getValue().in(RotationsPerSecond));
-    inputs.rotationAcceleration =
-        RotationsPerSecondPerSecond.of(
-            steer.getAcceleration().getValue().in(RotationsPerSecondPerSecond));
+    inputs.wheelRotation = Meters.of(
+        4
+            * Math.PI
+            * drive.getPosition().getValue().in(Rotations)
+            * kWheelRadius.in(Meters)
+            * kDriveGearRatio);
+    inputs.driveVelocity = MetersPerSecond.of(
+        4
+            * Math.PI
+            * drive.getVelocity().getValue().in(RotationsPerSecond)
+            * kWheelRadius.in(Meters)
+            * kDriveGearRatio);
+    inputs.driveAcceleration = MetersPerSecondPerSecond.of(
+        4
+            * drive.getAcceleration().getValue().in(RotationsPerSecondPerSecond)
+            * kWheelRadius.in(Meters)
+            * kDriveGearRatio);
+    inputs.rotation = Rotations.of(getSteerPosition() / 360);
+    inputs.rotationVelocity = RotationsPerSecond.of(steer.getVelocity().getValue().in(RotationsPerSecond) / kSteerGearRatio);
+    inputs.rotationAcceleration = RotationsPerSecondPerSecond.of(
+        steer.getAcceleration().getValue().in(RotationsPerSecondPerSecond) / kSteerGearRatio);
     inputs.appliedVoltage = steer.getMotorVoltage().getValueAsDouble();
     speeds.log(moduleId);
   }
@@ -105,5 +134,9 @@ public class SimplyModuleIOCTRE implements SimplyModuleIO {
     } else {
       return diff;
     }
+  }
+
+  private double getSteerPosition() {
+    return (steer.getPosition().getValue().in(Degrees) / kSteerGearRatio) % 360;
   }
 }

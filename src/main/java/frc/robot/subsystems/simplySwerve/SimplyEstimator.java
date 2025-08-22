@@ -165,7 +165,7 @@ public class SimplyEstimator extends SubsystemBase {
             avgX / modules.length,
             avgY / modules.length,
             Rotation2d.fromDegrees(Units.radiansToDegrees(-rotation))
-                .plus(Rotation2d.fromDegrees(90)));
+                .plus(Rotation2d.fromDegrees(0)));
   }
 
   private Pose2d getModulePose(int num) {
