@@ -44,6 +44,11 @@ public class SimplySwerveIOCTRE implements SimplySwerveIO {
     this.request = request;
   }
 
+  @Override
+  public void resetGyro() {
+    navx.setAdjustmentAngle(navx.getUnadjustedAngle());
+  }
+
   private Angle getRobotAngle() {
     return Degrees.of(navx.getAngle().toDegrees()).plus(Degrees.of(Constants.redAlliance ? 180 : 0));
   }

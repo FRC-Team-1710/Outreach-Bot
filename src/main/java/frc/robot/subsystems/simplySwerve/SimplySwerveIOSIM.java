@@ -51,4 +51,7 @@ public class SimplySwerveIOSIM implements SimplySwerveIO {
   private Angle getRobotAngle() {
     return pigeon.getYaw().getValue().plus(Degrees.of(Constants.redAlliance ? 180 : 0));
   }
+
+  @Override
+  public void resetGyro() {}
 }

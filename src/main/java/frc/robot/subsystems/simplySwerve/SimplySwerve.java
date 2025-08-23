@@ -33,4 +33,8 @@ public class SimplySwerve extends SubsystemBase {
   public void setPose(Pose2d pose) {
     inputs.pose = pose;
   }
+
+  public void resetGyro() {
+    io.resetGyro();
+  }
 }

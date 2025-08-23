@@ -29,4 +29,6 @@ public interface SimplySwerveIO {
   public default void updateInputs(SimplySwerveIOInputs inputs) {}
 
   public default void run(SimplySwerveRequest request) {}
+
+  public default void resetGyro() {}
 }
