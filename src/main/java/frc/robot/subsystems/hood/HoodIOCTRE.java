@@ -21,12 +21,19 @@ public class HoodIOCTRE implements HoodIO {
   private final StatusSignal<AngularVelocity> velocity = hood.getVelocity();
   private final StatusSignal<Angle> position = hood.getPosition();
 
+  private double positionP = 2;
+  private double positionI = 0;
+  private double positionD = 0;
+
   private final PositionVoltage request = new PositionVoltage(0).withSlot(0).withEnableFOC(true);
 
   public HoodIOCTRE() {
     var config = new TalonFXConfiguration();
     config.MotorOutput.withNeutralMode(NeutralModeValue.Brake);
     config.MotorOutput.withInverted(InvertedValue.Clockwise_Positive);
+    config.Slot0.withKP(positionP);
+    config.Slot0.withKI(positionI);
+    config.Slot0.withKD(positionD);
 
     hood.getConfigurator().apply(config);
 

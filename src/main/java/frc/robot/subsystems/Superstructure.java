@@ -156,6 +156,9 @@ public class Superstructure extends SubsystemBase {
     shooter.setState(ShooterStates.INTAKE);
     hood.setState(HoodStates.IDLE);
     applyDrive();
+    if (intake.ballSecured()) {
+      setState(WantedState.DEFAULT);
+    }
   }
 
   private void manualOutake() {

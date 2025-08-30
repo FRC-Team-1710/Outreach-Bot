@@ -30,10 +30,11 @@ public class Shooter extends SubsystemBase {
         io.setVoltage(Volts.of(0));
         break;
       case INTAKE:
-        io.setVoltage(Volts.of(Constants.Flywheel.IntakeSpeed * 12));
+        io.setVoltage(Volts.of(Constants.Flywheel.IntakeSpeed * -12));
         break;
       case SHOOT:
-        io.setSpeed(RotationsPerSecond.of(Constants.Flywheel.ShootSpeedRPM/60));
+        io.setVoltage(Volts.of(Constants.Flywheel.ShootSpeedRPM / 6380 * 12));
+        // io.setSpeed(RotationsPerSecond.of(Constants.Flywheel.ShootSpeedRPM/60));
         break;
     }
   }

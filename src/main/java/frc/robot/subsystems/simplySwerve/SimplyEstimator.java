@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems.simplySwerve;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
@@ -11,14 +12,19 @@ import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
+import java.util.function.Supplier;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+import frc.robot.Constants.Mode;
 import frc.robot.subsystems.simplySwerve.simplyModule.SimplyModule;
 import frc.robot.subsystems.simplySwerve.simplyModule.SimplyModuleState;
 import frc.robot.utils.math.CustomQuinticHermiteSpline;
@@ -41,6 +47,8 @@ public class SimplyEstimator extends SubsystemBase {
 
   private Pose2d currentPose = new Pose2d();
 
+  private final Supplier<Angle> gyroSupplier;
+
   private SimplyModule[] modules = new SimplyModule[0];
   private SimplyModuleState[] previousStates = new SimplyModuleState[0];
   private SimplyModuleState[] currentStates = new SimplyModuleState[0];
@@ -53,10 +61,11 @@ public class SimplyEstimator extends SubsystemBase {
 
   private final Timer beginTimer = new Timer();
 
-  public SimplyEstimator(SimplySwerve drive) {
+  public SimplyEstimator(SimplySwerve drive, Supplier<Angle> gyroSupplier) {
     this.drive = drive;
     beginTimer.reset();
     beginTimer.start();
+    this.gyroSupplier = gyroSupplier;
   }
 
   public void addModule(SimplyModule module, Translation2d moduleLocation) {
@@ -92,9 +101,12 @@ public class SimplyEstimator extends SubsystemBase {
               .withRotation(modules[i].getAngle().plus(currentPose.getRotation().getMeasure()));
     }
     currentPose = drive.getPose();
-    if (beginTimer.hasElapsed(2.5)) {
+    if (beginTimer.hasElapsed(2)) {
       estimate();
       drive.setPose(currentPose);
+      if(!beginTimer.hasElapsed(2.25)) {
+        drive.setPose(new Pose2d());
+      }
     }
     previousStates = currentStates.clone();
     delayEnd = RobotController.getFPGATime();
@@ -156,15 +168,15 @@ public class SimplyEstimator extends SubsystemBase {
       avgX += moduleEstimations[i].getX();
       avgY += moduleEstimations[i].getY();
     }
-    rotation +=
-        Math.atan2(
+    rotation = (Constants.currentMode == Mode.SIM ? 
+        -Units.radiansToDegrees(Math.atan2(
             moduleEstimations[0].getX() - moduleEstimations[(0 + 1) % (modules.length - 1)].getX(),
-            moduleEstimations[0].getY() - moduleEstimations[(0 + 1) % (modules.length - 1)].getY());
+            moduleEstimations[0].getY() - moduleEstimations[(0 + 1) % (modules.length - 1)].getY())) : gyroSupplier.get().in(Degrees));
     currentPose =
         new Pose2d(
             avgX / modules.length,
             avgY / modules.length,
-            Rotation2d.fromDegrees(Units.radiansToDegrees(-rotation))
+            Rotation2d.fromDegrees(rotation)
                 .plus(Rotation2d.fromDegrees(0)));
   }
 

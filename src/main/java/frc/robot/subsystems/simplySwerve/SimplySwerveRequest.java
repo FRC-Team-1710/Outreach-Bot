@@ -49,7 +49,6 @@ public class SimplySwerveRequest {
 
   public enum RequestType {
     FIELD(),
-    ROBOT(),
-    SYSID()
+    ROBOT()
   }
 }

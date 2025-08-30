@@ -38,7 +38,7 @@ public class SimplyModuleIOCTRE implements SimplyModuleIO {
 
   // private final PositionTorqueCurrentFOC request = new
   // PositionTorqueCurrentFOC(0).withSlot(0);
-  private final PositionVoltage request = new PositionVoltage(0).withSlot(1).withEnableFOC(true);
+  private final PositionVoltage request = new PositionVoltage(0).withSlot(0).withEnableFOC(true);
 
   public SimplyModuleIOCTRE(SimplyModuleConfig config) {
     this.moduleId = config.moduleId;
@@ -48,7 +48,7 @@ public class SimplyModuleIOCTRE implements SimplyModuleIO {
     var steerConfig = new TalonFXConfiguration()
         .withSlot0(
             new Slot0Configs()
-                .withKP(0)
+                .withKP(3)
                 .withKI(0)
                 .withKD(0))
         .withSlot1(
@@ -82,17 +82,17 @@ public class SimplyModuleIOCTRE implements SimplyModuleIO {
 
   @Override
   public void updateInputs(SimplyModuleIOInputs inputs) {
-    invertSteer = Math.abs(
-        getShortestDistance(
-            speeds.getSteerSetpoint().in(Degrees),
-            getSteerPosition())) > Math.abs(
-                getShortestDistance(
-                    speeds.getSteerSetpoint().in(Degrees),
-                    (steer.getPosition().getValue().in(Degrees) + 180) % 360));
+    // invertSteer = Math.abs(
+    //     getShortestDistance(
+    //         speeds.getSteerSetpoint().in(Degrees),
+    //         getSteerPosition())) > Math.abs(
+    //             getShortestDistance(
+    //                 speeds.getSteerSetpoint().in(Degrees),
+    //                 (getSteerPosition() + 180) % 360));
 
     drive.setVoltage(speeds.getDriveVelocity().in(MetersPerSecond) / 5.16 * (invertSteer ? -1 : 1));
 
-    steer.setControl(request.withPosition((speeds.getSteerSetpoint().in(Rotations) * kSteerGearRatio) % 0.5));
+    steer.setControl(request.withPosition((speeds.getSteerSetpoint().in(Rotations) * kSteerGearRatio)));
 
     inputs.wheelRotation = Meters.of(
         4

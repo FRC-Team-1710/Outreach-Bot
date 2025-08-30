@@ -19,7 +19,7 @@ public final class Constants {
   public static final class Flywheel {
     public static double ShootSpeedRPM = 3000;
     public static final double BufferRPM = 500;
-    public static final double IntakeSpeed = 0.5;
+    public static final double IntakeSpeed = 0.25;
   }
 
   public static final class Swerve {

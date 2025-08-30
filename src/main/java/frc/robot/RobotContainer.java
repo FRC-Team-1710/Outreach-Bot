@@ -6,6 +6,8 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
 
+import java.util.function.Supplier;
+
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -43,7 +45,6 @@ public class RobotContainer {
         private final Shooter shooter;
         private final Hood hood;
 
-        @SuppressWarnings("unused")
         private final Superstructure superstructure;
 
         private final TunableController driver = new TunableController(0);
@@ -103,21 +104,21 @@ public class RobotContainer {
                                                                                 .withModuleId(3)
                                                                                 .withEncoderOffset(Degrees.of(0))),
                                                 3);
-                                drive = new SimplySwerve(
-                                                new SimplySwerveIOCTRE(
-                                                                new Translation2d[] {
-                                                                                new Translation2d(Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)), // fl
-                                                                                new Translation2d(Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)), // fr
-                                                                                new Translation2d(-Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)), // bl
-                                                                                new Translation2d(-Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)) // br
-                                                                },
-                                                                SPI.Port.kMXP,
-                                                                module0,
-                                                                module1,
-                                                                module2,
-                                                                module3));
+                                var ctre = new SimplySwerveIOCTRE(
+                                        new Translation2d[] {
+                                                        new Translation2d(Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)), // fl
+                                                        new Translation2d(Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)), // fr
+                                                        new Translation2d(-Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)), // bl
+                                                        new Translation2d(-Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)) // br
+                                        },
+                                        SPI.Port.kMXP,
+                                        module0,
+                                        module1,
+                                        module2,
+                                        module3);
+                                drive = new SimplySwerve(ctre);
 
-                                estimator = new SimplyEstimator(drive);
+                                estimator = new SimplyEstimator(drive, ctre::getRobotAngle);
 
                                 estimator.addModule(module0, new Translation2d(Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)));
                                 estimator.addModule(module1, new Translation2d(Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)));
@@ -174,7 +175,7 @@ public class RobotContainer {
                                                                 module2sim,
                                                                 module3sim));
 
-                                estimator = new SimplyEstimator(drive);
+                                estimator = new SimplyEstimator(drive, drive::getPoseAngle);
 
                                 estimator.addModule(module0sim, new Translation2d(Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)));
                                 estimator.addModule(module1sim, new Translation2d(Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)));
@@ -187,7 +188,7 @@ public class RobotContainer {
                         hood = new Hood(new HoodIO() {});
                                 drive = new SimplySwerve(new SimplySwerveIO() {
                                 });
-                                estimator = new SimplyEstimator(drive);
+                                estimator = new SimplyEstimator(drive, drive::getPoseAngle);
                                 break;
                 }
 

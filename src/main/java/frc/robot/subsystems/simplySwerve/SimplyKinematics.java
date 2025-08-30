@@ -107,9 +107,7 @@ public class SimplyKinematics {
       }
     } else {
       for (int i = 0; i < moduleLocations.length; i++) {
-        moduleSpeeds[i] =
-            new SimplyModuleSpeeds()
-                .withSteerSetpoint(moduleSpeeds[i].getSteerSetpoint())
+        moduleSpeeds[i] = moduleSpeeds[i]//.withSteerSetpoint(Degrees.of(0))
                 .withDriveSpeed(MetersPerSecond.of(0));
         logableStates[i] =
             new SwerveModuleState(

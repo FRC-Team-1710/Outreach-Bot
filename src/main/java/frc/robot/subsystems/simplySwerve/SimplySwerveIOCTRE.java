@@ -2,6 +2,8 @@ package frc.robot.subsystems.simplySwerve;
 
 import static edu.wpi.first.units.Units.Degrees;
 
+import org.littletonrobotics.junction.AutoLogOutput;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -32,7 +34,7 @@ public class SimplySwerveIOCTRE implements SimplySwerveIO {
     SimplyModuleSpeeds[] speeds = kinematics.getSpeeds(request);
     inputs.logableStates = new SwerveModuleState[speeds.length];
     for (int i = 0; i < speeds.length; i++) {
-      modules[i].applySpeeds(speeds[i]);
+      modules[i].applySpeeds(speeds[i]);//.withSteerSetpoint(speeds[i].getSteerSetpoint().plus(Degrees.of(45))));
       inputs.logableStates[i] =
           new SwerveModuleState(
               modules[i].getVelocity(), Rotation2d.fromDegrees(modules[i].getAngle().in(Degrees)));
@@ -49,7 +51,8 @@ public class SimplySwerveIOCTRE implements SimplySwerveIO {
     navx.setAdjustmentAngle(navx.getUnadjustedAngle());
   }
 
-  private Angle getRobotAngle() {
+  @AutoLogOutput(key = "RobotAngle")
+  public Angle getRobotAngle() {
     return Degrees.of(navx.getAngle().toDegrees()).plus(Degrees.of(Constants.redAlliance ? 180 : 0));
   }
 }
