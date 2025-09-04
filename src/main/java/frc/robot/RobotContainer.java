@@ -4,15 +4,9 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Degrees;
-
-import java.util.function.Supplier;
-
-import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.util.Units;
+import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.WantedState;
 import frc.robot.subsystems.hood.Hood;
@@ -27,20 +21,12 @@ import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterIO;
 import frc.robot.subsystems.shooter.ShooterIOCTRE;
 import frc.robot.subsystems.shooter.ShooterIOSIM;
-import frc.robot.subsystems.simplySwerve.SimplyEstimator;
-import frc.robot.subsystems.simplySwerve.SimplySwerve;
-import frc.robot.subsystems.simplySwerve.SimplySwerveIO;
-import frc.robot.subsystems.simplySwerve.SimplySwerveIOCTRE;
-import frc.robot.subsystems.simplySwerve.SimplySwerveIOSIM;
-import frc.robot.subsystems.simplySwerve.simplyModule.SimplyModule;
-import frc.robot.subsystems.simplySwerve.simplyModule.SimplyModuleConfig;
-import frc.robot.subsystems.simplySwerve.simplyModule.SimplyModuleIOCTRE;
-import frc.robot.subsystems.simplySwerve.simplyModule.SimplyModuleIOSIM;
 import frc.robot.utils.TunableController;
 
 public class RobotContainer {
-        private final SimplySwerve drive;
-        private final SimplyEstimator estimator;
+        // private final SimplySwerve drive;
+        // private final SimplyEstimator estimator;
+        private final DriveSubsystem drive;
         private final Intake intake;
         private final Shooter shooter;
         private final Hood hood;
@@ -67,138 +53,140 @@ public class RobotContainer {
         private final Trigger prepShot = intakeNormal.and(intakeThroughShooter);
 
         public RobotContainer() {
+                drive = new DriveSubsystem();
                 switch (Constants.currentMode) {
                         case REAL:
                         intake = new Intake(new IntakeIOCTRE());
                         shooter = new Shooter(new ShooterIOCTRE());
                         hood = new Hood(new HoodIOCTRE());
-                                SimplyModule module0 = new SimplyModule(
-                                                new SimplyModuleIOCTRE(
-                                                                new SimplyModuleConfig()
-                                                                                .withDriveId(Constants.Swerve.DRIVETRAIN_FRONT_LEFT_DRIVE_MOTOR)
-                                                                                .withSteerId(Constants.Swerve.DRIVETRAIN_FRONT_LEFT_ANGLE_MOTOR)
-                                                                                .withModuleId(0)
-                                                                                .withEncoderOffset(Degrees.of(0))),
-                                                0);
-                                SimplyModule module1 = new SimplyModule(
-                                                new SimplyModuleIOCTRE(
-                                                                new SimplyModuleConfig()
-                                                                                .withDriveId(Constants.Swerve.DRIVETRAIN_FRONT_RIGHT_DRIVE_MOTOR)
-                                                                                .withSteerId(Constants.Swerve.DRIVETRAIN_FRONT_RIGHT_ANGLE_MOTOR)
-                                                                                .withModuleId(1)
-                                                                                .withEncoderOffset(Degrees.of(0))),
-                                                1);
-                                SimplyModule module2 = new SimplyModule(
-                                                new SimplyModuleIOCTRE(
-                                                                new SimplyModuleConfig()
-                                                                                .withDriveId(Constants.Swerve.DRIVETRAIN_BACK_LEFT_DRIVE_MOTOR)
-                                                                                .withSteerId(Constants.Swerve.DRIVETRAIN_BACK_LEFT_ANGLE_MOTOR)
-                                                                                .withModuleId(2)
-                                                                                .withEncoderOffset(Degrees.of(0))),
-                                                2);
-                                SimplyModule module3 = new SimplyModule(
-                                                new SimplyModuleIOCTRE(
-                                                                new SimplyModuleConfig()
-                                                                                .withDriveId(Constants.Swerve.DRIVETRAIN_BACK_RIGHT_DRIVE_MOTOR)
-                                                                                .withSteerId(Constants.Swerve.DRIVETRAIN_BACK_RIGHT_ANGLE_MOTOR)
-                                                                                .withModuleId(3)
-                                                                                .withEncoderOffset(Degrees.of(0))),
-                                                3);
-                                var ctre = new SimplySwerveIOCTRE(
-                                        new Translation2d[] {
-                                                        new Translation2d(Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)), // fl
-                                                        new Translation2d(Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)), // fr
-                                                        new Translation2d(-Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)), // bl
-                                                        new Translation2d(-Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)) // br
-                                        },
-                                        SPI.Port.kMXP,
-                                        module0,
-                                        module1,
-                                        module2,
-                                        module3);
-                                drive = new SimplySwerve(ctre);
+                                // SimplyModule module0 = new SimplyModule(
+                                //                 new SimplyModuleIOCTRE(
+                                //                                 new SimplyModuleConfig()
+                                //                                                 .withDriveId(Constants.Swerve.DRIVETRAIN_FRONT_LEFT_DRIVE_MOTOR)
+                                //                                                 .withSteerId(Constants.Swerve.DRIVETRAIN_FRONT_LEFT_ANGLE_MOTOR)
+                                //                                                 .withModuleId(0)
+                                //                                                 .withEncoderOffset(Degrees.of(0))),
+                                //                 0);
+                                // SimplyModule module1 = new SimplyModule(
+                                //                 new SimplyModuleIOCTRE(
+                                //                                 new SimplyModuleConfig()
+                                //                                                 .withDriveId(Constants.Swerve.DRIVETRAIN_FRONT_RIGHT_DRIVE_MOTOR)
+                                //                                                 .withSteerId(Constants.Swerve.DRIVETRAIN_FRONT_RIGHT_ANGLE_MOTOR)
+                                //                                                 .withModuleId(1)
+                                //                                                 .withEncoderOffset(Degrees.of(0))),
+                                //                 1);
+                                // SimplyModule module2 = new SimplyModule(
+                                //                 new SimplyModuleIOCTRE(
+                                //                                 new SimplyModuleConfig()
+                                //                                                 .withDriveId(Constants.Swerve.DRIVETRAIN_BACK_LEFT_DRIVE_MOTOR)
+                                //                                                 .withSteerId(Constants.Swerve.DRIVETRAIN_BACK_LEFT_ANGLE_MOTOR)
+                                //                                                 .withModuleId(2)
+                                //                                                 .withEncoderOffset(Degrees.of(0))),
+                                //                 2);
+                                // SimplyModule module3 = new SimplyModule(
+                                //                 new SimplyModuleIOCTRE(
+                                //                                 new SimplyModuleConfig()
+                                //                                                 .withDriveId(Constants.Swerve.DRIVETRAIN_BACK_RIGHT_DRIVE_MOTOR)
+                                //                                                 .withSteerId(Constants.Swerve.DRIVETRAIN_BACK_RIGHT_ANGLE_MOTOR)
+                                //                                                 .withModuleId(3)
+                                //                                                 .withEncoderOffset(Degrees.of(0))),
+                                //                 3);
+                                // var ctre = new SimplySwerveIOCTRE(
+                                //         new Translation2d[] {
+                                //                         new Translation2d(Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)), // fl
+                                //                         new Translation2d(Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)), // fr
+                                //                         new Translation2d(-Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)), // bl
+                                //                         new Translation2d(-Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)) // br
+                                //         },
+                                //         SPI.Port.kMXP,
+                                //         module0,
+                                //         module1,
+                                //         module2,
+                                //         module3);
+                                // drive = new SimplySwerve(ctre);
 
-                                estimator = new SimplyEstimator(drive, ctre::getRobotAngle);
+                                // estimator = new SimplyEstimator(drive, ctre::getRobotAngle);
 
-                                estimator.addModule(module0, new Translation2d(Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)));
-                                estimator.addModule(module1, new Translation2d(Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)));
-                                estimator.addModule(module2, new Translation2d(-Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)));
-                                estimator.addModule(module3, new Translation2d(-Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)));
+                                // estimator.addModule(module0, new Translation2d(Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)));
+                                // estimator.addModule(module1, new Translation2d(Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)));
+                                // estimator.addModule(module2, new Translation2d(-Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)));
+                                // estimator.addModule(module3, new Translation2d(-Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)));
                                 break;
                         case SIM:
                         intake = new Intake(new IntakeIOSIM());
                         shooter = new Shooter(new ShooterIOSIM());
                         hood = new Hood(new HoodIOSIM());
-                                SimplyModule module0sim = new SimplyModule(
-                                                new SimplyModuleIOSIM(
-                                                                new SimplyModuleConfig()
-                                                                                .withDriveId(Constants.Swerve.DRIVETRAIN_FRONT_LEFT_DRIVE_MOTOR)
-                                                                                .withSteerId(Constants.Swerve.DRIVETRAIN_FRONT_LEFT_ANGLE_MOTOR)
-                                                                                .withModuleId(0)
-                                                                                .withEncoderOffset(Degrees.of(0))),
-                                                0);
-                                SimplyModule module1sim = new SimplyModule(
-                                                new SimplyModuleIOSIM(
-                                                                new SimplyModuleConfig()
-                                                                                .withDriveId(Constants.Swerve.DRIVETRAIN_FRONT_RIGHT_DRIVE_MOTOR)
-                                                                                .withSteerId(Constants.Swerve.DRIVETRAIN_FRONT_RIGHT_ANGLE_MOTOR)
-                                                                                .withModuleId(1)
-                                                                                .withEncoderOffset(Degrees.of(0))),
-                                                1);
-                                SimplyModule module2sim = new SimplyModule(
-                                                new SimplyModuleIOSIM(
-                                                                new SimplyModuleConfig()
-                                                                                .withDriveId(Constants.Swerve.DRIVETRAIN_BACK_LEFT_DRIVE_MOTOR)
-                                                                                .withSteerId(Constants.Swerve.DRIVETRAIN_BACK_LEFT_ANGLE_MOTOR)
-                                                                                .withModuleId(2)
-                                                                                .withEncoderOffset(Degrees.of(0))),
-                                                2);
-                                SimplyModule module3sim = new SimplyModule(
-                                                new SimplyModuleIOSIM(
-                                                                new SimplyModuleConfig()
-                                                                                .withDriveId(Constants.Swerve.DRIVETRAIN_BACK_RIGHT_DRIVE_MOTOR)
-                                                                                .withSteerId(Constants.Swerve.DRIVETRAIN_BACK_RIGHT_ANGLE_MOTOR)
-                                                                                .withModuleId(3)
-                                                                                .withEncoderOffset(Degrees.of(0))),
-                                                3);
-                                drive = new SimplySwerve(
-                                                new SimplySwerveIOSIM(
-                                                                new Translation2d[] {
-                                                                                new Translation2d(Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)), // fl
-                                                                                new Translation2d(Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)), // fr
-                                                                                new Translation2d(-Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)), // bl
-                                                                                new Translation2d(-Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)) // br
-                                                                },
-                                                                SPI.Port.kMXP,
-                                                                module0sim,
-                                                                module1sim,
-                                                                module2sim,
-                                                                module3sim));
+                                // SimplyModule module0sim = new SimplyModule(
+                                //                 new SimplyModuleIOSIM(
+                                //                                 new SimplyModuleConfig()
+                                //                                                 .withDriveId(Constants.Swerve.DRIVETRAIN_FRONT_LEFT_DRIVE_MOTOR)
+                                //                                                 .withSteerId(Constants.Swerve.DRIVETRAIN_FRONT_LEFT_ANGLE_MOTOR)
+                                //                                                 .withModuleId(0)
+                                //                                                 .withEncoderOffset(Degrees.of(0))),
+                                //                 0);
+                                // SimplyModule module1sim = new SimplyModule(
+                                //                 new SimplyModuleIOSIM(
+                                //                                 new SimplyModuleConfig()
+                                //                                                 .withDriveId(Constants.Swerve.DRIVETRAIN_FRONT_RIGHT_DRIVE_MOTOR)
+                                //                                                 .withSteerId(Constants.Swerve.DRIVETRAIN_FRONT_RIGHT_ANGLE_MOTOR)
+                                //                                                 .withModuleId(1)
+                                //                                                 .withEncoderOffset(Degrees.of(0))),
+                                //                 1);
+                                // SimplyModule module2sim = new SimplyModule(
+                                //                 new SimplyModuleIOSIM(
+                                //                                 new SimplyModuleConfig()
+                                //                                                 .withDriveId(Constants.Swerve.DRIVETRAIN_BACK_LEFT_DRIVE_MOTOR)
+                                //                                                 .withSteerId(Constants.Swerve.DRIVETRAIN_BACK_LEFT_ANGLE_MOTOR)
+                                //                                                 .withModuleId(2)
+                                //                                                 .withEncoderOffset(Degrees.of(0))),
+                                //                 2);
+                                // SimplyModule module3sim = new SimplyModule(
+                                //                 new SimplyModuleIOSIM(
+                                //                                 new SimplyModuleConfig()
+                                //                                                 .withDriveId(Constants.Swerve.DRIVETRAIN_BACK_RIGHT_DRIVE_MOTOR)
+                                //                                                 .withSteerId(Constants.Swerve.DRIVETRAIN_BACK_RIGHT_ANGLE_MOTOR)
+                                //                                                 .withModuleId(3)
+                                //                                                 .withEncoderOffset(Degrees.of(0))),
+                                //                 3);
+                                // drive = new SimplySwerve(
+                                //                 new SimplySwerveIOSIM(
+                                //                                 new Translation2d[] {
+                                //                                                 new Translation2d(Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)), // fl
+                                //                                                 new Translation2d(Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)), // fr
+                                //                                                 new Translation2d(-Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)), // bl
+                                //                                                 new Translation2d(-Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)) // br
+                                //                                 },
+                                //                                 SPI.Port.kMXP,
+                                //                                 module0sim,
+                                //                                 module1sim,
+                                //                                 module2sim,
+                                //                                 module3sim));
 
-                                estimator = new SimplyEstimator(drive, drive::getPoseAngle);
+                                // estimator = new SimplyEstimator(drive, drive::getPoseAngle);
 
-                                estimator.addModule(module0sim, new Translation2d(Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)));
-                                estimator.addModule(module1sim, new Translation2d(Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)));
-                                estimator.addModule(module2sim, new Translation2d(-Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)));
-                                estimator.addModule(module3sim, new Translation2d(-Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)));
+                                // estimator.addModule(module0sim, new Translation2d(Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)));
+                                // estimator.addModule(module1sim, new Translation2d(Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)));
+                                // estimator.addModule(module2sim, new Translation2d(-Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)));
+                                // estimator.addModule(module3sim, new Translation2d(-Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)));
                                 break;
                         default:
                         intake = new Intake(new IntakeIO() {});
                         shooter = new Shooter(new ShooterIO() {});
                         hood = new Hood(new HoodIO() {});
-                                drive = new SimplySwerve(new SimplySwerveIO() {
-                                });
-                                estimator = new SimplyEstimator(drive, drive::getPoseAngle);
+                                // drive = new SimplySwerve(new SimplySwerveIO() {
+                                // });
+                                // estimator = new SimplyEstimator(drive, drive::getPoseAngle);
                                 break;
                 }
 
-                superstructure = new Superstructure(drive, intake, shooter, hood, driver);
+                superstructure = new Superstructure(drive, 
+                intake, shooter, hood, driver);
 
                 configureButtonBindings();
         }
 
         private void configureButtonBindings() {
-                resetGyro.onTrue(Commands.runOnce(() -> drive.resetGyro()));
+                resetGyro.onTrue(Commands.runOnce(() -> drive.resetGyroscope()));
 
                 intakeNormal.onTrue(superstructure.setWantedState(WantedState.INTAKE)).onFalse(superstructure.setWantedState(WantedState.DEFAULT));
 

@@ -12,7 +12,6 @@ import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -36,9 +35,8 @@ public class SimplyModuleIOCTRE implements SimplyModuleIO {
   private final TalonFX drive;
   private final TalonFX steer;
 
-  // private final PositionTorqueCurrentFOC request = new
-  // PositionTorqueCurrentFOC(0).withSlot(0);
-  private final PositionVoltage request = new PositionVoltage(0).withSlot(0).withEnableFOC(true);
+  //TODO remember to swich FOC
+  private final PositionVoltage request = new PositionVoltage(0).withSlot(0).withEnableFOC(false);
 
   public SimplyModuleIOCTRE(SimplyModuleConfig config) {
     this.moduleId = config.moduleId;
@@ -49,11 +47,6 @@ public class SimplyModuleIOCTRE implements SimplyModuleIO {
         .withSlot0(
             new Slot0Configs()
                 .withKP(3)
-                .withKI(0)
-                .withKD(0))
-        .withSlot1(
-            new Slot1Configs()
-                .withKP(0)
                 .withKI(0)
                 .withKD(0))
         .withCurrentLimits(
@@ -124,6 +117,7 @@ public class SimplyModuleIOCTRE implements SimplyModuleIO {
     this.speeds = speeds;
   }
 
+  @SuppressWarnings("unused")
   private double getShortestDistance(double angle1, double angle2) {
     double diff = ((angle2 % 360 + 360) % 360) - ((angle1 % 360 + 360) % 360);
 

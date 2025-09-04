@@ -1,7 +1,6 @@
 package frc.robot.utils.drivers;
 
 import com.kauailabs.navx.frc.AHRS;
-
 import edu.wpi.first.wpilibj.SPI;
 import frc.robot.utils.math.Rotation2;
 
