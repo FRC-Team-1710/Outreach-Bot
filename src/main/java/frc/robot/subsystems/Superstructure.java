@@ -16,8 +16,8 @@ import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.hood.Hood.HoodStates;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Shooter.ShooterStates;
-import frc.robot.subsystems.simplySwerve.SimplySwerveRequest;
-import frc.robot.subsystems.simplySwerve.SimplySwerveRequest.RequestType;
+// import frc.robot.subsystems.simplySwerve.SimplySwerveRequest;
+// import frc.robot.subsystems.simplySwerve.SimplySwerveRequest.RequestType;
 import frc.robot.utils.TunableController;
 
 public class Superstructure extends SubsystemBase {
@@ -28,9 +28,9 @@ public class Superstructure extends SubsystemBase {
   private final Hood hood;
   private final TunableController driver;
 
-  private final SimplySwerveRequest request = new SimplySwerveRequest()
-      .withRequestType(RequestType.FIELD)
-      .withDeadband(0.1);
+  // private final SimplySwerveRequest request = new SimplySwerveRequest()
+  //     .withRequestType(RequestType.FIELD)
+  //     .withDeadband(0.1);
 
   private WantedState wantedState = WantedState.DEFAULT;
   private CurrentState currentState = CurrentState.IDLE;
