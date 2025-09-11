@@ -1,5 +1,6 @@
 package frc.robot.subsystems.hood;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
@@ -17,12 +18,15 @@ public class Hood extends SubsystemBase {
   public Hood(HoodIO io) {
     this.io = io;
     this.inputs = new HoodIOInputsAutoLogged();
+    SmartDashboard.putNumber("ShootAngle", Constants.Hood.ShootAngle);
   }
 
   @Override
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Hood", inputs);
+
+    Constants.Hood.ShootAngle = SmartDashboard.getNumber("ShootAngle", 0);
 
     switch (currentState) {
       case IDLE:

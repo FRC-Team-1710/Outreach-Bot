@@ -1,5 +1,6 @@
 package frc.robot.subsystems.shooter;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
@@ -18,6 +19,8 @@ public class Shooter extends SubsystemBase {
   public Shooter(ShooterIO io) {
     this.io = io;
     this.inputs = new ShooterIOInputsAutoLogged();
+    SmartDashboard.putNumber("FlywheelShootSpeed", Constants.Flywheel.ShootSpeedRPM);
+    SmartDashboard.putNumber("FlywheelIdleSpeed", Constants.Flywheel.IdleSpeedRPM);
   }
 
   @Override
@@ -25,9 +28,12 @@ public class Shooter extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.processInputs("Shooter", inputs);
 
+    Constants.Flywheel.ShootSpeedRPM = SmartDashboard.getNumber("FlywheelShootSpeed", 0);
+    Constants.Flywheel.ShootSpeedRPM = SmartDashboard.getNumber("FlywheelIdleSpeed", 0);
+
     switch (currentState) {
       case OFF:
-        io.setVoltage(Volts.of(0));
+        io.setVoltage(Volts.of(Constants.Flywheel.IdleSpeedRPM / 6380 * 12));
         break;
       case INTAKE:
         io.setVoltage(Volts.of(Constants.Flywheel.IntakeSpeed * -12));
