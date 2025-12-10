@@ -28,8 +28,8 @@ public class Shooter extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.processInputs("Shooter", inputs);
 
-    Constants.Flywheel.ShootSpeedRPM = SmartDashboard.getNumber("FlywheelShootSpeed", 0);
-    Constants.Flywheel.ShootSpeedRPM = SmartDashboard.getNumber("FlywheelIdleSpeed", 0);
+    // Constants.Flywheel.ShootSpeedRPM = SmartDashboard.getNumber("FlywheelShootSpeed", 0);
+    // Constants.Flywheel.ShootSpeedRPM = SmartDashboard.getNumber("FlywheelIdleSpeed", 0);
 
     switch (currentState) {
       case OFF:
@@ -43,6 +43,7 @@ public class Shooter extends SubsystemBase {
         // io.setSpeed(RotationsPerSecond.of(Constants.Flywheel.ShootSpeedRPM/60));
         break;
     }
+    Logger.recordOutput("bfhyuiabfyuiebuiefw", atSetpoint());
   }
 
   public enum ShooterStates {
@@ -56,6 +57,6 @@ public class Shooter extends SubsystemBase {
   }
 
   public boolean atSetpoint() {
-    return inputs.velocity.isNear(inputs.setpoint, RotationsPerSecond.of(500 / 60)) || (Constants.currentMode == Mode.SIM);
+    return inputs.velocity.isNear(RotationsPerSecond.of(Constants.Flywheel.ShootSpeedRPM / 60), RotationsPerSecond.of(500 / 60)) || (Constants.currentMode == Mode.SIM);
   }
 }

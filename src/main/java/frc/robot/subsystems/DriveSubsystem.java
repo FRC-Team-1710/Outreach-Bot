@@ -7,6 +7,8 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Degrees;
 
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -39,12 +41,12 @@ public class DriveSubsystem extends SubsystemBase {
   private static final double BACK_LEFT_ANGLE_OFFSET = Math.toRadians(Constants.Swerve.BLOffset);
   private static final double BACK_RIGHT_ANGLE_OFFSET = Math.toRadians(Constants.Swerve.BROffset);
 
-  private TalonFX backLeftAngle = new TalonFX(Constants.Swerve.DRIVETRAIN_BACK_LEFT_ANGLE_MOTOR, "rio");
-  private TalonFX backRightAngle = new TalonFX(Constants.Swerve.DRIVETRAIN_BACK_RIGHT_ANGLE_MOTOR, "rio");
+  private SparkMax backLeftAngle = new SparkMax(Constants.Swerve.DRIVETRAIN_BACK_LEFT_ANGLE_MOTOR,MotorType.kBrushless);
+  private SparkMax backRightAngle = new SparkMax(Constants.Swerve.DRIVETRAIN_BACK_RIGHT_ANGLE_MOTOR,MotorType.kBrushless);
   private TalonFX backLeftDrive = new TalonFX(Constants.Swerve.DRIVETRAIN_BACK_LEFT_DRIVE_MOTOR, "rio");
   private TalonFX backRightDrive = new TalonFX(Constants.Swerve.DRIVETRAIN_BACK_RIGHT_DRIVE_MOTOR, "rio");
-  private TalonFX frontLeftAngle = new TalonFX(Constants.Swerve.DRIVETRAIN_FRONT_LEFT_ANGLE_MOTOR, "rio");
-  private TalonFX frontRightAngle = new TalonFX(Constants.Swerve.DRIVETRAIN_FRONT_RIGHT_ANGLE_MOTOR, "rio");
+  private SparkMax frontLeftAngle = new SparkMax(Constants.Swerve.DRIVETRAIN_FRONT_LEFT_ANGLE_MOTOR,MotorType.kBrushless);
+  private SparkMax frontRightAngle = new SparkMax(Constants.Swerve.DRIVETRAIN_FRONT_RIGHT_ANGLE_MOTOR,MotorType.kBrushless);
   private TalonFX frontLeftDrive = new TalonFX(Constants.Swerve.DRIVETRAIN_FRONT_LEFT_DRIVE_MOTOR, "rio");
   private TalonFX frontRightDrive = new TalonFX(Constants.Swerve.DRIVETRAIN_FRONT_RIGHT_DRIVE_MOTOR, "rio");
 
@@ -54,7 +56,7 @@ public class DriveSubsystem extends SubsystemBase {
       .angleEncoder(
           new AnalogInput(Constants.Swerve.DRIVETRAIN_FRONT_LEFT_ANGLE_ENCODER),
           FRONT_LEFT_ANGLE_OFFSET)
-      .angleMotor(frontLeftAngle, Mk2SwerveModuleBuilder.MotorType.FALCON_500)
+      .angleMotor(frontLeftAngle, Mk2SwerveModuleBuilder.MotorType.NEO)
       .driveMotor(frontLeftDrive, Mk2SwerveModuleBuilder.MotorType.FALCON_500)
       .build();
   /** Front right swerve module object */
@@ -63,7 +65,7 @@ public class DriveSubsystem extends SubsystemBase {
       .angleEncoder(
           new AnalogInput(Constants.Swerve.DRIVETRAIN_FRONT_RIGHT_ANGLE_ENCODER),
           FRONT_RIGHT_ANGLE_OFFSET)
-      .angleMotor(frontRightAngle, Mk2SwerveModuleBuilder.MotorType.FALCON_500)
+      .angleMotor(frontRightAngle, Mk2SwerveModuleBuilder.MotorType.NEO)
       .driveMotor(frontRightDrive, Mk2SwerveModuleBuilder.MotorType.FALCON_500)
       .build();
   /** Back left swerve module object */
@@ -72,7 +74,7 @@ public class DriveSubsystem extends SubsystemBase {
       .angleEncoder(
           new AnalogInput(Constants.Swerve.DRIVETRAIN_BACK_LEFT_ANGLE_ENCODER),
           BACK_LEFT_ANGLE_OFFSET)
-      .angleMotor(backLeftAngle, Mk2SwerveModuleBuilder.MotorType.FALCON_500)
+      .angleMotor(backLeftAngle, Mk2SwerveModuleBuilder.MotorType.NEO)
       .driveMotor(backLeftDrive, Mk2SwerveModuleBuilder.MotorType.FALCON_500)
       .build();
   /** Back right swerve module object */
@@ -81,7 +83,7 @@ public class DriveSubsystem extends SubsystemBase {
       .angleEncoder(
           new AnalogInput(Constants.Swerve.DRIVETRAIN_BACK_RIGHT_ANGLE_ENCODER),
           BACK_RIGHT_ANGLE_OFFSET)
-      .angleMotor(backRightAngle, Mk2SwerveModuleBuilder.MotorType.FALCON_500)
+      .angleMotor(backRightAngle, Mk2SwerveModuleBuilder.MotorType.NEO)
       .driveMotor(backRightDrive, Mk2SwerveModuleBuilder.MotorType.FALCON_500)
       .build();
 
@@ -118,36 +120,6 @@ public class DriveSubsystem extends SubsystemBase {
     frontRightModule.updateState(TimedRobot.kDefaultPeriod);
     backLeftModule.updateState(TimedRobot.kDefaultPeriod);
     backRightModule.updateState(TimedRobot.kDefaultPeriod);
-
-    SmartDashboard.putNumber("Front Left", Math.toDegrees(frontLeftModule.getCurrentAngle()));
-    SmartDashboard.putNumber("Front Right", Math.toDegrees(frontRightModule.getCurrentAngle()));
-    SmartDashboard.putNumber("Back Left", Math.toDegrees(backLeftModule.getCurrentAngle()));
-    SmartDashboard.putNumber("Back Right", Math.toDegrees(backRightModule.getCurrentAngle()));
-
-    SmartDashboard.putNumber("Front Left Speed", frontLeftDrive.getVelocity().getValueAsDouble());
-    SmartDashboard.putNumber("Front Right Speed", frontRightDrive.getVelocity().getValueAsDouble());
-    SmartDashboard.putNumber("Back Left Speed", backLeftDrive.getVelocity().getValueAsDouble());
-    SmartDashboard.putNumber("Back Right Speed", backRightDrive.getVelocity().getValueAsDouble());
-
-    SmartDashboard.putNumber("Temps/Front/Right Angle", frontRightAngle.getDeviceTemp().getValueAsDouble());
-    SmartDashboard.putNumber("Temps/Front/Left Angle", frontLeftAngle.getDeviceTemp().getValueAsDouble());
-    SmartDashboard.putNumber("Temps/Front/Right Drive", frontRightDrive.getDeviceTemp().getValueAsDouble());
-    SmartDashboard.putNumber("Temps/Front/Left Drive", frontLeftDrive.getDeviceTemp().getValueAsDouble());
-    SmartDashboard.putNumber("Temps/Back/Right Angle", backRightAngle.getDeviceTemp().getValueAsDouble());
-    SmartDashboard.putNumber("Temps/Back/Left Angle", backLeftAngle.getDeviceTemp().getValueAsDouble());
-    SmartDashboard.putNumber("Temps/Back/Right Drive", backRightDrive.getDeviceTemp().getValueAsDouble());
-    SmartDashboard.putNumber("Temps/Back/Left Drive", backLeftDrive.getDeviceTemp().getValueAsDouble());
-
-    SmartDashboard.putNumber(
-        "Drivetrain Current",
-        frontLeftDrive.getStatorCurrent().getValueAsDouble() 
-            + frontRightDrive.getStatorCurrent().getValueAsDouble()
-            + backLeftDrive.getStatorCurrent().getValueAsDouble()
-            + backRightDrive.getStatorCurrent().getValueAsDouble()
-            + frontLeftAngle.getStatorCurrent().getValueAsDouble()
-            + frontRightAngle.getStatorCurrent().getValueAsDouble()
-            + backLeftAngle.getStatorCurrent().getValueAsDouble()
-            + backRightAngle.getStatorCurrent().getValueAsDouble());
   }
 
   public Angle getGyro() {

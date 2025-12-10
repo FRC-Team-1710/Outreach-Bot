@@ -12,13 +12,13 @@ public final class Constants {
   
   public static final class Hood {
     public static final double Offset = 5;
-    public static double ShootAngle = 25;
+    public static double ShootAngle = 30;
     public static final double ExtenderRatio = 20 / 1;
   }
   
   public static final class Flywheel {
-    public static double ShootSpeedRPM = 4000;
-    public static double IdleSpeedRPM = 1500;
+    public static double ShootSpeedRPM = 3500;
+    public static double IdleSpeedRPM = 0;
     public static final double BufferRPM = 500;
     public static final double IntakeSpeed = 0.25;
   }

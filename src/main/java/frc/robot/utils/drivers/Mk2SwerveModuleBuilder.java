@@ -32,7 +32,8 @@ import java.util.function.DoubleSupplier;
 
 public class Mk2SwerveModuleBuilder {
   /** The gear ratio of the angle motor that ships with the standard kit. */
-  private static final double DEFAULT_ANGLE_REDUCTION = 18.0 / 1.0;
+  // private static final double DEFAULT_ANGLE_REDUCTION = 18.0 / 1.0;
+  private static final double DEFAULT_ANGLE_REDUCTION = 12.8 / 1.0;
 
   /** The gear ratio of the drive motor that ships with the standard kit. */
   private static final double DEFAULT_DRIVE_REDUCTION = 8.31 / 1.0;

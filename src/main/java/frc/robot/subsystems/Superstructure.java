@@ -66,7 +66,7 @@ public class Superstructure extends SubsystemBase {
         newState = intake.ballSecured() ? CurrentState.PREP_SHOT : CurrentState.IDLE;
         break;
       case SHOOT:
-        newState = intake.ballSecured() ? CurrentState.SHOOT : CurrentState.IDLE;
+        newState = CurrentState.SHOOT;
         break;
       case INTAKE:
         newState = CurrentState.INTAKE;
@@ -139,9 +139,9 @@ public class Superstructure extends SubsystemBase {
   }
 
   private void shoot() {
-    intake.setState((shooter.atSetpoint() && hood.atSetpoint()) ? IntakeStates.OFF : IntakeStates.FEED);
     shooter.setState(ShooterStates.SHOOT);
     hood.setState(HoodStates.SHOOT);
+    intake.setState((shooter.atSetpoint() && hood.atSetpoint()) ? IntakeStates.FEED : IntakeStates.OFF);
     applyDrive();
   }
 

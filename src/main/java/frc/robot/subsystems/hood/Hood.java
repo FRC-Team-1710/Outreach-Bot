@@ -26,6 +26,8 @@ public class Hood extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.processInputs("Hood", inputs);
 
+    Logger.recordOutput("hucdbhuioiedcsvhbugiosedvchuioedchiouhood", atSetpoint());
+
     Constants.Hood.ShootAngle = SmartDashboard.getNumber("ShootAngle", 0);
 
     switch (currentState) {
@@ -48,6 +50,6 @@ public class Hood extends SubsystemBase {
   }
 
   public boolean atSetpoint() {
-    return inputs.position.isNear(inputs.setpoint, Degrees.of(1.5)) || (Constants.currentMode == Mode.SIM);
+    return inputs.position.isNear(inputs.setpoint, Degrees.of(2)) || (Constants.currentMode == Mode.SIM);
   }
 }
