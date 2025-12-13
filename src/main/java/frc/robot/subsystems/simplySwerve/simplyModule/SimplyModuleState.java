@@ -19,43 +19,43 @@ import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 
 public class SimplyModuleState {
-  public Distance wheelRotation = Meters.of(0);
-  public LinearVelocity driveVelocity = MetersPerSecond.of(0);
-  public LinearAcceleration driveAcceleration = MetersPerSecondPerSecond.of(0);
+  // public Distance wheelRotation = Meters.of(0);
+  // public LinearVelocity driveVelocity = MetersPerSecond.of(0);
+  // public LinearAcceleration driveAcceleration = MetersPerSecondPerSecond.of(0);
 
-  public Angle rotation = Degrees.of(0);
-  public AngularVelocity rotationVelocity = DegreesPerSecond.of(0);
-  public AngularAcceleration rotationAcceleration = DegreesPerSecondPerSecond.of(0);
+  // public Angle rotation = Degrees.of(0);
+  // public AngularVelocity rotationVelocity = DegreesPerSecond.of(0);
+  // public AngularAcceleration rotationAcceleration = DegreesPerSecondPerSecond.of(0);
 
-  public SimplyModuleState() {}
+  // public SimplyModuleState() {}
 
-  public SimplyModuleState withWheelRotation(Distance wheelRotation) {
-    this.wheelRotation = wheelRotation;
-    return this;
-  }
+  // public SimplyModuleState withWheelRotation(Distance wheelRotation) {
+  //   this.wheelRotation = wheelRotation;
+  //   return this;
+  // }
 
-  public SimplyModuleState withDriveVelocity(LinearVelocity driveVelocity) {
-    this.driveVelocity = driveVelocity;
-    return this;
-  }
+  // public SimplyModuleState withDriveVelocity(LinearVelocity driveVelocity) {
+  //   this.driveVelocity = driveVelocity;
+  //   return this;
+  // }
 
-  public SimplyModuleState withDriveAcceleration(LinearAcceleration driveAcceleration) {
-    this.driveAcceleration = driveAcceleration;
-    return this;
-  }
+  // public SimplyModuleState withDriveAcceleration(LinearAcceleration driveAcceleration) {
+  //   this.driveAcceleration = driveAcceleration;
+  //   return this;
+  // }
 
-  public SimplyModuleState withRotation(Angle rotation) {
-    this.rotation = rotation;
-    return this;
-  }
+  // public SimplyModuleState withRotation(Angle rotation) {
+  //   this.rotation = rotation;
+  //   return this;
+  // }
 
-  public SimplyModuleState withRotationVelocity(AngularVelocity rotationVelocity) {
-    this.rotationVelocity = rotationVelocity;
-    return this;
-  }
+  // public SimplyModuleState withRotationVelocity(AngularVelocity rotationVelocity) {
+  //   this.rotationVelocity = rotationVelocity;
+  //   return this;
+  // }
 
-  public SimplyModuleState withRotationAcceleration(AngularAcceleration rotationAcceleration) {
-    this.rotationAcceleration = rotationAcceleration;
-    return this;
-  }
+  // public SimplyModuleState withRotationAcceleration(AngularAcceleration rotationAcceleration) {
+  //   this.rotationAcceleration = rotationAcceleration;
+  //   return this;
+  // }
 }

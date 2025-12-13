@@ -9,34 +9,33 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.LinearVelocity;
-import org.littletonrobotics.junction.Logger;
 
 public class SimplyModuleSpeeds {
-  private Angle steerSetpoint = Degrees.of(0);
-  private LinearVelocity driveVelocity = MetersPerSecond.of(0);
+  // private Angle steerSetpoint = Degrees.of(0);
+  // private LinearVelocity driveVelocity = MetersPerSecond.of(0);
 
-  public SimplyModuleSpeeds() {}
+  // public SimplyModuleSpeeds() {}
 
-  public void log(int moduleId) {
-    Logger.recordOutput("SimplyModule" + moduleId + "/SteerSetpoint", steerSetpoint);
-    Logger.recordOutput("SimplyModule" + moduleId + "/DriveSetpoint", driveVelocity);
-  }
+  // public void log(int moduleId) {
+  //   Logger.recordOutput("SimplyModule" + moduleId + "/SteerSetpoint", steerSetpoint);
+  //   Logger.recordOutput("SimplyModule" + moduleId + "/DriveSetpoint", driveVelocity);
+  // }
 
-  public SimplyModuleSpeeds withSteerSetpoint(Angle setpoint) {
-    this.steerSetpoint = setpoint;
-    return this;
-  }
+  // public SimplyModuleSpeeds withSteerSetpoint(Angle setpoint) {
+  //   this.steerSetpoint = setpoint;
+  //   return this;
+  // }
 
-  public SimplyModuleSpeeds withDriveSpeed(LinearVelocity velocity) {
-    this.driveVelocity = velocity;
-    return this;
-  }
+  // public SimplyModuleSpeeds withDriveSpeed(LinearVelocity velocity) {
+  //   this.driveVelocity = velocity;
+  //   return this;
+  // }
 
-  public Angle getSteerSetpoint() {
-    return steerSetpoint;
-  }
+  // public Angle getSteerSetpoint() {
+  //   return steerSetpoint;
+  // }
 
-  public LinearVelocity getDriveVelocity() {
-    return driveVelocity;
-  }
+  // public LinearVelocity getDriveVelocity() {
+  //   return driveVelocity;
+  // }
 }

@@ -7,28 +7,26 @@ import frc.robot.Constants.Mode;
 
 import static edu.wpi.first.units.Units.Degrees;
 
-import org.littletonrobotics.junction.Logger;
-
 public class Hood extends SubsystemBase {
-  private final HoodIOInputsAutoLogged inputs;
+  // private final HoodIOInputsAutoLogged inputs;
   private final HoodIO io;
 
   private HoodStates currentState = HoodStates.IDLE;
 
   public Hood(HoodIO io) {
     this.io = io;
-    this.inputs = new HoodIOInputsAutoLogged();
-    SmartDashboard.putNumber("ShootAngle", Constants.Hood.ShootAngle);
+    // this.inputs = new HoodIOInputsAutoLogged();
+    // SmartDashboard.putNumber("ShootAngle", Constants.Hood.ShootAngle);
   }
 
   @Override
   public void periodic() {
-    io.updateInputs(inputs);
-    Logger.processInputs("Hood", inputs);
+    // io.updateInputs(inputs);
+    // Logger.processInputs("Hood", inputs);
 
-    Logger.recordOutput("hucdbhuioiedcsvhbugiosedvchuioedchiouhood", atSetpoint());
+    // Logger.recordOutput("hucdbhuioiedcsvhbugiosedvchuioedchiouhood", atSetpoint());
 
-    Constants.Hood.ShootAngle = SmartDashboard.getNumber("ShootAngle", 0);
+    // Constants.Hood.ShootAngle = SmartDashboard.getNumber("ShootAngle", 0);
 
     switch (currentState) {
       case IDLE:
@@ -50,6 +48,7 @@ public class Hood extends SubsystemBase {
   }
 
   public boolean atSetpoint() {
-    return inputs.position.isNear(inputs.setpoint, Degrees.of(2)) || (Constants.currentMode == Mode.SIM);
+    return false;
+    // return inputs.position.isNear(inputs.setpoint, Degrees.of(2)) || (Constants.currentMode == Mode.SIM);
   }
 }

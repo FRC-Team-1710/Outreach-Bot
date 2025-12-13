@@ -8,25 +8,23 @@ import frc.robot.Constants.Mode;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
-import org.littletonrobotics.junction.Logger;
-
 public class Shooter extends SubsystemBase {
-  private final ShooterIOInputsAutoLogged inputs;
+  // private final ShooterIOInputsAutoLogged inputs;
   private final ShooterIO io;
 
   private ShooterStates currentState = ShooterStates.OFF;
 
   public Shooter(ShooterIO io) {
     this.io = io;
-    this.inputs = new ShooterIOInputsAutoLogged();
-    SmartDashboard.putNumber("FlywheelShootSpeed", Constants.Flywheel.ShootSpeedRPM);
-    SmartDashboard.putNumber("FlywheelIdleSpeed", Constants.Flywheel.IdleSpeedRPM);
+    // this.inputs = new ShooterIOInputsAutoLogged();
+    // SmartDashboard.putNumber("FlywheelShootSpeed", Constants.Flywheel.ShootSpeedRPM);
+    // SmartDashboard.putNumber("FlywheelIdleSpeed", Constants.Flywheel.IdleSpeedRPM);
   }
 
   @Override
   public void periodic() {
-    io.updateInputs(inputs);
-    Logger.processInputs("Shooter", inputs);
+    // io.updateInputs(inputs);
+    // Logger.processInputs("Shooter", inputs);
 
     // Constants.Flywheel.ShootSpeedRPM = SmartDashboard.getNumber("FlywheelShootSpeed", 0);
     // Constants.Flywheel.ShootSpeedRPM = SmartDashboard.getNumber("FlywheelIdleSpeed", 0);
@@ -43,7 +41,7 @@ public class Shooter extends SubsystemBase {
         // io.setSpeed(RotationsPerSecond.of(Constants.Flywheel.ShootSpeedRPM/60));
         break;
     }
-    Logger.recordOutput("bfhyuiabfyuiebuiefw", atSetpoint());
+    // Logger.recordOutput("bfhyuiabfyuiebuiefw", atSetpoint());
   }
 
   public enum ShooterStates {
@@ -57,6 +55,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public boolean atSetpoint() {
-    return inputs.velocity.isNear(RotationsPerSecond.of(Constants.Flywheel.ShootSpeedRPM / 60), RotationsPerSecond.of(500 / 60)) || (Constants.currentMode == Mode.SIM);
+    return false;
+    // return inputs.velocity.isNear(RotationsPerSecond.of(Constants.Flywheel.ShootSpeedRPM / 60), RotationsPerSecond.of(500 / 60)) || (Constants.currentMode == Mode.SIM);
   }
 }

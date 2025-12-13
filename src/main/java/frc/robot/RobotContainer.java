@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.NotLogged;
+import edu.wpi.first.epilogue.Logged.Importance;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.DriveSubsystem;
@@ -23,33 +26,48 @@ import frc.robot.subsystems.shooter.ShooterIOCTRE;
 import frc.robot.subsystems.shooter.ShooterIOSIM;
 import frc.robot.utils.TunableController;
 
+@Logged
 public class RobotContainer {
         // private final SimplySwerve drive;
         // private final SimplyEstimator estimator;
+        @Logged(name = "Drive", importance = Importance.INFO)
         private final DriveSubsystem drive;
+        @Logged(name = "Intake", importance = Importance.INFO)
         private final Intake intake;
+        @Logged(name = "Shooter", importance = Importance.INFO)
         private final Shooter shooter;
+        @Logged(name = "Hood", importance = Importance.INFO)
         private final Hood hood;
 
+        @Logged(name = "Superstructure", importance = Importance.CRITICAL)
         private final Superstructure superstructure;
 
+        @NotLogged
         private final TunableController driver = new TunableController(0);
 
         /** Driver Start */
+        @Logged(name = "ResetGyro", importance = Importance.INFO)
         private final Trigger resetGyro = driver.start();
         /** Driver LT */
+        @Logged(name = "IntakeNormal", importance = Importance.INFO)
         private final Trigger intakeNormal = driver.leftTrigger();
         /** Driver RT */
+        @Logged(name = "IntakeThroughShooter", importance = Importance.INFO)
         private final Trigger intakeThroughShooter = driver.rightTrigger();
         /** Driver LB */
-        private final Trigger manualOutake = driver.leftBumper();
+        @Logged(name = "ManualOuttake", importance = Importance.INFO)
+        private final Trigger manualOuttake = driver.leftBumper();
         /** Driver RB */
+        @Logged(name = "Shoot", importance = Importance.INFO)
         private final Trigger shoot = driver.rightBumper();
         /** Driver Y */
+        @Logged(name = "HoodUp", importance = Importance.INFO)
         private final Trigger hoodUp = driver.y();
         /** Driver X */
+        @Logged(name = "DefaultState", importance = Importance.INFO)
         private final Trigger defaultState = driver.x();
         /** Driver LT + RT */
+        @Logged(name = "PrepShot", importance = Importance.INFO)
         private final Trigger prepShot = intakeNormal.and(intakeThroughShooter);
 
         public RobotContainer() {
@@ -192,7 +210,7 @@ public class RobotContainer {
 
                 intakeThroughShooter.onTrue(superstructure.setWantedState(WantedState.SHOOTER_INTAKE)).onFalse(superstructure.setWantedState(WantedState.DEFAULT));
                 
-                manualOutake.onTrue(superstructure.setWantedState(WantedState.MANUAL_OUTAKE)).onFalse(superstructure.setWantedState(WantedState.DEFAULT));
+                manualOuttake.onTrue(superstructure.setWantedState(WantedState.MANUAL_OUTTAKE)).onFalse(superstructure.setWantedState(WantedState.DEFAULT));
 
                 shoot.onTrue(superstructure.setWantedState(WantedState.SHOOT)).onFalse(superstructure.setWantedState(WantedState.DEFAULT));
 

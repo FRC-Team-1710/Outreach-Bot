@@ -3,14 +3,12 @@ package frc.robot.subsystems.intake;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
+import frc.robot.subsystems.intake.IntakeIO.IntakeIOInputs;
 
 import static edu.wpi.first.units.Units.Volts;
 
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
-
 public class Intake extends SubsystemBase {
-  private final IntakeIOInputsAutoLogged inputs;
+  private final IntakeIOInputs inputs;
   private final IntakeIO io;
 
   private IntakeStates currentState = IntakeStates.OFF;
@@ -18,13 +16,12 @@ public class Intake extends SubsystemBase {
 
   public Intake(IntakeIO io) {
     this.io = io;
-    this.inputs = new IntakeIOInputsAutoLogged();
+    this.inputs = new IntakeIOInputs();
   }
 
   @Override
   public void periodic() {
     io.updateInputs(inputs);
-    Logger.processInputs("Intake", inputs);
 
     switch (currentState) {
       case OFF:
@@ -70,11 +67,12 @@ public class Intake extends SubsystemBase {
     this.currentState = state;
   }
 
-  @AutoLogOutput
+  // @AutoLogOutput
   public boolean ballSecured() {
-    return Constants.currentMode == Mode.SIM
-        ? (currentBallState == CurrentBallState.SECURED)
-        : (inputs.beamBroken);
+    return false;
+    // return Constants.currentMode == Mode.SIM
+    //     ? (currentBallState == CurrentBallState.SECURED)
+    //     : (inputs.beamBroken);
   }
 
   public void advanceGamePiece() {

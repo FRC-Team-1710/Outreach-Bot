@@ -9,40 +9,39 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static edu.wpi.first.units.Units.Degrees;
 
 import java.util.function.Supplier;
-import org.littletonrobotics.junction.Logger;
 
 public class SimplySwerve extends SubsystemBase {
-  private final SimplySwerveIO io;
-  private final SimplySwerveIOInputsAutoLogged inputs;
+  // private final SimplySwerveIO io;
+  // private final SimplySwerveIOInputsAutoLogged inputs;
 
-  public SimplySwerve(SimplySwerveIO io) {
-    this.io = io;
-    this.inputs = new SimplySwerveIOInputsAutoLogged();
-  }
+  // public SimplySwerve(SimplySwerveIO io) {
+  //   this.io = io;
+  //   this.inputs = new SimplySwerveIOInputsAutoLogged();
+  // }
 
-  @Override
-  public void periodic() {
-    io.updateInputs(inputs);
-    Logger.processInputs("SimplySwerve", inputs);
-  }
+  // @Override
+  // public void periodic() {
+  //   io.updateInputs(inputs);
+  //   Logger.processInputs("SimplySwerve", inputs);
+  // }
 
-  public Command run(Supplier<SimplySwerveRequest> requestSupplier) {
-    return Commands.run(() -> io.run(requestSupplier.get()), this);
-  }
+  // public Command run(Supplier<SimplySwerveRequest> requestSupplier) {
+  //   return Commands.run(() -> io.run(requestSupplier.get()), this);
+  // }
 
-  public Pose2d getPose() {
-    return inputs.pose;
-  }
+  // public Pose2d getPose() {
+  //   return inputs.pose;
+  // }
 
-  public Angle getPoseAngle() {
-    return Degrees.of(inputs.pose.getRotation().getDegrees());
-  }
+  // public Angle getPoseAngle() {
+  //   return Degrees.of(inputs.pose.getRotation().getDegrees());
+  // }
 
-  public void setPose(Pose2d pose) {
-    inputs.pose = pose;
-  }
+  // public void setPose(Pose2d pose) {
+  //   inputs.pose = pose;
+  // }
 
-  public void resetGyro() {
-    io.resetGyro();
-  }
+  // public void resetGyro() {
+  //   io.resetGyro();
+  // }
 }

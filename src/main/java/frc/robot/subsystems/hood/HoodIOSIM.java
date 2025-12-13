@@ -23,9 +23,9 @@ public class HoodIOSIM implements HoodIO {
   private PIDController controller = new PIDController(0, 0, 0);
 
   public HoodIOSIM() {
-    SmartDashboard.putNumber("kP", controller.getP());
-    SmartDashboard.putNumber("kI", controller.getI());
-    SmartDashboard.putNumber("kD", controller.getD());
+    // SmartDashboard.putNumber("kP", controller.getP());
+    // SmartDashboard.putNumber("kI", controller.getI());
+    // SmartDashboard.putNumber("kD", controller.getD());
   }
 
   @Override
@@ -39,9 +39,9 @@ public class HoodIOSIM implements HoodIO {
     inputs.currentAmps = Amps.of(sim.getCurrentDrawAmps());
     inputs.velocity = sim.getAngularVelocity();
 
-    controller.setP(SmartDashboard.getNumber("kP", controller.getP()));
-    controller.setI(SmartDashboard.getNumber("kI", controller.getI()));
-    controller.setD(SmartDashboard.getNumber("kD", controller.getD()));
+    // controller.setP(SmartDashboard.getNumber("kP", controller.getP()));
+    // controller.setI(SmartDashboard.getNumber("kI", controller.getI()));
+    // controller.setD(SmartDashboard.getNumber("kD", controller.getD()));
   }
 
   @Override

@@ -21,116 +21,115 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.Distance;
 
 public class SimplyModuleIOCTRE implements SimplyModuleIO {
-  private final double kDriveGearRatio = 5.90277777777778;
-  private final double kSteerGearRatio = 150.0 / 7.0;
+  // private final double kDriveGearRatio = 5.90277777777778;
+  // private final double kSteerGearRatio = 150.0 / 7.0;
 
-  private final Distance kWheelRadius = Inches.of(2);
+  // private final Distance kWheelRadius = Inches.of(2);
 
-  private boolean invertSteer = false;
+  // private boolean invertSteer = false;
 
-  private SimplyModuleSpeeds speeds = new SimplyModuleSpeeds();
+  // private SimplyModuleSpeeds speeds = new SimplyModuleSpeeds();
 
-  private final int moduleId;
+  // private final int moduleId;
 
-  private final TalonFX drive;
-  private final TalonFX steer;
+  // private final TalonFX drive;
+  // private final TalonFX steer;
 
-  //TODO remember to swich FOC
-  private final PositionVoltage request = new PositionVoltage(0).withSlot(0).withEnableFOC(false);
+  // private final PositionVoltage request = new PositionVoltage(0).withSlot(0).withEnableFOC(false);
 
-  public SimplyModuleIOCTRE(SimplyModuleConfig config) {
-    this.moduleId = config.moduleId;
-    drive = new TalonFX(config.driveId);
-    steer = new TalonFX(config.steerId);
+  // public SimplyModuleIOCTRE(SimplyModuleConfig config) {
+  //   this.moduleId = config.moduleId;
+  //   drive = new TalonFX(config.driveId);
+  //   steer = new TalonFX(config.steerId);
 
-    var steerConfig = new TalonFXConfiguration()
-        .withSlot0(
-            new Slot0Configs()
-                .withKP(3)
-                .withKI(0)
-                .withKD(0))
-        .withCurrentLimits(
-            new CurrentLimitsConfigs()
-                .withStatorCurrentLimitEnable(false)
-                .withSupplyCurrentLimitEnable(false))
-        .withMotorOutput(
-            new MotorOutputConfigs()
-                .withInverted(InvertedValue.Clockwise_Positive)
-                .withNeutralMode(NeutralModeValue.Coast));
+  //   var steerConfig = new TalonFXConfiguration()
+  //       .withSlot0(
+  //           new Slot0Configs()
+  //               .withKP(3)
+  //               .withKI(0)
+  //               .withKD(0))
+  //       .withCurrentLimits(
+  //           new CurrentLimitsConfigs()
+  //               .withStatorCurrentLimitEnable(false)
+  //               .withSupplyCurrentLimitEnable(false))
+  //       .withMotorOutput(
+  //           new MotorOutputConfigs()
+  //               .withInverted(InvertedValue.Clockwise_Positive)
+  //               .withNeutralMode(NeutralModeValue.Coast));
 
-    var driveConfig = new TalonFXConfiguration()
-        .withCurrentLimits(
-            new CurrentLimitsConfigs()
-                .withStatorCurrentLimit(40)
-                .withStatorCurrentLimitEnable(true)
-                .withSupplyCurrentLimitEnable(false))
-        .withMotorOutput(
-            new MotorOutputConfigs()
-                .withInverted(InvertedValue.Clockwise_Positive)
-                .withNeutralMode(NeutralModeValue.Brake));
+  //   var driveConfig = new TalonFXConfiguration()
+  //       .withCurrentLimits(
+  //           new CurrentLimitsConfigs()
+  //               .withStatorCurrentLimit(40)
+  //               .withStatorCurrentLimitEnable(true)
+  //               .withSupplyCurrentLimitEnable(false))
+  //       .withMotorOutput(
+  //           new MotorOutputConfigs()
+  //               .withInverted(InvertedValue.Clockwise_Positive)
+  //               .withNeutralMode(NeutralModeValue.Brake));
 
-    steer.getConfigurator().apply(steerConfig);
-    drive.getConfigurator().apply(driveConfig);
-  }
+  //   steer.getConfigurator().apply(steerConfig);
+  //   drive.getConfigurator().apply(driveConfig);
+  // }
 
-  @Override
-  public void updateInputs(SimplyModuleIOInputs inputs) {
-    // invertSteer = Math.abs(
-    //     getShortestDistance(
-    //         speeds.getSteerSetpoint().in(Degrees),
-    //         getSteerPosition())) > Math.abs(
-    //             getShortestDistance(
-    //                 speeds.getSteerSetpoint().in(Degrees),
-    //                 (getSteerPosition() + 180) % 360));
+  // @Override
+  // public void updateInputs(SimplyModuleIOInputs inputs) {
+  //   // invertSteer = Math.abs(
+  //   //     getShortestDistance(
+  //   //         speeds.getSteerSetpoint().in(Degrees),
+  //   //         getSteerPosition())) > Math.abs(
+  //   //             getShortestDistance(
+  //   //                 speeds.getSteerSetpoint().in(Degrees),
+  //   //                 (getSteerPosition() + 180) % 360));
 
-    drive.setVoltage(speeds.getDriveVelocity().in(MetersPerSecond) / 5.16 * (invertSteer ? -1 : 1));
+  //   drive.setVoltage(speeds.getDriveVelocity().in(MetersPerSecond) / 5.16 * (invertSteer ? -1 : 1));
 
-    steer.setControl(request.withPosition((speeds.getSteerSetpoint().in(Rotations) * kSteerGearRatio)));
+  //   steer.setControl(request.withPosition((speeds.getSteerSetpoint().in(Rotations) * kSteerGearRatio)));
 
-    inputs.wheelRotation = Meters.of(
-        4
-            * Math.PI
-            * drive.getPosition().getValue().in(Rotations)
-            * kWheelRadius.in(Meters)
-            * kDriveGearRatio);
-    inputs.driveVelocity = MetersPerSecond.of(
-        4
-            * Math.PI
-            * drive.getVelocity().getValue().in(RotationsPerSecond)
-            * kWheelRadius.in(Meters)
-            * kDriveGearRatio);
-    inputs.driveAcceleration = MetersPerSecondPerSecond.of(
-        4
-            * drive.getAcceleration().getValue().in(RotationsPerSecondPerSecond)
-            * kWheelRadius.in(Meters)
-            * kDriveGearRatio);
-    inputs.rotation = Rotations.of(getSteerPosition() / 360);
-    inputs.rotationVelocity = RotationsPerSecond.of(steer.getVelocity().getValue().in(RotationsPerSecond) / kSteerGearRatio);
-    inputs.rotationAcceleration = RotationsPerSecondPerSecond.of(
-        steer.getAcceleration().getValue().in(RotationsPerSecondPerSecond) / kSteerGearRatio);
-    inputs.appliedVoltage = steer.getMotorVoltage().getValueAsDouble();
-    speeds.log(moduleId);
-  }
+  //   inputs.wheelRotation = Meters.of(
+  //       4
+  //           * Math.PI
+  //           * drive.getPosition().getValue().in(Rotations)
+  //           * kWheelRadius.in(Meters)
+  //           * kDriveGearRatio);
+  //   inputs.driveVelocity = MetersPerSecond.of(
+  //       4
+  //           * Math.PI
+  //           * drive.getVelocity().getValue().in(RotationsPerSecond)
+  //           * kWheelRadius.in(Meters)
+  //           * kDriveGearRatio);
+  //   inputs.driveAcceleration = MetersPerSecondPerSecond.of(
+  //       4
+  //           * drive.getAcceleration().getValue().in(RotationsPerSecondPerSecond)
+  //           * kWheelRadius.in(Meters)
+  //           * kDriveGearRatio);
+  //   inputs.rotation = Rotations.of(getSteerPosition() / 360);
+  //   inputs.rotationVelocity = RotationsPerSecond.of(steer.getVelocity().getValue().in(RotationsPerSecond) / kSteerGearRatio);
+  //   inputs.rotationAcceleration = RotationsPerSecondPerSecond.of(
+  //       steer.getAcceleration().getValue().in(RotationsPerSecondPerSecond) / kSteerGearRatio);
+  //   inputs.appliedVoltage = steer.getMotorVoltage().getValueAsDouble();
+  //   speeds.log(moduleId);
+  // }
 
-  @Override
-  public void applySpeeds(SimplyModuleSpeeds speeds) {
-    this.speeds = speeds;
-  }
+  // @Override
+  // public void applySpeeds(SimplyModuleSpeeds speeds) {
+  //   this.speeds = speeds;
+  // }
 
-  @SuppressWarnings("unused")
-  private double getShortestDistance(double angle1, double angle2) {
-    double diff = ((angle2 % 360 + 360) % 360) - ((angle1 % 360 + 360) % 360);
+  // @SuppressWarnings("unused")
+  // private double getShortestDistance(double angle1, double angle2) {
+  //   double diff = ((angle2 % 360 + 360) % 360) - ((angle1 % 360 + 360) % 360);
 
-    if (diff > 180) {
-      return diff - 360;
-    } else if (diff < -180) {
-      return diff + 360;
-    } else {
-      return diff;
-    }
-  }
+  //   if (diff > 180) {
+  //     return diff - 360;
+  //   } else if (diff < -180) {
+  //     return diff + 360;
+  //   } else {
+  //     return diff;
+  //   }
+  // }
 
-  private double getSteerPosition() {
-    return (steer.getPosition().getValue().in(Degrees) / kSteerGearRatio) % 360;
-  }
+  // private double getSteerPosition() {
+  //   return (steer.getPosition().getValue().in(Degrees) / kSteerGearRatio) % 360;
+  // }
 }

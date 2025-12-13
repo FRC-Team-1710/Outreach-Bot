@@ -48,12 +48,10 @@ public final class Constants {
     public static final double BROffset = 0;
   }
 
-  public static final Mode simMode = Mode.SIM;
-  public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
+  public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : Mode.SIM;
 
   public static enum Mode {
     REAL,
-    SIM,
-    REPLAY
+    SIM
   }
 }

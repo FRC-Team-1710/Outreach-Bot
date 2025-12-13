@@ -11,24 +11,23 @@ import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
-import org.littletonrobotics.junction.AutoLog;
 
 public interface SimplySwerveIO {
-  @AutoLog
-  public static class SimplySwerveIOInputs {
-    SwerveModuleState[] logableStates;
+  // @AutoLog
+  // public static class SimplySwerveIOInputs {
+  //   SwerveModuleState[] logableStates;
 
-    Pose2d pose = new Pose2d();
+  //   Pose2d pose = new Pose2d();
 
-    LinearVelocity robotVelocity = MetersPerSecond.of(0);
-    LinearAcceleration robotAcceleration = MetersPerSecondPerSecond.of(0);
-    AngularVelocity rotationVelocity = DegreesPerSecond.of(0);
-    AngularAcceleration rotationAcceleration = DegreesPerSecondPerSecond.of(0);
-  }
+  //   LinearVelocity robotVelocity = MetersPerSecond.of(0);
+  //   LinearAcceleration robotAcceleration = MetersPerSecondPerSecond.of(0);
+  //   AngularVelocity rotationVelocity = DegreesPerSecond.of(0);
+  //   AngularAcceleration rotationAcceleration = DegreesPerSecondPerSecond.of(0);
+  // }
 
-  public default void updateInputs(SimplySwerveIOInputs inputs) {}
+  // public default void updateInputs(SimplySwerveIOInputs inputs) {}
 
-  public default void run(SimplySwerveRequest request) {}
+  // public default void run(SimplySwerveRequest request) {}
 
-  public default void resetGyro() {}
+  // public default void resetGyro() {}
 }
