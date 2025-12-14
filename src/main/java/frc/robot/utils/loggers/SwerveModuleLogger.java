@@ -1,7 +1,6 @@
 package frc.robot.utils.loggers;
 
 import edu.wpi.first.epilogue.CustomLoggerFor;
-import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged.Importance;
 import edu.wpi.first.epilogue.logging.ClassSpecificLogger;
 import edu.wpi.first.epilogue.logging.EpilogueBackend;
@@ -16,10 +15,9 @@ import frc.robot.utils.drivers.SwerveModule;
   
     @Override
     public void update(EpilogueBackend backend, SwerveModule module) {
-      backend.log("CurrentAngle", module.getCurrentAngle());
-      backend.log("CurrentVelocity", module.getCurrentVelocity());
+      backend.log("CurrentAngle(rads)", module.getCurrentAngle());
 
-      backend.log("TargetVelocity", module.getTargetVelocity().length);
-      backend.log("TargetAngle", module.getTargetVelocity().getAngle().toDegrees());
+      backend.log("TargetVelocity(mps)", module.getTargetVelocity().length);
+      backend.log("TargetAngle(deg)", module.getTargetVelocity().getAngle().toDegrees());
     }
   }

@@ -8,23 +8,36 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.NotLogged;
+import edu.wpi.first.epilogue.Logged.Importance;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Constants;
 
+@Logged
 public class HoodIOCTRE implements HoodIO {
+  @Logged(name = "Motor", importance = Importance.INFO)
   private final TalonFX hood = new TalonFX(10);
+  @NotLogged
   private final StatusSignal<Voltage> appliedVolts = hood.getMotorVoltage();
+  @NotLogged
   private final StatusSignal<Current> currentAmps = hood.getStatorCurrent();
+  @NotLogged
   private final StatusSignal<AngularVelocity> velocity = hood.getVelocity();
+  @NotLogged
   private final StatusSignal<Angle> position = hood.getPosition();
 
+  @Logged(name = "P", importance = Importance.DEBUG)
   private double positionP = 2;
+  @Logged(name = "I", importance = Importance.DEBUG)
   private double positionI = 0;
+  @Logged(name = "D", importance = Importance.DEBUG)
   private double positionD = 0;
 
+  @NotLogged
   private final PositionVoltage request = new PositionVoltage(0).withSlot(0).withEnableFOC(true);
 
   public HoodIOCTRE() {

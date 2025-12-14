@@ -4,6 +4,9 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.NotLogged;
+import edu.wpi.first.epilogue.Logged.Importance;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -14,26 +17,27 @@ import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.hood.Hood.HoodStates;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Shooter.ShooterStates;
-// import frc.robot.subsystems.simplySwerve.SimplySwerveRequest;
-// import frc.robot.subsystems.simplySwerve.SimplySwerveRequest.RequestType;
 import frc.robot.utils.TunableController;
 
+@Logged
 public class Superstructure extends SubsystemBase {
-  // private final SimplySwerve drive;
+  @NotLogged
   private final DriveSubsystem drive;
+  @NotLogged
   private final Intake intake;
+  @NotLogged
   private final Shooter shooter;
+  @NotLogged
   private final Hood hood;
+  @NotLogged
   private final TunableController driver;
 
-  // private final SimplySwerveRequest request = new SimplySwerveRequest()
-  //     .withRequestType(RequestType.FIELD)
-  //     .withDeadband(0.1);
-
+  @Logged(name = "WantedState", importance = Importance.INFO)
   private WantedState wantedState = WantedState.DEFAULT;
+  @Logged(name = "CurrentState", importance = Importance.INFO)
   private CurrentState currentState = CurrentState.IDLE;
 
-  public Superstructure(DriveSubsystem drive,//SimplySwerve drive
+  public Superstructure(DriveSubsystem drive,
    Intake intake, Shooter shooter, Hood hood, TunableController driver) {
     this.drive = drive;
     this.intake = intake;
@@ -48,6 +52,7 @@ public class Superstructure extends SubsystemBase {
     applyStates();
   }
 
+  @NotLogged
   private CurrentState handleStateTransitions() {
     CurrentState newState = CurrentState.IDLE;
     switch (wantedState) {
@@ -70,7 +75,7 @@ public class Superstructure extends SubsystemBase {
         newState = CurrentState.SHOOTER_INTAKE;
         break;
       case MANUAL_OUTTAKE:
-        newState = CurrentState.MANUAL_OUTAKE;
+        newState = CurrentState.MANUAL_OUTTAKE;
         break;
     }
     return newState;
@@ -99,8 +104,8 @@ public class Superstructure extends SubsystemBase {
       case SHOOTER_INTAKE:
         shooterIntake();
         break;
-      case MANUAL_OUTAKE:
-        manualOutake();
+      case MANUAL_OUTTAKE:
+        manualOuttake();
         break;
     }
   }
@@ -157,7 +162,7 @@ public class Superstructure extends SubsystemBase {
     }
   }
 
-  private void manualOutake() {
+  private void manualOuttake() {
     intake.setState(IntakeStates.OUTTAKE);
     shooter.setState(ShooterStates.OFF);
     hood.setState(HoodStates.IDLE);
@@ -165,10 +170,6 @@ public class Superstructure extends SubsystemBase {
   }
 
   private void applyDrive() {
-    // drive.run(() -> request
-    //     .withX(-driver.customLeft().getY())
-    //     .withY(-driver.customLeft().getX())
-    //     .withRotation(driver.customRight().getX())).schedule();
     drive.drive(new Translation2d(-driver.customLeft().getY(), -driver.customLeft().getX()), driver.customRight().getX(), true);
   }
 
@@ -176,6 +177,7 @@ public class Superstructure extends SubsystemBase {
     this.wantedState = state;
   }
 
+  @NotLogged
   public Command setWantedState(WantedState state) {
     return Commands.runOnce(() -> setState(state));
   }
@@ -198,6 +200,6 @@ public class Superstructure extends SubsystemBase {
     SHOOT,
     INTAKE,
     SHOOTER_INTAKE,
-    MANUAL_OUTAKE
+    MANUAL_OUTTAKE
   }
 }

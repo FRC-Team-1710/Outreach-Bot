@@ -2,16 +2,24 @@ package frc.robot.subsystems.intake;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Constants.Mode;
 import frc.robot.subsystems.intake.IntakeIO.IntakeIOInputs;
 
 import static edu.wpi.first.units.Units.Volts;
 
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.NotLogged;
+import edu.wpi.first.epilogue.Logged.Importance;
+
+@Logged
 public class Intake extends SubsystemBase {
+  @Logged(name = "Inputs", importance = Importance.INFO)
   private final IntakeIOInputs inputs;
+  @Logged(name = "IO", importance = Importance.INFO)
   private final IntakeIO io;
 
+  @Logged(name = "State", importance = Importance.INFO)
   private IntakeStates currentState = IntakeStates.OFF;
+  @Logged(name = "BallState", importance = Importance.INFO)
   private CurrentBallState currentBallState = CurrentBallState.NONE;
 
   public Intake(IntakeIO io) {
@@ -67,7 +75,7 @@ public class Intake extends SubsystemBase {
     this.currentState = state;
   }
 
-  // @AutoLogOutput
+  @NotLogged
   public boolean ballSecured() {
     return false;
     // return Constants.currentMode == Mode.SIM

@@ -141,6 +141,7 @@ public class DriveSubsystem extends SubsystemBase {
     backRightModule.updateState(TimedRobot.kDefaultPeriod);
   }
 
+  @NotLogged
   public Angle getGyro() {
     return Degrees.of(gyroscope.getAngle().toDegrees());
   }

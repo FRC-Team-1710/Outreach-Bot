@@ -4,30 +4,35 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
+import frc.robot.subsystems.shooter.ShooterIO.ShooterIOInputs;
 
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Logged.Importance;
+
+@Logged
 public class Shooter extends SubsystemBase {
-  // private final ShooterIOInputsAutoLogged inputs;
+  @Logged(name = "Inputs", importance = Importance.INFO)
+  private final ShooterIOInputs inputs;
+  @Logged(name = "IO", importance = Importance.INFO)
   private final ShooterIO io;
 
+  @Logged(name = "CurrentState", importance = Importance.INFO)
   private ShooterStates currentState = ShooterStates.OFF;
 
   public Shooter(ShooterIO io) {
     this.io = io;
-    // this.inputs = new ShooterIOInputsAutoLogged();
-    // SmartDashboard.putNumber("FlywheelShootSpeed", Constants.Flywheel.ShootSpeedRPM);
-    // SmartDashboard.putNumber("FlywheelIdleSpeed", Constants.Flywheel.IdleSpeedRPM);
+    this.inputs = new ShooterIOInputs();
+    SmartDashboard.putNumber("FlywheelShootSpeed", Constants.Flywheel.ShootSpeedRPM);
   }
 
   @Override
   public void periodic() {
-    // io.updateInputs(inputs);
-    // Logger.processInputs("Shooter", inputs);
+    io.updateInputs(inputs);
 
-    // Constants.Flywheel.ShootSpeedRPM = SmartDashboard.getNumber("FlywheelShootSpeed", 0);
-    // Constants.Flywheel.ShootSpeedRPM = SmartDashboard.getNumber("FlywheelIdleSpeed", 0);
+    Constants.Flywheel.ShootSpeedRPM = SmartDashboard.getNumber("FlywheelShootSpeed", 0);
 
     switch (currentState) {
       case OFF:
@@ -38,10 +43,8 @@ public class Shooter extends SubsystemBase {
         break;
       case SHOOT:
         io.setVoltage(Volts.of(Constants.Flywheel.ShootSpeedRPM / 6380 * 12));
-        // io.setSpeed(RotationsPerSecond.of(Constants.Flywheel.ShootSpeedRPM/60));
         break;
     }
-    // Logger.recordOutput("bfhyuiabfyuiebuiefw", atSetpoint());
   }
 
   public enum ShooterStates {
@@ -54,8 +57,8 @@ public class Shooter extends SubsystemBase {
     this.currentState = state;
   }
 
+  @Logged(name = "AtSetpoint", importance = Importance.INFO)
   public boolean atSetpoint() {
-    return false;
-    // return inputs.velocity.isNear(RotationsPerSecond.of(Constants.Flywheel.ShootSpeedRPM / 60), RotationsPerSecond.of(500 / 60)) || (Constants.currentMode == Mode.SIM);
+    return inputs.velocity.isNear(RotationsPerSecond.of(Constants.Flywheel.ShootSpeedRPM / 60), RotationsPerSecond.of(500 / 60)) || (Constants.currentMode == Mode.SIM);
   }
 }

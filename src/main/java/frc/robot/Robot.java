@@ -8,9 +8,6 @@ import java.util.Optional;
 
 import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged;
-import edu.wpi.first.epilogue.NotLogged;
-import edu.wpi.first.epilogue.Logged.Importance;
-import edu.wpi.first.epilogue.logging.FileBackend;
 import edu.wpi.first.epilogue.logging.errors.ErrorHandler;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -39,7 +36,7 @@ public class Robot extends TimedRobot {
 
       config.root = "Telemetry";
 
-      config.minimumImportance = Logged.Importance.DEBUG;
+      config.minimumImportance = Constants.importance;
     });
 
     Epilogue.bind(this);
@@ -50,14 +47,11 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void robotInit() {
-    
-  }
+  public void robotInit() {}
 
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
-    // Epilogue.update(this);
   }
 
   @Override

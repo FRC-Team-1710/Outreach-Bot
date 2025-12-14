@@ -4,6 +4,9 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Volts;
 
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.NotLogged;
+import edu.wpi.first.epilogue.Logged.Importance;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
@@ -13,19 +16,23 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 
+@Logged
 public class HoodIOSIM implements HoodIO {
+  @NotLogged
   private DCMotorSim sim =
       new DCMotorSim(
           LinearSystemId.createDCMotorSystem(DCMotor.getFalcon500(1), 0.004, Constants.Hood.ExtenderRatio), DCMotor.getFalcon500(1));
 
+          @Logged(name = "AppliedVoltage", importance = Importance.INFO)
   private Voltage appliedVolts = Volts.of(0);
 
+  @NotLogged
   private PIDController controller = new PIDController(0, 0, 0);
 
   public HoodIOSIM() {
-    // SmartDashboard.putNumber("kP", controller.getP());
-    // SmartDashboard.putNumber("kI", controller.getI());
-    // SmartDashboard.putNumber("kD", controller.getD());
+    SmartDashboard.putNumber("Hood/kP", controller.getP());
+    SmartDashboard.putNumber("Hood/kI", controller.getI());
+    SmartDashboard.putNumber("Hood/kD", controller.getD());
   }
 
   @Override
@@ -39,9 +46,9 @@ public class HoodIOSIM implements HoodIO {
     inputs.currentAmps = Amps.of(sim.getCurrentDrawAmps());
     inputs.velocity = sim.getAngularVelocity();
 
-    // controller.setP(SmartDashboard.getNumber("kP", controller.getP()));
-    // controller.setI(SmartDashboard.getNumber("kI", controller.getI()));
-    // controller.setD(SmartDashboard.getNumber("kD", controller.getD()));
+    controller.setP(SmartDashboard.getNumber("Hood/kP", controller.getP()));
+    controller.setI(SmartDashboard.getNumber("Hood/kI", controller.getI()));
+    controller.setD(SmartDashboard.getNumber("Hood/kD", controller.getD()));
   }
 
   @Override
