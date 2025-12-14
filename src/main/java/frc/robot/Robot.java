@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.NotLogged;
 import edu.wpi.first.epilogue.logging.errors.ErrorHandler;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -90,6 +91,7 @@ public class Robot extends TimedRobot {
   @Override
   public void simulationPeriodic() {}
 
+  @NotLogged
   public static boolean checkRedAlliance() {
     Optional<Alliance> alliance = DriverStation.getAlliance();
     if (alliance.isPresent()) {
