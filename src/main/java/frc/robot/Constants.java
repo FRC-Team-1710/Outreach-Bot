@@ -1,8 +1,20 @@
 package frc.robot;
 
+import edu.wpi.first.epilogue.Logged.Importance;
 import edu.wpi.first.wpilibj.RobotBase;
 
 public final class Constants {
+  public static final Importance defaultImportance = Importance.INFO;
+
+  public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : Mode.SIM;
+
+  public static enum Mode {
+    REAL,
+    SIM
+  }
+
+  public static final Importance importance = currentMode == Mode.SIM ? Importance.DEBUG : defaultImportance;
+
   public static boolean redAlliance = false;
   
   public static final class Intake {
@@ -46,12 +58,5 @@ public final class Constants {
     public static final int DRIVETRAIN_BACK_RIGHT_ANGLE_ENCODER = 3;
     public static final int DRIVETRAIN_BACK_RIGHT_DRIVE_MOTOR = 9;
     public static final double BROffset = 0;
-  }
-
-  public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : Mode.SIM;
-
-  public static enum Mode {
-    REAL,
-    SIM
   }
 }
