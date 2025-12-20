@@ -42,7 +42,7 @@ public class RobotContainer {
         /** Driver RT */
         private final Trigger intakeThroughShooter = driver.rightTrigger();
         /** Driver LB */
-        private final Trigger manualOutake = driver.leftBumper();
+        private final Trigger manualOuttake = driver.leftBumper();
         /** Driver RB */
         private final Trigger shoot = driver.rightBumper();
         /** Driver Y */
@@ -192,7 +192,7 @@ public class RobotContainer {
 
                 intakeThroughShooter.onTrue(superstructure.setWantedState(WantedState.SHOOTER_INTAKE)).onFalse(superstructure.setWantedState(WantedState.DEFAULT));
                 
-                manualOutake.onTrue(superstructure.setWantedState(WantedState.MANUAL_OUTAKE)).onFalse(superstructure.setWantedState(WantedState.DEFAULT));
+                manualOuttake.onTrue(superstructure.setWantedState(WantedState.MANUAL_OUTAKE)).onFalse(superstructure.setWantedState(WantedState.DEFAULT));
 
                 shoot.onTrue(superstructure.setWantedState(WantedState.SHOOT)).onFalse(superstructure.setWantedState(WantedState.DEFAULT));
 
