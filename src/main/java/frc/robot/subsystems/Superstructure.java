@@ -4,14 +4,19 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Milliseconds;
+
 import java.util.HashMap;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.Intake.IntakeStates;
+import frc.robot.Constants.Subsystems;
 import frc.robot.Robot;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.hood.Hood.HoodStates;
@@ -32,30 +37,47 @@ public class Superstructure {
   private final Robot robot;
 
   // private final SimplySwerveRequest request = new SimplySwerveRequest()
-  //     .withRequestType(RequestType.FIELD)
-  //     .withDeadband(0.1);
+  // .withRequestType(RequestType.FIELD)
+  // .withDeadband(0.1);
 
   private WantedState wantedState = WantedState.DEFAULT;
   private CurrentState currentState = CurrentState.IDLE;
 
-  private final HashMap<
+  private final HashMap<Subsystems, Pair<Time, Time>> currentTimesMap = new HashMap<>();
+  private final HashMap<Subsystems, Pair<Time, Time>> wantedTimesMap = new HashMap<>();
 
-  public Superstructure(DriveSubsystem drive,//SimplySwerve drive
-   Intake intake, Shooter shooter, Hood hood, TunableController driver, Robot robot) {
-     this.drive = drive;
-     this.intake = intake;
-     this.shooter = shooter;
-     this.hood = hood;
-     this.driver = driver;
-     this.robot = robot;
+  public Superstructure(DriveSubsystem drive, // SimplySwerve drive
+      Intake intake, Shooter shooter, Hood hood, TunableController driver, Robot robot) {
+    this.drive = drive;
+    this.intake = intake;
+    this.shooter = shooter;
+    this.hood = hood;
+    this.driver = driver;
+    this.robot = robot;
+
+    currentTimesMap.put(Subsystems.Superstructure, new Pair<Time, Time>(Milliseconds.of(20), Milliseconds.of(0)));
+    currentTimesMap.put(Subsystems.Drive, new Pair<Time, Time>(Milliseconds.of(20), Milliseconds.of(0)));
+    currentTimesMap.put(Subsystems.Intake, new Pair<Time, Time>(Milliseconds.of(20), Milliseconds.of(0)));
+    currentTimesMap.put(Subsystems.Hood, new Pair<Time, Time>(Milliseconds.of(20), Milliseconds.of(0)));
+    currentTimesMap.put(Subsystems.Shooter, new Pair<Time, Time>(Milliseconds.of(20), Milliseconds.of(0)));
   }
 
   public void periodic() {
+    wantedTimesMap.put(Subsystems.Drive, new Pair<Time, Time>(Milliseconds.of(20), Milliseconds.of(0)));
+    wantedTimesMap.put(Subsystems.Superstructure, new Pair<Time, Time>(Milliseconds.of(15), Milliseconds.of(0)));
+    wantedTimesMap.put(Subsystems.Intake, new Pair<Time, Time>(Milliseconds.of(50), Milliseconds.of(0)));
+    wantedTimesMap.put(Subsystems.Hood, new Pair<Time, Time>(Milliseconds.of(50), Milliseconds.of(0)));
+    wantedTimesMap.put(Subsystems.Shooter, new Pair<Time, Time>(Milliseconds.of(50), Milliseconds.of(0)));
     currentState = handleStateTransitions();
     applyStates();
 
-    // Logger.recordOutput("Superstructure/WantedState", wantedState);
-    // Logger.recordOutput("Superstructure/CurrentState", currentState);
+    for (Subsystems key : currentTimesMap.keySet()) {
+      if (currentTimesMap.get(key).getFirst().in(Milliseconds) != wantedTimesMap.get(key).getFirst().in(Milliseconds)) {
+        robot.setSubsystem(key, wantedTimesMap.get(key).getFirst(), wantedTimesMap.get(key).getFirst());
+        System.out.println(key + " changed period from " + currentTimesMap.get(key).getFirst() + " to " + wantedTimesMap.get(key).getFirst());
+        currentTimesMap.put(key, wantedTimesMap.get(key));
+      }
+    }
   }
 
   private CurrentState handleStateTransitions() {
@@ -99,15 +121,23 @@ public class Superstructure {
         break;
       case PREP_SHOT:
         prepShot();
+        wantedTimesMap.put(Subsystems.Shooter, new Pair<Time,Time>(Milliseconds.of(20), Milliseconds.of(0)));
+        wantedTimesMap.put(Subsystems.Hood, new Pair<Time,Time>(Milliseconds.of(20), Milliseconds.of(0)));
         break;
       case SHOOT:
         shoot();
+        wantedTimesMap.put(Subsystems.Shooter, new Pair<Time,Time>(Milliseconds.of(20), Milliseconds.of(0)));
+        wantedTimesMap.put(Subsystems.Hood, new Pair<Time,Time>(Milliseconds.of(20), Milliseconds.of(0)));
+        wantedTimesMap.put(Subsystems.Intake, new Pair<Time,Time>(Milliseconds.of(20), Milliseconds.of(0)));
         break;
       case INTAKE:
         intake();
+        wantedTimesMap.put(Subsystems.Intake, new Pair<Time,Time>(Milliseconds.of(20), Milliseconds.of(0)));
         break;
       case SHOOTER_INTAKE:
         shooterIntake();
+        wantedTimesMap.put(Subsystems.Shooter, new Pair<Time,Time>(Milliseconds.of(20), Milliseconds.of(0)));
+        wantedTimesMap.put(Subsystems.Intake, new Pair<Time,Time>(Milliseconds.of(20), Milliseconds.of(0)));
         break;
       case MANUAL_OUTTAKE:
         manualOuttake();
@@ -176,10 +206,11 @@ public class Superstructure {
 
   private void applyDrive() {
     // drive.run(() -> request
-    //     .withX(-driver.customLeft().getY())
-    //     .withY(-driver.customLeft().getX())
-    //     .withRotation(driver.customRight().getX())).schedule();
-    drive.drive(new Translation2d(-driver.customLeft().getY(), -driver.customLeft().getX()), driver.customRight().getX(), true);
+    // .withX(-driver.customLeft().getY())
+    // .withY(-driver.customLeft().getX())
+    // .withRotation(driver.customRight().getX())).schedule();
+    drive.drive(new Translation2d(-driver.customLeft().getY(), -driver.customLeft().getX()),
+        driver.customRight().getX(), true);
   }
 
   private void setState(WantedState state) {
