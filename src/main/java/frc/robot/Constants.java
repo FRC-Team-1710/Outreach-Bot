@@ -4,6 +4,7 @@ import edu.wpi.first.epilogue.Logged.Importance;
 import edu.wpi.first.wpilibj.RobotBase;
 
 public final class Constants {
+  /** Mode to use if running on a real robot */
   public static final Importance defaultImportance = Importance.INFO;
 
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : Mode.SIM;
@@ -13,21 +14,27 @@ public final class Constants {
     SIM
   }
 
+  /**
+   * {@link Importance#DEBUG} if {@link Constants#currentMode} == {@link Mode#SIM}
+   * and {@link Constants#defaultImportance} if {@link Constants#currentMode} ==
+   * {@link Mode#REAL} <br>
+   * Linking is fun
+   */
   public static final Importance importance = currentMode == Mode.SIM ? Importance.DEBUG : defaultImportance;
 
   public static boolean redAlliance = false;
-  
+
   public static final class Intake {
     public static final double IntakeSpeed = 0.5;
     public static final double FeedSpeed = 0.5;
   }
-  
+
   public static final class Hood {
     public static final double Offset = 5;
     public static double ShootAngle = 30;
     public static final double ExtenderRatio = 20 / 1;
   }
-  
+
   public static final class Flywheel {
     public static double ShootSpeedRPM = 3500;
     public static double IdleSpeedRPM = 0;
