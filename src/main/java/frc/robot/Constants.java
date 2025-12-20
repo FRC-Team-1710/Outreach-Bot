@@ -3,6 +3,10 @@ package frc.robot;
 import edu.wpi.first.wpilibj.RobotBase;
 
 public final class Constants {
+  public static enum Subsystems {
+Hood, Shooter, Drive, Intake, Robot, Superstructure
+  }
+
   public static boolean redAlliance = false;
   
   public static final class Intake {

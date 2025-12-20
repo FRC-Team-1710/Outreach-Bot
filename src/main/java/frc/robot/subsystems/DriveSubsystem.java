@@ -23,7 +23,6 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.utils.drivers.Gyroscope;
 import frc.robot.utils.drivers.Mk2SwerveModuleBuilder;
@@ -31,7 +30,7 @@ import frc.robot.utils.drivers.NavX;
 import frc.robot.utils.drivers.SwerveModule;
 import frc.robot.utils.math.Vector2;
 
-public class DriveSubsystem extends SubsystemBase {
+public class DriveSubsystem {
 
   private static final double TRACKWIDTH = Units.inchesToMeters(23);
   private static final double WHEELBASE = Units.inchesToMeters(23);
@@ -109,7 +108,6 @@ public class DriveSubsystem extends SubsystemBase {
     backRightModule.setName("Back Right");
   }
 
-  @Override
   public void periodic() {
     frontLeftModule.updateSensors();
     frontRightModule.updateSensors();

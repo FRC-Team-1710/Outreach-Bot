@@ -4,21 +4,20 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
+import frc.robot.subsystems.shooter.ShooterIO.ShooterIOInputs;
 
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
-import org.littletonrobotics.junction.Logger;
-
 public class Shooter extends SubsystemBase {
-  private final ShooterIOInputsAutoLogged inputs;
+  private final ShooterIOInputs inputs;
   private final ShooterIO io;
 
   private ShooterStates currentState = ShooterStates.OFF;
 
   public Shooter(ShooterIO io) {
     this.io = io;
-    this.inputs = new ShooterIOInputsAutoLogged();
+    this.inputs = new ShooterIOInputs();
     SmartDashboard.putNumber("FlywheelShootSpeed", Constants.Flywheel.ShootSpeedRPM);
     SmartDashboard.putNumber("FlywheelIdleSpeed", Constants.Flywheel.IdleSpeedRPM);
   }
@@ -26,7 +25,7 @@ public class Shooter extends SubsystemBase {
   @Override
   public void periodic() {
     io.updateInputs(inputs);
-    Logger.processInputs("Shooter", inputs);
+    // Logger.processInputs("Shooter", inputs);
 
     // Constants.Flywheel.ShootSpeedRPM = SmartDashboard.getNumber("FlywheelShootSpeed", 0);
     // Constants.Flywheel.ShootSpeedRPM = SmartDashboard.getNumber("FlywheelIdleSpeed", 0);
@@ -43,7 +42,6 @@ public class Shooter extends SubsystemBase {
         // io.setSpeed(RotationsPerSecond.of(Constants.Flywheel.ShootSpeedRPM/60));
         break;
     }
-    Logger.recordOutput("bfhyuiabfyuiebuiefw", atSetpoint());
   }
 
   public enum ShooterStates {

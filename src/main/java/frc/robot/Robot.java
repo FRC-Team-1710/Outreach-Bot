@@ -4,57 +4,54 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Seconds;
+
 import java.util.Optional;
 
-import org.littletonrobotics.junction.LogFileUtil;
-import org.littletonrobotics.junction.LoggedRobot;
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.NT4Publisher;
-import org.littletonrobotics.junction.wpilog.WPILOGReader;
-import org.littletonrobotics.junction.wpilog.WPILOGWriter;
-
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Constants.Subsystems;
+import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.utils.DynamicTimedRobot;
 
-public class Robot extends LoggedRobot {
+public class Robot extends DynamicTimedRobot {
   @SuppressWarnings("unused")
   private RobotContainer m_robotContainer;
+
+  private DriveSubsystem drive;
+
+  private Time lastPeriod = Seconds.of(1);
 
   @Override
   public void robotInit() {
     Constants.redAlliance = checkRedAlliance();
 
-    switch (Constants.currentMode) {
-      case REAL:
-        Logger.addDataReceiver(new WPILOGWriter());
-        Logger.addDataReceiver(new NT4Publisher());
-        break;
-      case SIM:
-        Logger.addDataReceiver(new WPILOGWriter());
-        Logger.addDataReceiver(new NT4Publisher());
-        break;
-      case REPLAY:
-        setUseTiming(false);
-        String logPath = LogFileUtil.findReplayLog();
-        Logger.setReplaySource(new WPILOGReader(logPath));
-        Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
-        break;
-    }
-
-    Logger.start();
+    drive = new DriveSubsystem();
     
     m_robotContainer = new RobotContainer();
 
     DriverStation.silenceJoystickConnectionWarning(true);
 
     DataLogManager.log("\nF  I  R  S  T    R  O  B  O  T  I  C  S    T  E  A  M\n______________   _  _____   _  _____   ______________\n\\_____________| / ||___  | / ||  _  | |_____________/\n \\_ _ _ _ _ _ | | |   / /  | || | | | | _ _ _ _ _ _/\n  \\ _ _ _ _ _ | | |  / /   | || |_| | | _ _ _ _ _ /\n   \\__________|_|_|_/_/___ |_||_____|_|__________/\n    \\____________________/ \\____________________/\n");
+
+    addSubsystem(Subsystems.Drive, drive::periodic, lastPeriod);
+
+    SmartDashboard.putNumber("BruhPeriod", lastPeriod.in(Seconds));
   }
 
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
+
+    if (SmartDashboard.getNumber("BruhPeriod", lastPeriod.in(Seconds)) != lastPeriod.in(Seconds)) {
+      lastPeriod = Seconds.of(SmartDashboard.getNumber("BruhPeriod", lastPeriod.in(Seconds)));
+      setSubsystem(Subsystems.Drive, lastPeriod);
+    }
   }
 
   @Override
