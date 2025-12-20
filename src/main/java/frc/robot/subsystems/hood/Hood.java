@@ -1,55 +1,51 @@
-// package frc.robot.subsystems.hood;
+package frc.robot.subsystems.hood;
 
-// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-// import edu.wpi.first.wpilibj2.command.SubsystemBase;
-// import frc.robot.Constants;
-// import frc.robot.Constants.Mode;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+import frc.robot.Constants.Mode;
+import frc.robot.subsystems.hood.HoodIO.HoodIOInputs;
 
-// import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Degrees;
 
-// import org.littletonrobotics.junction.Logger;
+public class Hood {
+  private final HoodIOInputs inputs;
+  private final HoodIO io;
 
-// public class Hood extends SubsystemBase {
-//   private final HoodIOInputsAutoLogged inputs;
-//   private final HoodIO io;
+  private HoodStates currentState = HoodStates.IDLE;
 
-//   private HoodStates currentState = HoodStates.IDLE;
+  public Hood(HoodIO io) {
+    this.io = io;
+    this.inputs = new HoodIOInputs();
+    SmartDashboard.putNumber("ShootAngle", Constants.Hood.ShootAngle);
+  }
 
-//   public Hood(HoodIO io) {
-//     this.io = io;
-//     this.inputs = new HoodIOInputsAutoLogged();
-//     SmartDashboard.putNumber("ShootAngle", Constants.Hood.ShootAngle);
-//   }
+  public void periodic() {
+    io.updateInputs(inputs);
+    // Logger.processInputs("Hood", inputs);
 
-//   @Override
-//   public void periodic() {
-//     io.updateInputs(inputs);
-//     Logger.processInputs("Hood", inputs);
+    Constants.Hood.ShootAngle = SmartDashboard.getNumber("ShootAngle", 0);
 
-//     Logger.recordOutput("hucdbhuioiedcsvhbugiosedvchuioedchiouhood", atSetpoint());
+    switch (currentState) {
+      case IDLE:
+        io.setAngle(Degrees.of(Constants.Hood.Offset));
+        break;
+      case SHOOT:
+        io.setAngle(Degrees.of(Constants.Hood.ShootAngle));
+        break;
+    }
+  }
 
-//     Constants.Hood.ShootAngle = SmartDashboard.getNumber("ShootAngle", 0);
+  public enum HoodStates {
+    IDLE(),
+    SHOOT()
+  }
 
-//     switch (currentState) {
-//       case IDLE:
-//         io.setAngle(Degrees.of(Constants.Hood.Offset));
-//         break;
-//       case SHOOT:
-//         io.setAngle(Degrees.of(Constants.Hood.ShootAngle));
-//         break;
-//     }
-//   }
+  public void setState(HoodStates state) {
+    this.currentState = state;
+  }
 
-//   public enum HoodStates {
-//     IDLE(),
-//     SHOOT()
-//   }
-
-//   public void setState(HoodStates state) {
-//     this.currentState = state;
-//   }
-
-//   public boolean atSetpoint() {
-//     return inputs.position.isNear(inputs.setpoint, Degrees.of(2)) || (Constants.currentMode == Mode.SIM);
-//   }
-// }
+  public boolean atSetpoint() {
+    return inputs.position.isNear(inputs.setpoint, Degrees.of(2)) || (Constants.currentMode == Mode.SIM);
+  }
+}

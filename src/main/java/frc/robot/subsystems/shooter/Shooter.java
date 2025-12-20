@@ -9,7 +9,7 @@ import frc.robot.subsystems.shooter.ShooterIO.ShooterIOInputs;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
-public class Shooter extends SubsystemBase {
+public class Shooter {
   private final ShooterIOInputs inputs;
   private final ShooterIO io;
 
@@ -22,7 +22,6 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("FlywheelIdleSpeed", Constants.Flywheel.IdleSpeedRPM);
   }
 
-  @Override
   public void periodic() {
     io.updateInputs(inputs);
     // Logger.processInputs("Shooter", inputs);

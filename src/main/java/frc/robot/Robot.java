@@ -6,52 +6,39 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Seconds;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Optional;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.Subsystems;
-import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.utils.DynamicTimedRobot;
 
 public class Robot extends DynamicTimedRobot {
-  @SuppressWarnings("unused")
   private RobotContainer m_robotContainer;
-
-  private DriveSubsystem drive;
-
-  private Time lastPeriod = Seconds.of(1);
 
   @Override
   public void robotInit() {
     Constants.redAlliance = checkRedAlliance();
-
-    drive = new DriveSubsystem();
     
-    m_robotContainer = new RobotContainer();
+    m_robotContainer = new RobotContainer(this);
+
+    addAllSubsystems(m_robotContainer.getAllSubsystems());
 
     DriverStation.silenceJoystickConnectionWarning(true);
 
     DataLogManager.log("\nF  I  R  S  T    R  O  B  O  T  I  C  S    T  E  A  M\n______________   _  _____   _  _____   ______________\n\\_____________| / ||___  | / ||  _  | |_____________/\n \\_ _ _ _ _ _ | | |   / /  | || | | | | _ _ _ _ _ _/\n  \\ _ _ _ _ _ | | |  / /   | || |_| | | _ _ _ _ _ /\n   \\__________|_|_|_/_/___ |_||_____|_|__________/\n    \\____________________/ \\____________________/\n");
-
-    addSubsystem(Subsystems.Drive, drive::periodic, lastPeriod);
-
-    SmartDashboard.putNumber("BruhPeriod", lastPeriod.in(Seconds));
   }
 
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
-
-    if (SmartDashboard.getNumber("BruhPeriod", lastPeriod.in(Seconds)) != lastPeriod.in(Seconds)) {
-      lastPeriod = Seconds.of(SmartDashboard.getNumber("BruhPeriod", lastPeriod.in(Seconds)));
-      setSubsystem(Subsystems.Drive, lastPeriod);
-    }
   }
 
   @Override
@@ -89,6 +76,13 @@ public class Robot extends DynamicTimedRobot {
 
   @Override
   public void simulationPeriodic() {}
+
+  /** A map of all subsystems with their  */
+  public void addAllSubsystems(HashMap<Subsystems, Pair<Runnable, Pair<Time, Time>>> subsystems) {
+    for (Subsystems key : subsystems.keySet()) {
+      addSubsystem(key, subsystems.get(key).getFirst(), subsystems.get(key).getSecond().getFirst(), subsystems.get(key).getSecond().getSecond());
+    }
+  }
 
   public static boolean checkRedAlliance() {
     Optional<Alliance> alliance = DriverStation.getAlliance();
