@@ -19,6 +19,7 @@ import frc.robot.subsystems.intake.IntakeIOSIM;
 import frc.robot.Constants.Subsystems;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.Superstructure;
+import frc.robot.utils.DynamicTimedRobot.TimesConsumer;
 import frc.robot.subsystems.Superstructure.WantedState;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.hood.HoodIO;
@@ -60,7 +61,7 @@ public class RobotContainer {
         /** Driver LT + RT */
         private final Trigger prepShot = intakeNormal.and(intakeThroughShooter);
 
-        public RobotContainer(Robot robot) {
+        public RobotContainer(TimesConsumer consumer) {
                 drive = new DriveSubsystem();
                 switch (Constants.currentMode) {
                         case REAL:
@@ -188,7 +189,7 @@ public class RobotContainer {
                 }
 
                 superstructure = new Superstructure(drive, 
-                intake, shooter, hood, driver, robot);
+                intake, shooter, hood, driver, consumer);
 
                 configureButtonBindings();
         }

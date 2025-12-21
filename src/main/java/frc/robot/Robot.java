@@ -4,9 +4,6 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Seconds;
-
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -15,7 +12,6 @@ import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.Subsystems;
 import frc.robot.utils.DynamicTimedRobot;
@@ -27,7 +23,7 @@ public class Robot extends DynamicTimedRobot {
   public void robotInit() {
     Constants.redAlliance = checkRedAlliance();
     
-    m_robotContainer = new RobotContainer(this);
+    m_robotContainer = new RobotContainer(this::setSubsystemConsumer);
 
     addAllSubsystems(m_robotContainer.getAllSubsystems());
 

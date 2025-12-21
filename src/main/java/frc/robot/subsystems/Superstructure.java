@@ -13,15 +13,14 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.Intake.IntakeStates;
 import frc.robot.Constants.Subsystems;
-import frc.robot.Robot;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.hood.Hood.HoodStates;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Shooter.ShooterStates;
+import frc.robot.utils.DynamicTimedRobot.TimesConsumer;
 // import frc.robot.subsystems.simplySwerve.SimplySwerveRequest;
 // import frc.robot.subsystems.simplySwerve.SimplySwerveRequest.RequestType;
 import frc.robot.utils.TunableController;
@@ -34,7 +33,7 @@ public class Superstructure {
   private final Hood hood;
   private final TunableController driver;
 
-  private final Robot robot;
+  private final TimesConsumer consumer;
 
   // private final SimplySwerveRequest request = new SimplySwerveRequest()
   // .withRequestType(RequestType.FIELD)
@@ -47,13 +46,13 @@ public class Superstructure {
   private final HashMap<Subsystems, Pair<Time, Time>> wantedTimesMap = new HashMap<>();
 
   public Superstructure(DriveSubsystem drive, // SimplySwerve drive
-      Intake intake, Shooter shooter, Hood hood, TunableController driver, Robot robot) {
+      Intake intake, Shooter shooter, Hood hood, TunableController driver, TimesConsumer consumer) {
     this.drive = drive;
     this.intake = intake;
     this.shooter = shooter;
     this.hood = hood;
     this.driver = driver;
-    this.robot = robot;
+    this.consumer = consumer;
 
     currentTimesMap.put(Subsystems.Superstructure, new Pair<Time, Time>(Milliseconds.of(20), Milliseconds.of(0)));
     currentTimesMap.put(Subsystems.Drive, new Pair<Time, Time>(Milliseconds.of(20), Milliseconds.of(0)));
@@ -64,7 +63,7 @@ public class Superstructure {
 
   public void periodic() {
     wantedTimesMap.put(Subsystems.Drive, new Pair<Time, Time>(Milliseconds.of(20), Milliseconds.of(0)));
-    wantedTimesMap.put(Subsystems.Superstructure, new Pair<Time, Time>(Milliseconds.of(15), Milliseconds.of(0)));
+    wantedTimesMap.put(Subsystems.Superstructure, new Pair<Time, Time>(Milliseconds.of(20), Milliseconds.of(0)));
     wantedTimesMap.put(Subsystems.Intake, new Pair<Time, Time>(Milliseconds.of(50), Milliseconds.of(0)));
     wantedTimesMap.put(Subsystems.Hood, new Pair<Time, Time>(Milliseconds.of(50), Milliseconds.of(0)));
     wantedTimesMap.put(Subsystems.Shooter, new Pair<Time, Time>(Milliseconds.of(50), Milliseconds.of(0)));
@@ -73,7 +72,7 @@ public class Superstructure {
 
     for (Subsystems key : currentTimesMap.keySet()) {
       if (currentTimesMap.get(key).getFirst().in(Milliseconds) != wantedTimesMap.get(key).getFirst().in(Milliseconds)) {
-        robot.setSubsystem(key, wantedTimesMap.get(key).getFirst(), wantedTimesMap.get(key).getFirst());
+        consumer.accept(key, wantedTimesMap.get(key).getFirst(), wantedTimesMap.get(key).getSecond());
         System.out.println(key + " changed period from " + currentTimesMap.get(key).getFirst() + " to " + wantedTimesMap.get(key).getFirst());
         currentTimesMap.put(key, wantedTimesMap.get(key));
       }

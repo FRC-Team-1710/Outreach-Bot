@@ -191,22 +191,57 @@ public class DynamicTimedRobot extends IterativeRobotBase {
     return new Callback(periodic, m_startTimeUs, (long) (period.in(Seconds) * 1e6), (long) (offset.in(Seconds) * 1e6), subsystem);
   }
 
+  /** Adds a subsystem to the que of runnables
+   * <p> Assumes an offset of zero
+       * @param subsystem Subsystem to add (enum in constants)
+       * @param periodic Subsystem periodic function as a Runnable
+       * @param period How frequently to call periodic
+       */
+    public final void addSubsystem(Subsystems subsystem, Runnable periodic, Time period) {
+      addSubsystem(subsystem, periodic, period, Seconds.of(0));
+    }
+    
+      /** Adds a subsystem to the que of runnables
+       * @param subsystem Subsystem to add (enum in constants)
+       * @param periodic Subsystem periodic function as a Runnable
+       * @param period How frequently to call periodic
+       * @param offset Offset relative to main loop
+       */
+      public final void addSubsystem(Subsystems subsystem, Runnable periodic, Time period, Time offset) {
+        subsystems.put(subsystem, getCallback(subsystem, periodic, period, offset));
+        m_callbacks.add(getCallback(subsystem, periodic, period, offset));
+      }
+
+      /** Sets new periods and offsets for subsystems
+   * @param subsystem Subsystem to add (enum in constants)
+   * @param period How frequently to call periodic
+   */
   public final void setSubsystem(Subsystems subsystem, Time period) {
     m_callbacks.remove(subsystems.get(subsystem));
     addSubsystem(subsystem, subsystems.get(subsystem).func, period);
   }
 
+  /** Sets new periods and offsets for subsystems
+   * @param subsystem Subsystem to add (enum in constants)
+   * @param period How frequently to call periodic
+   * @param offset Offset relative to main loop
+   */
   public final void setSubsystem(Subsystems subsystem, Time period, Time offset) {
     m_callbacks.remove(subsystems.get(subsystem));
     addSubsystem(subsystem, subsystems.get(subsystem).func, period, offset);
   }
 
-  public final void addSubsystem(Subsystems subsystem, Runnable periodic, Time period) {
-    addSubsystem(subsystem, periodic, period, Seconds.of(0));
+  /** The consumer of new periods and offsets for subsystems
+   * @param subsystem Subsystem to add (enum in constants)
+   * @param period How frequently to call periodic
+   * @param offset Offset relative to main loop
+   */
+  public void setSubsystemConsumer(Subsystems subsystem, Time period, Time offset) {
+    setSubsystem(subsystem, period, offset);
   }
 
-  public final void addSubsystem(Subsystems subsystem, Runnable periodic, Time period, Time offset) {
-    subsystems.put(subsystem, getCallback(subsystem, periodic, period, offset));
-    m_callbacks.add(getCallback(subsystem, periodic, period, offset));
+  @FunctionalInterface
+  public static interface TimesConsumer {
+    void accept(Subsystems subsystem, Time period, Time offset);
   }
 }
