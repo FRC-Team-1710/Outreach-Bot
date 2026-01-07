@@ -1,13 +1,18 @@
 package frc.robot.subsystems.intake;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.subsystems.intake.IntakeIO.IntakeIOInputs;
 
+import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
+import edu.wpi.first.units.measure.Time;
+
 public class Intake {
+  private Time lastPeriod = Seconds.of(0.02);
+  private Time period = Seconds.of(0.02);
+
   private final IntakeIOInputs inputs;
   private final IntakeIO io;
 
@@ -48,6 +53,22 @@ public class Intake {
         io.setVoltage(Volts.of(Constants.Intake.FeedSpeed * 12));
         break;
     }
+  }
+
+  public boolean periodChanged() {
+    if (period.in(Seconds) != lastPeriod.in(Seconds)) {
+      lastPeriod = period;
+      return true;
+    }
+    return false;
+  }
+
+  public void setPeriod(Time period) {
+    this.period = period;
+  }
+
+  public Time getPeriod() {
+    return period;
   }
 
   public enum IntakeStates {

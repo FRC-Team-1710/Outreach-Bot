@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Seconds;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkMax;
@@ -17,6 +18,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -31,6 +33,8 @@ import frc.robot.utils.drivers.SwerveModule;
 import frc.robot.utils.math.Vector2;
 
 public class DriveSubsystem {
+  private Time lastPeriod = Seconds.of(0.02);
+  private Time period = Seconds.of(0.02);
 
   private static final double TRACKWIDTH = Units.inchesToMeters(23);
   private static final double WHEELBASE = Units.inchesToMeters(23);
@@ -106,6 +110,22 @@ public class DriveSubsystem {
     frontRightModule.setName("Front Right");
     backLeftModule.setName("Back Left");
     backRightModule.setName("Back Right");
+  }
+
+  public boolean periodChanged() {
+    if (period.in(Seconds) != lastPeriod.in(Seconds)) {
+      lastPeriod = period;
+      return true;
+    }
+    return false;
+  }
+
+  public void setPeriod(Time period) {
+    this.period = period;
+  }
+
+  public Time getPeriod() {
+    return period;
   }
 
   public void periodic() {

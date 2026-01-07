@@ -4,6 +4,7 @@
 
 package frc.robot.utils;
 
+import static edu.wpi.first.units.Units.Milliseconds;
 import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.hal.DriverStationJNI;
@@ -12,6 +13,7 @@ import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.hal.NotifierJNI;
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -21,14 +23,19 @@ import java.util.HashMap;
 import java.util.PriorityQueue;
 
 /**
- * TimedRobot implements the IterativeRobotBase robot program framework.
- *
- * <p>The TimedRobot class is intended to be subclassed by a user creating a robot program.
- *
- * <p>periodic() functions from the base class are called on an interval by a Notifier instance.
+ * DynamicTimedRobot was HEAVILY inspired by TimedRobot which implements the
+ * IterativeRobotBase robot program framework.
+ * 
+ * <p>
+ * It pretty much uses the same callback and PriorityQueue system but instead
+ * with options to adjust the periodic rate of the subsystems, hence the name
+ * DynamicTimedRobot
  */
 public class DynamicTimedRobot extends IterativeRobotBase {
-  @SuppressWarnings("MemberName")
+  /**
+   * A container that contains the Runnable function, rate (period), expiration
+   * time (not set by user), and Subsystem
+   */
   static class Callback implements Comparable<Callback> {
     public Runnable func;
     public long period;
@@ -38,20 +45,20 @@ public class DynamicTimedRobot extends IterativeRobotBase {
     /**
      * Construct a callback container.
      *
-     * @param func The callback to run.
-     * @param startTimeUs The common starting point for all callback scheduling in microseconds.
-     * @param periodUs The period at which to run the callback in microseconds.
-     * @param offsetUs The offset from the common starting time in microseconds.
+     * @param func        The Runnable to run.
+     * @param startTimeUs The common starting point for all callback scheduling in
+     *                    microseconds.
+     * @param periodUs    The period at which to run the callback in microseconds.
+     * @param offsetUs    The offset from the common starting time in microseconds.
      */
     Callback(Runnable func, long startTimeUs, long periodUs, long offsetUs, Subsystems subsystem) {
       this.func = func;
       this.period = periodUs;
-      this.expirationTime =
-          startTimeUs
-              + offsetUs
-              + this.period
-              + (RobotController.getFPGATime() - startTimeUs) / this.period * this.period;
-              this.subsystem = subsystem;
+      this.expirationTime = startTimeUs
+          + offsetUs
+          + this.period
+          + (RobotController.getFPGATime() - startTimeUs) / this.period * this.period;
+      this.subsystem = subsystem;
     }
 
     @Override
@@ -72,7 +79,7 @@ public class DynamicTimedRobot extends IterativeRobotBase {
     }
   }
 
-  /** Default loop period. */
+  /** Default loop period (20ms) */
   public static final Time kDefaultPeriod = Seconds.of(0.02);
 
   // The C pointer to the notifier object. We don't use it directly, it is
@@ -84,18 +91,18 @@ public class DynamicTimedRobot extends IterativeRobotBase {
 
   private final PriorityQueue<Callback> m_callbacks = new PriorityQueue<>();
 
-  /** Map from subsystems to their periodic runnables and their last set callback */
-  private final HashMap<Subsystems, Callback> subsystems = new HashMap<>();
+  private final HashMap<Subsystems, Runnable> subsystemToRunnable = new HashMap<>();
+  private final HashMap<Subsystems, Runnable> flagged = new HashMap<>();
 
-  /** Constructor for TimedRobot. */
+  /** Constructor for DynamicTimedRobot. */
   protected DynamicTimedRobot() {
     this(kDefaultPeriod);
   }
 
   /**
-   * Constructor for TimedRobot.
+   * Constructor for DynamicTimedRobot.
    *
-   * @param period Period in seconds.
+   * @param period Period.
    */
   protected DynamicTimedRobot(Time period) {
     super(period.in(Seconds));
@@ -113,7 +120,7 @@ public class DynamicTimedRobot extends IterativeRobotBase {
   }
 
   /** Provide an alternate "main loop" via startCompetition(). */
-@Override
+  @Override
   public void startCompetition() {
     robotInit();
 
@@ -143,16 +150,23 @@ public class DynamicTimedRobot extends IterativeRobotBase {
       m_loopStartTimeUs = RobotController.getFPGATime();
 
       callback.func.run();
-      SmartDashboard.putNumber(callback.subsystem.toString() + "/Periodic", RobotController.getFPGATime() - m_loopStartTimeUs);
+      SmartDashboard.putNumber("Periodics/" + callback.subsystem.toString() + "/Periodic",
+          RobotController.getFPGATime() - m_loopStartTimeUs);
 
       // Increment the expiration time by the number of full periods it's behind
       // plus one to avoid rapid repeat fires from a large loop overrun. We
       // assume currentTime ≥ expirationTime rather than checking for it since
       // the callback wouldn't be running otherwise.
-      callback.expirationTime +=
-          callback.period
-              + (currentTime - callback.expirationTime) / callback.period * callback.period;
+      callback.expirationTime += callback.period
+          + (currentTime - callback.expirationTime) / callback.period * callback.period;
       m_callbacks.add(callback);
+
+      // Loop through flagged backup subsystems due to errors (redundancy)
+      for (Subsystems subsystem : flagged.keySet()) {
+        var tempTime = RobotController.getFPGATime();
+        flagged.get(subsystem).run();
+        SmartDashboard.putNumber("Periodics/" + subsystem.toString() + "/Periodic", RobotController.getFPGATime() - tempTime);
+      }
 
       // Process all other callbacks that are ready to run
       while (m_callbacks.peek().expirationTime <= currentTime) {
@@ -160,13 +174,14 @@ public class DynamicTimedRobot extends IterativeRobotBase {
 
         var tempTime = RobotController.getFPGATime();
         callback.func.run();
-        SmartDashboard.putNumber(callback.subsystem.toString() + "/Periodic", RobotController.getFPGATime() - tempTime);
+        SmartDashboard.putNumber("Periodics/" + callback.subsystem.toString() + "/Periodic", RobotController.getFPGATime() - tempTime);
 
-        callback.expirationTime +=
-            callback.period
-                + (currentTime - callback.expirationTime) / callback.period * callback.period;
+        callback.expirationTime += callback.period
+            + (currentTime - callback.expirationTime) / callback.period * callback.period;
         m_callbacks.add(callback);
       }
+      SmartDashboard.putNumber("Periodics/Total/Periodic",
+          RobotController.getFPGATime() - m_loopStartTimeUs);
     }
   }
 
@@ -177,71 +192,113 @@ public class DynamicTimedRobot extends IterativeRobotBase {
   }
 
   /**
-   * Return the system clock time in microseconds for the start of the current periodic loop. This is
-   * in the same time base as Timer.getFPGATimestamp(), but is stable through a loop. It is updated
-   * at the beginning of every periodic callback (including the normal periodic loop).
+   * Return the system clock time in microseconds for the start of the current
+   * periodic loop. This is
+   * in the same time base as Timer.getFPGATimestamp(), but is stable through a
+   * loop. It is updated
+   * at the beginning of every periodic callback (including the normal periodic
+   * loop).
    *
-   * @return Robot running time in microseconds, as of the start of the current periodic function.
+   * @return Robot running time in microseconds, as of the start of the current
+   *         periodic function.
    */
   public long getLoopStartTime() {
     return m_loopStartTimeUs;
   }
 
+  /** Returns a new callback with the given params */
   private Callback getCallback(Subsystems subsystem, Runnable periodic, Time period, Time offset) {
-    return new Callback(periodic, m_startTimeUs, (long) (period.in(Seconds) * 1e6), (long) (offset.in(Seconds) * 1e6), subsystem);
+    return new Callback(periodic, m_startTimeUs, (long) (period.in(Seconds) * 1e6), (long) (offset.in(Seconds) * 1e6),
+        subsystem);
   }
 
-  /** Adds a subsystem to the que of runnables
-   * <p> Assumes an offset of zero
-       * @param subsystem Subsystem to add (enum in constants)
-       * @param periodic Subsystem periodic function as a Runnable
-       * @param period How frequently to call periodic
-       */
-    public final void addSubsystem(Subsystems subsystem, Runnable periodic, Time period) {
-      addSubsystem(subsystem, periodic, period, Seconds.of(0));
-    }
-    
-      /** Adds a subsystem to the que of runnables
-       * @param subsystem Subsystem to add (enum in constants)
-       * @param periodic Subsystem periodic function as a Runnable
-       * @param period How frequently to call periodic
-       * @param offset Offset relative to main loop
-       */
-      public final void addSubsystem(Subsystems subsystem, Runnable periodic, Time period, Time offset) {
-        subsystems.put(subsystem, getCallback(subsystem, periodic, period, offset));
-        m_callbacks.add(getCallback(subsystem, periodic, period, offset));
-      }
-
-      /** Sets new periods and offsets for subsystems
+  /**
+   * Adds a subsystem to the queue of runnables
+   * <p>
+   * Assumes an offset of zero (default)
+   * 
    * @param subsystem Subsystem to add (enum in constants)
-   * @param period How frequently to call periodic
+   * @param periodic  Subsystem periodic function as a Runnable
+   * @param period    How frequently to call periodic
+   */
+  public final void addSubsystem(Subsystems subsystem, Runnable periodic, Time period) {
+    addSubsystem(subsystem, periodic, period, Seconds.of(0));
+  }
+
+  /**
+   * Adds a subsystem to the que of runnables
+   * 
+   * @param subsystem Subsystem to add (enum in constants)
+   * @param periodic  Subsystem periodic function as a Runnable
+   * @param period    How frequently to call periodic
+   * @param offset    Offset relative to main loop
+   */
+  public final void addSubsystem(Subsystems subsystem, Runnable periodic, Time period, Time offset) {
+    subsystemToRunnable.put(subsystem, periodic);
+    m_callbacks.add(getCallback(subsystem, periodic, period, offset));
+  }
+
+  private final void addSubsystem(Subsystems subsystem, Callback callback) {
+    m_callbacks.add(callback);
+  }
+
+  /**
+   * Set new period for subsystem
+   * 
+   * <p>
+   * This function ensures the offset set originally isn't change and that it will
+   * only start running at the new period
+   * 
+   * @param subsystem Subsystem to change (enum in constants)
+   * @param period    How frequently to call periodic
    */
   public final void setSubsystem(Subsystems subsystem, Time period) {
-    m_callbacks.remove(subsystems.get(subsystem));
-    addSubsystem(subsystem, subsystems.get(subsystem).func, period);
+    boolean subsystemOK = false;
+    for (Object obj : m_callbacks.toArray()) {
+      Callback callback = (Callback) obj;
+      // If the callback were looking for is found
+      if (callback.subsystem == subsystem) {
+        // Only add it back if it was removed (shouldn't fail but jic)
+        if (m_callbacks.remove(callback)) {
+          // Set the new period
+          callback.period = (long) (period.in(Seconds) * 1e6);
+          // Re-add the subsystem because it was "removed"
+          addSubsystem(subsystem, callback);
+          // Lets us know it was successful
+          subsystemOK = m_callbacks.contains(callback);
+          break;
+        }
+      }
+    }
+    if (!subsystemOK) {
+      for (Object obj : m_callbacks.toArray()) {
+        Callback callback = (Callback) obj;
+        if (callback.subsystem == subsystem) {
+            subsystemOK = true;
+            break;
+        }
+      }
+      if (!subsystemOK) {
+        // Add to flagged because of an error
+        flagged.put(subsystem, subsystemToRunnable.get(subsystem));
+      }
+      // Log error depending on current situation (bad situation)
+      DriverStation.reportError("Trying to set " + subsystem.toString() + " to " + period.in(Milliseconds) + "ms and it failed! " + (subsystemOK ? "The callback queue has the subsystem tho, you should be alright for now" : "The callback queue does NOT have the subsystem!!! The subsystem is flagged and put in the redundancy queue of 20ms, it should be alright."), true);
+    }
   }
 
-  /** Sets new periods and offsets for subsystems
+  /**
+   * The consumer of new periods and offsets for subsystems
+   * 
    * @param subsystem Subsystem to add (enum in constants)
-   * @param period How frequently to call periodic
-   * @param offset Offset relative to main loop
+   * @param period    How frequently to call periodic
    */
-  public final void setSubsystem(Subsystems subsystem, Time period, Time offset) {
-    m_callbacks.remove(subsystems.get(subsystem));
-    addSubsystem(subsystem, subsystems.get(subsystem).func, period, offset);
-  }
-
-  /** The consumer of new periods and offsets for subsystems
-   * @param subsystem Subsystem to add (enum in constants)
-   * @param period How frequently to call periodic
-   * @param offset Offset relative to main loop
-   */
-  public void setSubsystemConsumer(Subsystems subsystem, Time period, Time offset) {
-    setSubsystem(subsystem, period, offset);
+  public void setSubsystemConsumer(Subsystems subsystem, Time period) {
+    setSubsystem(subsystem, period);
   }
 
   @FunctionalInterface
   public static interface TimesConsumer {
-    void accept(Subsystems subsystem, Time period, Time offset);
+    void accept(Subsystems subsystem, Time period);
   }
 }

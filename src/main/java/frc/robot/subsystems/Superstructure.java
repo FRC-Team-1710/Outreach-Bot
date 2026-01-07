@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Milliseconds;
+import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.HashMap;
 
@@ -42,9 +43,6 @@ public class Superstructure {
   private WantedState wantedState = WantedState.DEFAULT;
   private CurrentState currentState = CurrentState.IDLE;
 
-  private final HashMap<Subsystems, Pair<Time, Time>> currentTimesMap = new HashMap<>();
-  private final HashMap<Subsystems, Pair<Time, Time>> wantedTimesMap = new HashMap<>();
-
   public Superstructure(DriveSubsystem drive, // SimplySwerve drive
       Intake intake, Shooter shooter, Hood hood, TunableController driver, TimesConsumer consumer) {
     this.drive = drive;
@@ -53,54 +51,68 @@ public class Superstructure {
     this.hood = hood;
     this.driver = driver;
     this.consumer = consumer;
-
-    currentTimesMap.put(Subsystems.Superstructure, new Pair<Time, Time>(Milliseconds.of(20), Milliseconds.of(0)));
-    currentTimesMap.put(Subsystems.Drive, new Pair<Time, Time>(Milliseconds.of(20), Milliseconds.of(0)));
-    currentTimesMap.put(Subsystems.Intake, new Pair<Time, Time>(Milliseconds.of(20), Milliseconds.of(0)));
-    currentTimesMap.put(Subsystems.Hood, new Pair<Time, Time>(Milliseconds.of(20), Milliseconds.of(0)));
-    currentTimesMap.put(Subsystems.Shooter, new Pair<Time, Time>(Milliseconds.of(20), Milliseconds.of(0)));
   }
 
   public void periodic() {
-    wantedTimesMap.put(Subsystems.Drive, new Pair<Time, Time>(Milliseconds.of(20), Milliseconds.of(0)));
-    wantedTimesMap.put(Subsystems.Superstructure, new Pair<Time, Time>(Milliseconds.of(20), Milliseconds.of(0)));
-    wantedTimesMap.put(Subsystems.Intake, new Pair<Time, Time>(Milliseconds.of(50), Milliseconds.of(0)));
-    wantedTimesMap.put(Subsystems.Hood, new Pair<Time, Time>(Milliseconds.of(50), Milliseconds.of(0)));
-    wantedTimesMap.put(Subsystems.Shooter, new Pair<Time, Time>(Milliseconds.of(50), Milliseconds.of(0)));
     currentState = handleStateTransitions();
     applyStates();
 
-    for (Subsystems key : currentTimesMap.keySet()) {
-      if (currentTimesMap.get(key).getFirst().in(Milliseconds) != wantedTimesMap.get(key).getFirst().in(Milliseconds)) {
-        consumer.accept(key, wantedTimesMap.get(key).getFirst(), wantedTimesMap.get(key).getSecond());
-        System.out.println(key + " changed period from " + currentTimesMap.get(key).getFirst() + " to " + wantedTimesMap.get(key).getFirst());
-        currentTimesMap.put(key, wantedTimesMap.get(key));
-      }
+    if (drive.periodChanged()) {
+      consumer.accept(Subsystems.Drive, drive.getPeriod());
+      System.out.println("Drive changed period to " + drive.getPeriod());
+    }
+    if (intake.periodChanged()) {
+      consumer.accept(Subsystems.Intake, intake.getPeriod());
+      System.out.println("Intake changed period to " + intake.getPeriod());
+    }
+    if (shooter.periodChanged()) {
+      consumer.accept(Subsystems.Shooter, shooter.getPeriod());
+      System.out.println("Shooter changed period to " + shooter.getPeriod());
+    }
+    if (hood.periodChanged()) {
+      consumer.accept(Subsystems.Hood, hood.getPeriod());
+      System.out.println("Hood changed period to " + hood.getPeriod());
     }
   }
 
   private CurrentState handleStateTransitions() {
+    drive.setPeriod(Seconds.of(0.02));
+    intake.setPeriod(Seconds.of(0.05));
+    shooter.setPeriod(Seconds.of(0.05));
+    hood.setPeriod(Seconds.of(0.05));
+
     CurrentState newState = CurrentState.IDLE;
     switch (wantedState) {
       case DEFAULT:
         newState = intake.ballSecured() ? CurrentState.BALL_IDLE : CurrentState.IDLE;
         break;
       case HOOD_UP:
+        hood.setPeriod(Seconds.of(0.02));
         newState = CurrentState.HOOD_UP;
         break;
       case PREP_SHOT:
+        hood.setPeriod(Seconds.of(0.02));
+        shooter.setPeriod(Seconds.of(0.02));
         newState = intake.ballSecured() ? CurrentState.PREP_SHOT : CurrentState.IDLE;
         break;
       case SHOOT:
+        hood.setPeriod(Seconds.of(0.02));
+        shooter.setPeriod(Seconds.of(0.02));
+        intake.setPeriod(Seconds.of(0.02));
         newState = CurrentState.SHOOT;
         break;
       case INTAKE:
+        intake.setPeriod(Seconds.of(0.02));
         newState = CurrentState.INTAKE;
         break;
       case SHOOTER_INTAKE:
+        intake.setPeriod(Seconds.of(0.02));
+        shooter.setPeriod(Seconds.of(0.02));
+        hood.setPeriod(Seconds.of(0.02));
         newState = CurrentState.SHOOTER_INTAKE;
         break;
       case MANUAL_OUTTAKE:
+        intake.setPeriod(Seconds.of(0.02));
         newState = CurrentState.MANUAL_OUTTAKE;
         break;
     }
@@ -120,23 +132,15 @@ public class Superstructure {
         break;
       case PREP_SHOT:
         prepShot();
-        wantedTimesMap.put(Subsystems.Shooter, new Pair<Time,Time>(Milliseconds.of(20), Milliseconds.of(0)));
-        wantedTimesMap.put(Subsystems.Hood, new Pair<Time,Time>(Milliseconds.of(20), Milliseconds.of(0)));
         break;
       case SHOOT:
         shoot();
-        wantedTimesMap.put(Subsystems.Shooter, new Pair<Time,Time>(Milliseconds.of(20), Milliseconds.of(0)));
-        wantedTimesMap.put(Subsystems.Hood, new Pair<Time,Time>(Milliseconds.of(20), Milliseconds.of(0)));
-        wantedTimesMap.put(Subsystems.Intake, new Pair<Time,Time>(Milliseconds.of(20), Milliseconds.of(0)));
         break;
       case INTAKE:
         intake();
-        wantedTimesMap.put(Subsystems.Intake, new Pair<Time,Time>(Milliseconds.of(20), Milliseconds.of(0)));
         break;
       case SHOOTER_INTAKE:
         shooterIntake();
-        wantedTimesMap.put(Subsystems.Shooter, new Pair<Time,Time>(Milliseconds.of(20), Milliseconds.of(0)));
-        wantedTimesMap.put(Subsystems.Intake, new Pair<Time,Time>(Milliseconds.of(20), Milliseconds.of(0)));
         break;
       case MANUAL_OUTTAKE:
         manualOuttake();

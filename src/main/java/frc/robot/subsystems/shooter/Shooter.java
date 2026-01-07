@@ -1,15 +1,20 @@
 package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.subsystems.shooter.ShooterIO.ShooterIOInputs;
 
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
+import edu.wpi.first.units.measure.Time;
+
 public class Shooter {
+  private Time lastPeriod = Seconds.of(0.02);
+  private Time period = Seconds.of(0.02);
+
   private final ShooterIOInputs inputs;
   private final ShooterIO io;
 
@@ -41,6 +46,22 @@ public class Shooter {
         // io.setSpeed(RotationsPerSecond.of(Constants.Flywheel.ShootSpeedRPM/60));
         break;
     }
+  }
+
+  public boolean periodChanged() {
+    if (period.in(Seconds) != lastPeriod.in(Seconds)) {
+      lastPeriod = period;
+      return true;
+    }
+    return false;
+  }
+
+  public void setPeriod(Time period) {
+    this.period = period;
+  }
+
+  public Time getPeriod() {
+    return period;
   }
 
   public enum ShooterStates {

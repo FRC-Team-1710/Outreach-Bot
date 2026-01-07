@@ -1,14 +1,19 @@
 package frc.robot.subsystems.hood;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.subsystems.hood.HoodIO.HoodIOInputs;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Seconds;
+
+import edu.wpi.first.units.measure.Time;
 
 public class Hood {
+  private Time lastPeriod = Seconds.of(0.02);
+  private Time period = Seconds.of(0.02);
+
   private final HoodIOInputs inputs;
   private final HoodIO io;
 
@@ -34,6 +39,22 @@ public class Hood {
         io.setAngle(Degrees.of(Constants.Hood.ShootAngle));
         break;
     }
+  }
+
+  public boolean periodChanged() {
+    if (period.in(Seconds) != lastPeriod.in(Seconds)) {
+      lastPeriod = period;
+      return true;
+    }
+    return false;
+  }
+
+  public void setPeriod(Time period) {
+    this.period = period;
+  }
+
+  public Time getPeriod() {
+    return period;
   }
 
   public enum HoodStates {
