@@ -34,8 +34,11 @@ import frc.robot.utils.math.Vector2;
 
 @Logged
 public class DriveSubsystem {
+  @Logged(name = "LastPeriod", importance = Importance.INFO)
   private Time lastPeriod = Seconds.of(0.02);
+  @Logged(name = "Period", importance = Importance.CRITICAL)
   private Time period = Seconds.of(0.02);
+
 @Logged(name = "TrackWidth", importance = Importance.DEBUG)
   private static final double TRACKWIDTH = Units.inchesToMeters(23);
   @Logged(name = "TrackWidth", importance = Importance.DEBUG)
@@ -131,6 +134,7 @@ public class DriveSubsystem {
     backRightModule.setName("Back Right");
   }
 
+  @Logged(name = "PeriodChanged", importance = Importance.INFO)
   public boolean periodChanged() {
     if (period.in(Seconds) != lastPeriod.in(Seconds)) {
       lastPeriod = period;
@@ -143,6 +147,7 @@ public class DriveSubsystem {
     this.period = period;
   }
 
+  @NotLogged
   public Time getPeriod() {
     return period;
   }

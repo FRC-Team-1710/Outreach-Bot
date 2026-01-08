@@ -130,6 +130,7 @@ public class RobotContainer {
                 prepShot.onTrue(superstructure.setWantedState(WantedState.PREP_SHOT));
         }
 
+        @NotLogged
         public HashMap<Subsystems, Pair<Runnable, Pair<Time, Time>>> getAllSubsystems() {
                 HashMap<Subsystems, Pair<Runnable, Pair<Time, Time>>> map = new HashMap<>();
                 map.put(Subsystems.Drive, new Pair<Runnable,Pair<Time,Time>>(drive::periodic, new Pair<Time,Time>(Milliseconds.of(20), Milliseconds.of(0))));

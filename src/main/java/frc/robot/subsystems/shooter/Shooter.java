@@ -10,16 +10,19 @@ import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.NotLogged;
 import edu.wpi.first.epilogue.Logged.Importance;
 import edu.wpi.first.units.measure.Time;
 
 @Logged
 public class Shooter {
-  @Logged(name = "Inputs", importance = Importance.INFO)
-  private final ShooterIOInputs inputs;
+  @Logged(name = "LastPeriod", importance = Importance.INFO)
   private Time lastPeriod = Seconds.of(0.02);
+  @Logged(name = "Period", importance = Importance.CRITICAL)
   private Time period = Seconds.of(0.02);
   
+  @Logged(name = "Inputs", importance = Importance.INFO)
+  private final ShooterIOInputs inputs;
   @Logged(name = "IO", importance = Importance.INFO)
   private final ShooterIO io;
 
@@ -50,6 +53,7 @@ public class Shooter {
     }
   }
 
+  @Logged(name = "PeriodChanged", importance = Importance.INFO)
   public boolean periodChanged() {
     if (period.in(Seconds) != lastPeriod.in(Seconds)) {
       lastPeriod = period;
@@ -62,6 +66,7 @@ public class Shooter {
     this.period = period;
   }
 
+  @NotLogged
   public Time getPeriod() {
     return period;
   }

@@ -35,13 +35,14 @@ public class Superstructure {
   @NotLogged
   private final TunableController driver;
 
+  @NotLogged
   private final TimesConsumer consumer;
 
-  @Logged(name = "WantedState", importance = Importance.INFO)
   // private final SimplySwerveRequest request = new SimplySwerveRequest()
   // .withRequestType(RequestType.FIELD)
   // .withDeadband(0.1);
-
+  
+  @Logged(name = "WantedState", importance = Importance.INFO)
   private WantedState wantedState = WantedState.DEFAULT;
   @Logged(name = "CurrentState", importance = Importance.INFO)
   private CurrentState currentState = CurrentState.IDLE;

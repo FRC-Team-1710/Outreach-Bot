@@ -17,7 +17,7 @@ public final class Constants {
   /**
    * {@link Importance#DEBUG} if {@link Constants#currentMode} == {@link Mode#SIM}
    * and {@link Constants#defaultImportance} if {@link Constants#currentMode} ==
-   * {@link Mode#REAL} <br>
+   * {@link Mode#REAL} <p>
    * Linking is fun
    */
   public static final Importance importance = currentMode == Mode.SIM ? Importance.DEBUG : defaultImportance;

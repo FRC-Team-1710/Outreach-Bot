@@ -13,7 +13,9 @@ import edu.wpi.first.units.measure.Time;
 
 @Logged
 public class Intake {
+  @Logged(name = "LastPeriod", importance = Importance.INFO)
   private Time lastPeriod = Seconds.of(0.02);
+  @Logged(name = "Period", importance = Importance.CRITICAL)
   private Time period = Seconds.of(0.02);
 
   @Logged(name = "Inputs", importance = Importance.INFO)
@@ -61,6 +63,7 @@ public class Intake {
     }
   }
 
+  @Logged(name = "PeriodChanged", importance = Importance.INFO)
   public boolean periodChanged() {
     if (period.in(Seconds) != lastPeriod.in(Seconds)) {
       lastPeriod = period;
@@ -73,6 +76,7 @@ public class Intake {
     this.period = period;
   }
 
+  @NotLogged
   public Time getPeriod() {
     return period;
   }
