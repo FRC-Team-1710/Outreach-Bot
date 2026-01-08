@@ -9,6 +9,9 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.NotLogged;
+import edu.wpi.first.epilogue.Logged.Importance;
 
 public class Hood {
   private Time lastPeriod = Seconds.of(0.02);
@@ -17,6 +20,7 @@ public class Hood {
   private final HoodIOInputs inputs;
   private final HoodIO io;
 
+  @Logged(name = "CurrentState", importance = Importance.INFO)
   private HoodStates currentState = HoodStates.IDLE;
 
   public Hood(HoodIO io) {
@@ -27,7 +31,6 @@ public class Hood {
 
   public void periodic() {
     io.updateInputs(inputs);
-    // Logger.processInputs("Hood", inputs);
 
     Constants.Hood.ShootAngle = SmartDashboard.getNumber("ShootAngle", 0);
 
@@ -66,6 +69,7 @@ public class Hood {
     this.currentState = state;
   }
 
+  @Logged(name = "AtSetpoint", importance = Importance.INFO)
   public boolean atSetpoint() {
     return inputs.position.isNear(inputs.setpoint, Degrees.of(2)) || (Constants.currentMode == Mode.SIM);
   }

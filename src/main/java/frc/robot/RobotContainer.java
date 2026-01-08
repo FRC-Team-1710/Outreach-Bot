@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.NotLogged;
+import edu.wpi.first.epilogue.Logged.Importance;
 import static edu.wpi.first.units.Units.Milliseconds;
 
 import java.util.HashMap;
@@ -31,160 +34,71 @@ import frc.robot.subsystems.shooter.ShooterIOCTRE;
 import frc.robot.subsystems.shooter.ShooterIOSIM;
 import frc.robot.utils.TunableController;
 
+@Logged
 public class RobotContainer {
         // private final SimplySwerve drive;
         // private final SimplyEstimator estimator;
 
+        @Logged(name = "Subsystems/Drive", importance = Importance.INFO)
         private final DriveSubsystem drive;
+        @Logged(name = "Subsystems/Intake", importance = Importance.INFO)
         private final Intake intake;
+        @Logged(name = "Subsystems/Shooter", importance = Importance.INFO)
         private final Shooter shooter;
+        @Logged(name = "Subsystems/Hood", importance = Importance.INFO)
         private final Hood hood;
 
+        @Logged(name = "Subsystems/Superstructure", importance = Importance.INFO)
         private final Superstructure superstructure;
 
+        @NotLogged
         private final TunableController driver = new TunableController(0);
 
         /** Driver Start */
+        @Logged(name = "Triggers/ResetGyro", importance = Importance.INFO)
         private final Trigger resetGyro = driver.start();
         /** Driver LT */
+        @Logged(name = "Triggers/IntakeNormal", importance = Importance.INFO)
         private final Trigger intakeNormal = driver.leftTrigger();
         /** Driver RT */
+        @Logged(name = "Triggers/IntakeThroughShooter", importance = Importance.INFO)
         private final Trigger intakeThroughShooter = driver.rightTrigger();
         /** Driver LB */
+        @Logged(name = "Triggers/ManualOuttake", importance = Importance.INFO)
         private final Trigger manualOuttake = driver.leftBumper();
         /** Driver RB */
+        @Logged(name = "Triggers/Shoot", importance = Importance.INFO)
         private final Trigger shoot = driver.rightBumper();
         /** Driver Y */
+        @Logged(name = "Triggers/HoodUp", importance = Importance.INFO)
         private final Trigger hoodUp = driver.y();
         /** Driver X */
+        @Logged(name = "Triggers/DefaultState", importance = Importance.INFO)
         private final Trigger defaultState = driver.x();
         /** Driver LT + RT */
+        @Logged(name = "Triggers/PrepShot", importance = Importance.INFO)
         private final Trigger prepShot = intakeNormal.and(intakeThroughShooter);
 
         public RobotContainer(TimesConsumer consumer) {
                 drive = new DriveSubsystem();
                 switch (Constants.currentMode) {
                         case REAL:
-                        intake = new Intake(new IntakeIOCTRE());
-                        shooter = new Shooter(new ShooterIOCTRE());
-                        hood = new Hood(new HoodIOCTRE());
-                                // SimplyModule module0 = new SimplyModule(
-                                //                 new SimplyModuleIOCTRE(
-                                //                                 new SimplyModuleConfig()
-                                //                                                 .withDriveId(Constants.Swerve.DRIVETRAIN_FRONT_LEFT_DRIVE_MOTOR)
-                                //                                                 .withSteerId(Constants.Swerve.DRIVETRAIN_FRONT_LEFT_ANGLE_MOTOR)
-                                //                                                 .withModuleId(0)
-                                //                                                 .withEncoderOffset(Degrees.of(0))),
-                                //                 0);
-                                // SimplyModule module1 = new SimplyModule(
-                                //                 new SimplyModuleIOCTRE(
-                                //                                 new SimplyModuleConfig()
-                                //                                                 .withDriveId(Constants.Swerve.DRIVETRAIN_FRONT_RIGHT_DRIVE_MOTOR)
-                                //                                                 .withSteerId(Constants.Swerve.DRIVETRAIN_FRONT_RIGHT_ANGLE_MOTOR)
-                                //                                                 .withModuleId(1)
-                                //                                                 .withEncoderOffset(Degrees.of(0))),
-                                //                 1);
-                                // SimplyModule module2 = new SimplyModule(
-                                //                 new SimplyModuleIOCTRE(
-                                //                                 new SimplyModuleConfig()
-                                //                                                 .withDriveId(Constants.Swerve.DRIVETRAIN_BACK_LEFT_DRIVE_MOTOR)
-                                //                                                 .withSteerId(Constants.Swerve.DRIVETRAIN_BACK_LEFT_ANGLE_MOTOR)
-                                //                                                 .withModuleId(2)
-                                //                                                 .withEncoderOffset(Degrees.of(0))),
-                                //                 2);
-                                // SimplyModule module3 = new SimplyModule(
-                                //                 new SimplyModuleIOCTRE(
-                                //                                 new SimplyModuleConfig()
-                                //                                                 .withDriveId(Constants.Swerve.DRIVETRAIN_BACK_RIGHT_DRIVE_MOTOR)
-                                //                                                 .withSteerId(Constants.Swerve.DRIVETRAIN_BACK_RIGHT_ANGLE_MOTOR)
-                                //                                                 .withModuleId(3)
-                                //                                                 .withEncoderOffset(Degrees.of(0))),
-                                //                 3);
-                                // var ctre = new SimplySwerveIOCTRE(
-                                //         new Translation2d[] {
-                                //                         new Translation2d(Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)), // fl
-                                //                         new Translation2d(Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)), // fr
-                                //                         new Translation2d(-Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)), // bl
-                                //                         new Translation2d(-Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)) // br
-                                //         },
-                                //         SPI.Port.kMXP,
-                                //         module0,
-                                //         module1,
-                                //         module2,
-                                //         module3);
-                                // drive = new SimplySwerve(ctre);
-
-                                // estimator = new SimplyEstimator(drive, ctre::getRobotAngle);
-
-                                // estimator.addModule(module0, new Translation2d(Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)));
-                                // estimator.addModule(module1, new Translation2d(Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)));
-                                // estimator.addModule(module2, new Translation2d(-Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)));
-                                // estimator.addModule(module3, new Translation2d(-Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)));
+                                intake = new Intake(new IntakeIOCTRE());
+                                shooter = new Shooter(new ShooterIOCTRE());
+                                hood = new Hood(new HoodIOCTRE());
                                 break;
                         case SIM:
-                        intake = new Intake(new IntakeIOSIM());
-                        shooter = new Shooter(new ShooterIOSIM());
-                        hood = new Hood(new HoodIOSIM());
-                                // SimplyModule module0sim = new SimplyModule(
-                                //                 new SimplyModuleIOSIM(
-                                //                                 new SimplyModuleConfig()
-                                //                                                 .withDriveId(Constants.Swerve.DRIVETRAIN_FRONT_LEFT_DRIVE_MOTOR)
-                                //                                                 .withSteerId(Constants.Swerve.DRIVETRAIN_FRONT_LEFT_ANGLE_MOTOR)
-                                //                                                 .withModuleId(0)
-                                //                                                 .withEncoderOffset(Degrees.of(0))),
-                                //                 0);
-                                // SimplyModule module1sim = new SimplyModule(
-                                //                 new SimplyModuleIOSIM(
-                                //                                 new SimplyModuleConfig()
-                                //                                                 .withDriveId(Constants.Swerve.DRIVETRAIN_FRONT_RIGHT_DRIVE_MOTOR)
-                                //                                                 .withSteerId(Constants.Swerve.DRIVETRAIN_FRONT_RIGHT_ANGLE_MOTOR)
-                                //                                                 .withModuleId(1)
-                                //                                                 .withEncoderOffset(Degrees.of(0))),
-                                //                 1);
-                                // SimplyModule module2sim = new SimplyModule(
-                                //                 new SimplyModuleIOSIM(
-                                //                                 new SimplyModuleConfig()
-                                //                                                 .withDriveId(Constants.Swerve.DRIVETRAIN_BACK_LEFT_DRIVE_MOTOR)
-                                //                                                 .withSteerId(Constants.Swerve.DRIVETRAIN_BACK_LEFT_ANGLE_MOTOR)
-                                //                                                 .withModuleId(2)
-                                //                                                 .withEncoderOffset(Degrees.of(0))),
-                                //                 2);
-                                // SimplyModule module3sim = new SimplyModule(
-                                //                 new SimplyModuleIOSIM(
-                                //                                 new SimplyModuleConfig()
-                                //                                                 .withDriveId(Constants.Swerve.DRIVETRAIN_BACK_RIGHT_DRIVE_MOTOR)
-                                //                                                 .withSteerId(Constants.Swerve.DRIVETRAIN_BACK_RIGHT_ANGLE_MOTOR)
-                                //                                                 .withModuleId(3)
-                                //                                                 .withEncoderOffset(Degrees.of(0))),
-                                //                 3);
-                                // drive = new SimplySwerve(
-                                //                 new SimplySwerveIOSIM(
-                                //                                 new Translation2d[] {
-                                //                                                 new Translation2d(Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)), // fl
-                                //                                                 new Translation2d(Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)), // fr
-                                //                                                 new Translation2d(-Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)), // bl
-                                //                                                 new Translation2d(-Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)) // br
-                                //                                 },
-                                //                                 SPI.Port.kMXP,
-                                //                                 module0sim,
-                                //                                 module1sim,
-                                //                                 module2sim,
-                                //                                 module3sim));
-
-                                // estimator = new SimplyEstimator(drive, drive::getPoseAngle);
-
-                                // estimator.addModule(module0sim, new Translation2d(Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)));
-                                // estimator.addModule(module1sim, new Translation2d(Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)));
-                                // estimator.addModule(module2sim, new Translation2d(-Units.inchesToMeters(11.5), Units.inchesToMeters(11.5)));
-                                // estimator.addModule(module3sim, new Translation2d(-Units.inchesToMeters(11.5), -Units.inchesToMeters(11.5)));
+                                intake = new Intake(new IntakeIOSIM());
+                                shooter = new Shooter(new ShooterIOSIM());
+                                hood = new Hood(new HoodIOSIM());
                                 break;
                         default:
-                        intake = new Intake(new IntakeIO() {});
-                        shooter = new Shooter(new ShooterIO() {});
-                        hood = new Hood(new HoodIO() {});
-                                // drive = new SimplySwerve(new SimplySwerveIO() {
-                                // });
-                                // estimator = new SimplyEstimator(drive, drive::getPoseAngle);
+                                intake = new Intake(new IntakeIO() {
+                                });
+                                shooter = new Shooter(new ShooterIO() {
+                                });
+                                hood = new Hood(new HoodIO() {
+                                });
                                 break;
                 }
 
@@ -197,13 +111,17 @@ public class RobotContainer {
         private void configureButtonBindings() {
                 resetGyro.onTrue(Commands.runOnce(() -> drive.resetGyroscope()));
 
-                intakeNormal.onTrue(superstructure.setWantedState(WantedState.INTAKE)).onFalse(superstructure.setWantedState(WantedState.DEFAULT));
+                intakeNormal.onTrue(superstructure.setWantedState(WantedState.INTAKE))
+                                .onFalse(superstructure.setWantedState(WantedState.DEFAULT));
 
-                intakeThroughShooter.onTrue(superstructure.setWantedState(WantedState.SHOOTER_INTAKE)).onFalse(superstructure.setWantedState(WantedState.DEFAULT));
-                
-                manualOuttake.onTrue(superstructure.setWantedState(WantedState.MANUAL_OUTTAKE)).onFalse(superstructure.setWantedState(WantedState.DEFAULT));
+                intakeThroughShooter.onTrue(superstructure.setWantedState(WantedState.SHOOTER_INTAKE))
+                                .onFalse(superstructure.setWantedState(WantedState.DEFAULT));
 
-                shoot.onTrue(superstructure.setWantedState(WantedState.SHOOT)).onFalse(superstructure.setWantedState(WantedState.DEFAULT));
+                manualOuttake.onTrue(superstructure.setWantedState(WantedState.MANUAL_OUTTAKE))
+                                .onFalse(superstructure.setWantedState(WantedState.DEFAULT));
+
+                shoot.onTrue(superstructure.setWantedState(WantedState.SHOOT))
+                                .onFalse(superstructure.setWantedState(WantedState.DEFAULT));
 
                 hoodUp.onTrue(superstructure.setWantedState(WantedState.HOOD_UP));
 

@@ -42,9 +42,6 @@
 //     aprilTagCameraFront = new PhotonCamera(Constants.Vision.kAprilTagCamera);
 //     latestResult = new PhotonPipelineResult();
 //     cameraTargets = new ArrayList<>();
-//     SmartDashboard.putNumber("PIDP", 0.025);
-//     SmartDashboard.putNumber("PIDI", 0);
-//     SmartDashboard.putNumber("PIDD", 0);
 //   }
 
 //   @Override

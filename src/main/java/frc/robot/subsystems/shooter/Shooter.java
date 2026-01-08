@@ -9,30 +9,33 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Logged.Importance;
 import edu.wpi.first.units.measure.Time;
 
+@Logged
 public class Shooter {
+  @Logged(name = "Inputs", importance = Importance.INFO)
+  private final ShooterIOInputs inputs;
   private Time lastPeriod = Seconds.of(0.02);
   private Time period = Seconds.of(0.02);
-
-  private final ShooterIOInputs inputs;
+  
+  @Logged(name = "IO", importance = Importance.INFO)
   private final ShooterIO io;
 
+  @Logged(name = "CurrentState", importance = Importance.INFO)
   private ShooterStates currentState = ShooterStates.OFF;
 
   public Shooter(ShooterIO io) {
     this.io = io;
     this.inputs = new ShooterIOInputs();
     SmartDashboard.putNumber("FlywheelShootSpeed", Constants.Flywheel.ShootSpeedRPM);
-    SmartDashboard.putNumber("FlywheelIdleSpeed", Constants.Flywheel.IdleSpeedRPM);
   }
 
   public void periodic() {
     io.updateInputs(inputs);
-    // Logger.processInputs("Shooter", inputs);
 
-    // Constants.Flywheel.ShootSpeedRPM = SmartDashboard.getNumber("FlywheelShootSpeed", 0);
-    // Constants.Flywheel.ShootSpeedRPM = SmartDashboard.getNumber("FlywheelIdleSpeed", 0);
+    Constants.Flywheel.ShootSpeedRPM = SmartDashboard.getNumber("FlywheelShootSpeed", 0);
 
     switch (currentState) {
       case OFF:
@@ -43,7 +46,6 @@ public class Shooter {
         break;
       case SHOOT:
         io.setVoltage(Volts.of(Constants.Flywheel.ShootSpeedRPM / 6380 * 12));
-        // io.setSpeed(RotationsPerSecond.of(Constants.Flywheel.ShootSpeedRPM/60));
         break;
     }
   }
@@ -74,6 +76,7 @@ public class Shooter {
     this.currentState = state;
   }
 
+  @Logged(name = "AtSetpoint", importance = Importance.INFO)
   public boolean atSetpoint() {
     return inputs.velocity.isNear(RotationsPerSecond.of(Constants.Flywheel.ShootSpeedRPM / 60), RotationsPerSecond.of(500 / 60)) || (Constants.currentMode == Mode.SIM);
   }

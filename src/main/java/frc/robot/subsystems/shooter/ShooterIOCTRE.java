@@ -7,18 +7,28 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.NotLogged;
+import edu.wpi.first.epilogue.Logged.Importance;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 
 import static edu.wpi.first.units.Units.Volts;
 
+@Logged
 public class ShooterIOCTRE implements ShooterIO {
+  @Logged(name = "Motor", importance = Importance.INFO)
   private final TalonFX shooter = new TalonFX(31);
+  @NotLogged
   private final StatusSignal<Voltage> appliedVolts = shooter.getMotorVoltage();
+  @NotLogged
   private final StatusSignal<Current> currentAmps = shooter.getStatorCurrent();
+  @NotLogged
   private final StatusSignal<AngularVelocity> velocity = shooter.getVelocity();
 
+  @NotLogged
   private final VelocityVoltage request = new VelocityVoltage(0).withSlot(0).withEnableFOC(true);
 
   public ShooterIOCTRE() {

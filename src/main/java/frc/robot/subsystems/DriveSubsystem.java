@@ -11,6 +11,9 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.NotLogged;
+import edu.wpi.first.epilogue.Logged.Importance;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -22,9 +25,6 @@ import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.utils.drivers.Gyroscope;
 import frc.robot.utils.drivers.Mk2SwerveModuleBuilder;
@@ -32,28 +32,43 @@ import frc.robot.utils.drivers.NavX;
 import frc.robot.utils.drivers.SwerveModule;
 import frc.robot.utils.math.Vector2;
 
+@Logged
 public class DriveSubsystem {
   private Time lastPeriod = Seconds.of(0.02);
   private Time period = Seconds.of(0.02);
-
+@Logged(name = "TrackWidth", importance = Importance.DEBUG)
   private static final double TRACKWIDTH = Units.inchesToMeters(23);
+  @Logged(name = "TrackWidth", importance = Importance.DEBUG)
   private static final double WHEELBASE = Units.inchesToMeters(23);
 
+  @Logged(name = "TrackWidth", importance = Importance.DEBUG)
   private static final double FRONT_LEFT_ANGLE_OFFSET = Math.toRadians(Constants.Swerve.FLOffset);
+  @Logged(name = "TrackWidth", importance = Importance.DEBUG)
   private static final double FRONT_RIGHT_ANGLE_OFFSET = Math.toRadians(Constants.Swerve.FROffset);
+  @Logged(name = "TrackWidth", importance = Importance.DEBUG)
   private static final double BACK_LEFT_ANGLE_OFFSET = Math.toRadians(Constants.Swerve.BLOffset);
+  @Logged(name = "TrackWidth", importance = Importance.DEBUG)
   private static final double BACK_RIGHT_ANGLE_OFFSET = Math.toRadians(Constants.Swerve.BROffset);
 
+  @Logged(name = "BackLeftAngle", importance = Importance.INFO)
   private SparkMax backLeftAngle = new SparkMax(Constants.Swerve.DRIVETRAIN_BACK_LEFT_ANGLE_MOTOR,MotorType.kBrushless);
+  @Logged(name = "BackRightAngle", importance = Importance.INFO)
   private SparkMax backRightAngle = new SparkMax(Constants.Swerve.DRIVETRAIN_BACK_RIGHT_ANGLE_MOTOR,MotorType.kBrushless);
+  @Logged(name = "BackLeftDrive", importance = Importance.INFO)
   private TalonFX backLeftDrive = new TalonFX(Constants.Swerve.DRIVETRAIN_BACK_LEFT_DRIVE_MOTOR, "rio");
+  @Logged(name = "BackRightDrive", importance = Importance.INFO)
   private TalonFX backRightDrive = new TalonFX(Constants.Swerve.DRIVETRAIN_BACK_RIGHT_DRIVE_MOTOR, "rio");
+  @Logged(name = "FrontLeftAngle", importance = Importance.INFO)
   private SparkMax frontLeftAngle = new SparkMax(Constants.Swerve.DRIVETRAIN_FRONT_LEFT_ANGLE_MOTOR,MotorType.kBrushless);
+  @Logged(name = "FrontRightAngle", importance = Importance.INFO)
   private SparkMax frontRightAngle = new SparkMax(Constants.Swerve.DRIVETRAIN_FRONT_RIGHT_ANGLE_MOTOR,MotorType.kBrushless);
+  @Logged(name = "FrontLeftDrive", importance = Importance.INFO)
   private TalonFX frontLeftDrive = new TalonFX(Constants.Swerve.DRIVETRAIN_FRONT_LEFT_DRIVE_MOTOR, "rio");
+  @Logged(name = "FrontRightDrive", importance = Importance.INFO)
   private TalonFX frontRightDrive = new TalonFX(Constants.Swerve.DRIVETRAIN_FRONT_RIGHT_DRIVE_MOTOR, "rio");
 
   /** Front left swerve module object */
+  @Logged(name = "FrontLeftModule", importance = Importance.INFO)
   private final SwerveModule frontLeftModule = new Mk2SwerveModuleBuilder(
       new Vector2(TRACKWIDTH / 2.0, WHEELBASE / 2.0))
       .angleEncoder(
@@ -63,6 +78,7 @@ public class DriveSubsystem {
       .driveMotor(frontLeftDrive, Mk2SwerveModuleBuilder.MotorType.FALCON_500)
       .build();
   /** Front right swerve module object */
+  @Logged(name = "FrontRightModule", importance = Importance.INFO)
   private final SwerveModule frontRightModule = new Mk2SwerveModuleBuilder(
       new Vector2(TRACKWIDTH / 2.0, -WHEELBASE / 2.0))
       .angleEncoder(
@@ -72,6 +88,7 @@ public class DriveSubsystem {
       .driveMotor(frontRightDrive, Mk2SwerveModuleBuilder.MotorType.FALCON_500)
       .build();
   /** Back left swerve module object */
+  @Logged(name = "BackLeftModule", importance = Importance.INFO)
   private final SwerveModule backLeftModule = new Mk2SwerveModuleBuilder(
       new Vector2(-TRACKWIDTH / 2.0, WHEELBASE / 2.0))
       .angleEncoder(
@@ -81,6 +98,7 @@ public class DriveSubsystem {
       .driveMotor(backLeftDrive, Mk2SwerveModuleBuilder.MotorType.FALCON_500)
       .build();
   /** Back right swerve module object */
+  @Logged(name = "BackRightModule", importance = Importance.INFO)
   private final SwerveModule backRightModule = new Mk2SwerveModuleBuilder(
       new Vector2(-TRACKWIDTH / 2.0, -WHEELBASE / 2.0))
       .angleEncoder(
@@ -91,14 +109,15 @@ public class DriveSubsystem {
       .build();
 
   /** Ratios for swerve calculations */
+  @NotLogged
   public final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
       new Translation2d(TRACKWIDTH / 2.0, WHEELBASE / 2.0),
       new Translation2d(TRACKWIDTH / 2.0, -WHEELBASE / 2.0),
       new Translation2d(-TRACKWIDTH / 2.0, WHEELBASE / 2.0),
       new Translation2d(-TRACKWIDTH / 2.0, -WHEELBASE / 2.0));
 
+      @Logged(name = "Gyro", importance = Importance.INFO)
   private final Gyroscope gyroscope = new NavX(SPI.Port.kMXP);
-  public ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
@@ -140,6 +159,7 @@ public class DriveSubsystem {
     backRightModule.updateState(TimedRobot.kDefaultPeriod);
   }
 
+  @NotLogged
   public Angle getGyro() {
     return Degrees.of(gyroscope.getAngle().toDegrees());
   }
@@ -150,8 +170,7 @@ public class DriveSubsystem {
    * <p>
    * The rotation value is multiplied by 2 and then divided by the hypotenuse of
    * the WHEELBASE
-   * and TRACKWIDTH. The values of the forward, strafe, and rotation are outputted
-   * to Shuffleboard.
+   * and TRACKWIDTH.
    * The speed is then calculated using the ChassisSpeeds class. Finally, the
    * speeds are put into an
    * array and set using {@link #setTargetVelocity(speed, angle)}.
@@ -168,9 +187,9 @@ public class DriveSubsystem {
   public void drive(Translation2d translation, double rotation, boolean fieldOriented) {
     rotation *= 2.0 / Math.hypot(WHEELBASE, TRACKWIDTH);
     rotation *= .5;
-    SmartDashboard.putNumber("Left Joystick x", translation.getX());
-    SmartDashboard.putNumber("Left Joystick y", translation.getY());
-    SmartDashboard.putNumber("Rotation", rotation);
+    // SmartDashboard.putNumber("Left Joystick x", translation.getX());
+    // SmartDashboard.putNumber("Left Joystick y", translation.getY());
+    // SmartDashboard.putNumber("Rotation", rotation);
 
     ChassisSpeeds speeds;
     if (fieldOriented) {

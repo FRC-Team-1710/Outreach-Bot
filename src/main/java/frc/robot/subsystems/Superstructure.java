@@ -4,6 +4,9 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.NotLogged;
+import edu.wpi.first.epilogue.Logged.Importance;
 import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.math.geometry.Translation2d;
@@ -17,25 +20,30 @@ import frc.robot.subsystems.hood.Hood.HoodStates;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.Shooter.ShooterStates;
 import frc.robot.utils.DynamicTimedRobot.TimesConsumer;
-// import frc.robot.subsystems.simplySwerve.SimplySwerveRequest;
-// import frc.robot.subsystems.simplySwerve.SimplySwerveRequest.RequestType;
 import frc.robot.utils.TunableController;
 
+@Logged
 public class Superstructure {
-  // private final SimplySwerve drive;
+  @NotLogged
   private final DriveSubsystem drive;
+  @NotLogged
   private final Intake intake;
+  @NotLogged
   private final Shooter shooter;
+  @NotLogged
   private final Hood hood;
+  @NotLogged
   private final TunableController driver;
 
   private final TimesConsumer consumer;
 
+  @Logged(name = "WantedState", importance = Importance.INFO)
   // private final SimplySwerveRequest request = new SimplySwerveRequest()
   // .withRequestType(RequestType.FIELD)
   // .withDeadband(0.1);
 
   private WantedState wantedState = WantedState.DEFAULT;
+  @Logged(name = "CurrentState", importance = Importance.INFO)
   private CurrentState currentState = CurrentState.IDLE;
 
   public Superstructure(DriveSubsystem drive, // SimplySwerve drive
@@ -63,6 +71,7 @@ public class Superstructure {
     }
   }
 
+  @NotLogged
   private CurrentState handleStateTransitions() {
     intake.setPeriod(Seconds.of(0.05));
     shooter.setPeriod(Seconds.of(0.05));
@@ -207,6 +216,7 @@ public class Superstructure {
     this.wantedState = state;
   }
 
+  @NotLogged
   public Command setWantedState(WantedState state) {
     return Commands.runOnce(() -> setState(state));
   }
