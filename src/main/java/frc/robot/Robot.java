@@ -4,12 +4,15 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Seconds;
+
 import java.util.HashMap;
 import java.util.Optional;
 
 import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.NotLogged;
+import edu.wpi.first.epilogue.Logged.Importance;
 import edu.wpi.first.epilogue.logging.errors.ErrorHandler;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.units.measure.Time;
@@ -20,7 +23,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.Subsystems;
 import frc.robot.utils.DynamicTimedRobot;
 
-@Logged
+@Logged(name = "Telemetry", importance = Importance.CRITICAL)
 public class Robot extends DynamicTimedRobot {
   @Logged(name = "RobotContainer")
   private RobotContainer m_robotContainer;
@@ -44,6 +47,9 @@ public class Robot extends DynamicTimedRobot {
       config.root = "Telemetry";
 
       config.minimumImportance = Constants.importance;
+
+      config.loggingPeriod = Seconds.of(0.02);
+      config.loggingPeriodOffset = Seconds.of(0);
     });
 
     // Epilogue.bind(this);
