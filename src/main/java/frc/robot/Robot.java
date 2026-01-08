@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Optional;
 
 import edu.wpi.first.epilogue.Epilogue;
+import edu.wpi.first.epilogue.EpilogueConfiguration;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.NotLogged;
 import edu.wpi.first.epilogue.Logged.Importance;
@@ -28,6 +29,8 @@ public class Robot extends DynamicTimedRobot {
   @Logged(name = "RobotContainer")
   private RobotContainer m_robotContainer;
 
+  private final EpilogueConfiguration epilogueConfig = new EpilogueConfiguration();
+
   public Robot() {
     Constants.redAlliance = checkRedAlliance();
     
@@ -36,23 +39,23 @@ public class Robot extends DynamicTimedRobot {
     addAllSubsystems(m_robotContainer.getAllSubsystems());
 
     DriverStation.silenceJoystickConnectionWarning(true);
+    
+    if (isSimulation()) {
+      epilogueConfig.errorHandler = ErrorHandler.crashOnError();
+    } else {
+      epilogueConfig.errorHandler = ErrorHandler.printErrorMessages();
+    }
 
-    Epilogue.configure(config -> {
-      if (isSimulation()) {
-        config.errorHandler = ErrorHandler.crashOnError();
-      } else {
-        config.errorHandler = ErrorHandler.printErrorMessages();
-      }
+    epilogueConfig.root = "Telemetry";
 
-      config.root = "Telemetry";
+    epilogueConfig.minimumImportance = Constants.importance;
 
-      config.minimumImportance = Constants.importance;
+    epilogueConfig.loggingPeriod = Seconds.of(0.02);
+    epilogueConfig.loggingPeriodOffset = Seconds.of(0);
 
-      config.loggingPeriod = Seconds.of(0.02);
-      config.loggingPeriodOffset = Seconds.of(0);
-    });
+    Epilogue.configure(epilogueConfig -> {});
 
-    // Epilogue.bind(this);
+    addSubsystem(Subsystems.Epilogue, () -> Epilogue.telemetryLogger.tryUpdate(epilogueConfig.backend.getNested(epilogueConfig.root), this, epilogueConfig.errorHandler), epilogueConfig.loggingPeriod, epilogueConfig.loggingPeriodOffset);
 
     DataLogManager.start();
 

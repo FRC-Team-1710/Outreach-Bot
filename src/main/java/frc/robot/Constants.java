@@ -23,7 +23,7 @@ public final class Constants {
   public static final Importance importance = currentMode == Mode.SIM ? Importance.DEBUG : defaultImportance;
 
   public static enum Subsystems {
-Hood, Shooter, Drive, Intake, Robot, Superstructure
+Hood, Shooter, Drive, Intake, Robot, Superstructure, Epilogue
   }
 
   public static boolean redAlliance = false;
