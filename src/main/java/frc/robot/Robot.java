@@ -51,10 +51,11 @@ public class Robot extends DynamicTimedRobot {
     epilogueConfig.minimumImportance = Constants.importance;
 
     epilogueConfig.loggingPeriod = Seconds.of(0.02);
-    epilogueConfig.loggingPeriodOffset = Seconds.of(0);
+    epilogueConfig.loggingPeriodOffset = Seconds.of(0.02 - (0.02 / Subsystems.values().length));
 
     Epilogue.configure(epilogueConfig -> {});
 
+    // Epilogue dislikes the custom DynamicTimedRobot class so we manually update it
     addSubsystem(Subsystems.Epilogue, () -> Epilogue.telemetryLogger.tryUpdate(epilogueConfig.backend.getNested(epilogueConfig.root), this, epilogueConfig.errorHandler), epilogueConfig.loggingPeriod, epilogueConfig.loggingPeriodOffset);
 
     DataLogManager.start();
@@ -106,10 +107,12 @@ public class Robot extends DynamicTimedRobot {
   @Override
   public void simulationPeriodic() {}
 
-  /** A map of all subsystems with their period and offset time  */
-  public void addAllSubsystems(HashMap<Subsystems, Pair<Runnable, Pair<Time, Time>>> subsystems) {
+  /** A map of all subsystems with their period */
+  public void addAllSubsystems(HashMap<Subsystems, Pair<Runnable, Time>> subsystems) {
+    int id = 0;
     for (Subsystems key : subsystems.keySet()) {
-      addSubsystem(key, subsystems.get(key).getFirst(), subsystems.get(key).getSecond().getFirst(), subsystems.get(key).getSecond().getSecond());
+      id++;
+      addSubsystem(key, subsystems.get(key).getFirst(), subsystems.get(key).getSecond(), Seconds.of(0.02 / Subsystems.values().length).times(id));
     }
   }
 

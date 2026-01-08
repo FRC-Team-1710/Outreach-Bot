@@ -131,13 +131,13 @@ public class RobotContainer {
         }
 
         @NotLogged
-        public HashMap<Subsystems, Pair<Runnable, Pair<Time, Time>>> getAllSubsystems() {
-                HashMap<Subsystems, Pair<Runnable, Pair<Time, Time>>> map = new HashMap<>();
-                map.put(Subsystems.Drive, new Pair<Runnable,Pair<Time,Time>>(drive::periodic, new Pair<Time,Time>(Milliseconds.of(20), Milliseconds.of(0))));
-                map.put(Subsystems.Intake, new Pair<Runnable,Pair<Time,Time>>(intake::periodic, new Pair<Time,Time>(Milliseconds.of(20), Milliseconds.of(0))));
-                map.put(Subsystems.Hood, new Pair<Runnable,Pair<Time,Time>>(hood::periodic, new Pair<Time,Time>(Milliseconds.of(20), Milliseconds.of(0))));
-                map.put(Subsystems.Shooter, new Pair<Runnable,Pair<Time,Time>>(shooter::periodic, new Pair<Time,Time>(Milliseconds.of(20), Milliseconds.of(0))));
-                map.put(Subsystems.Superstructure, new Pair<Runnable,Pair<Time,Time>>(superstructure::periodic, new Pair<Time,Time>(Milliseconds.of(20), Milliseconds.of(0))));
+        public HashMap<Subsystems, Pair<Runnable, Time>> getAllSubsystems() {
+                HashMap<Subsystems, Pair<Runnable, Time>> map = new HashMap<>();
+                map.put(Subsystems.Superstructure, new Pair<Runnable, Time>(superstructure::periodic, Milliseconds.of(20)));
+                map.put(Subsystems.Drive, new Pair<Runnable, Time>(drive::periodic, Milliseconds.of(20)));
+                map.put(Subsystems.Intake, new Pair<Runnable, Time>(intake::periodic, Milliseconds.of(20)));
+                map.put(Subsystems.Shooter, new Pair<Runnable, Time>(shooter::periodic, Milliseconds.of(20)));
+                map.put(Subsystems.Hood, new Pair<Runnable, Time>(hood::periodic, Milliseconds.of(20)));
                 return map;
         }
 }

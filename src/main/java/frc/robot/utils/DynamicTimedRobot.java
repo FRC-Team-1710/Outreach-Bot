@@ -139,6 +139,8 @@ public class DynamicTimedRobot extends IterativeRobotBase {
 
     // Loop forever, calling the appropriate mode-dependent function
     while (true) {
+      ArrayList<String> subsystemsRunThisLoop = new ArrayList<>();
+
       // We don't have to check there's an element in the queue first because
       // there's always at least one (the constructor adds one). It's reenqueued
       // at the end of the loop.
@@ -157,7 +159,10 @@ public class DynamicTimedRobot extends IterativeRobotBase {
       SmartDashboard.putNumber("Periodics/" + callback.subsystem.toString() + "/TimeBetweenTriggers",
           RobotController.getFPGATime() - previousSubsystemTimes.get(callback.subsystem));
       previousSubsystemTimes.put(callback.subsystem, RobotController.getFPGATime());
+
       callback.func.run();
+
+      subsystemsRunThisLoop.add(callback.subsystem.toString());
 
       SmartDashboard.putNumber("Periodics/" + callback.subsystem.toString() + "/Periodic",
           RobotController.getFPGATime() - m_loopStartTimeUs);
@@ -178,7 +183,14 @@ public class DynamicTimedRobot extends IterativeRobotBase {
       // Loop through flagged backup subsystems due to errors (redundancy)
       for (Subsystems subsystem : flagged.keySet()) {
         var tempTime = RobotController.getFPGATime();
+        SmartDashboard.putNumber("Periodics/" + subsystem.toString() + "/TimeBetweenTriggers",
+            RobotController.getFPGATime() - previousSubsystemTimes.get(subsystem));
+        previousSubsystemTimes.put(subsystem, RobotController.getFPGATime());
+
         flagged.get(subsystem).run();
+
+      subsystemsRunThisLoop.add(subsystem.toString() + " (flagged)");
+
         SmartDashboard.putNumber("Periodics/" + subsystem.toString() + "/Periodic",
             RobotController.getFPGATime() - tempTime);
       }
@@ -192,7 +204,10 @@ public class DynamicTimedRobot extends IterativeRobotBase {
         SmartDashboard.putNumber("Periodics/" + callback.subsystem.toString() + "/TimeBetweenTriggers",
             RobotController.getFPGATime() - previousSubsystemTimes.get(callback.subsystem));
         previousSubsystemTimes.put(callback.subsystem, RobotController.getFPGATime());
+
         callback.func.run();
+
+        subsystemsRunThisLoop.add(callback.subsystem.toString());
 
         SmartDashboard.putNumber("Periodics/" + callback.subsystem.toString() + "/Periodic",
             RobotController.getFPGATime() - tempTime);
@@ -206,7 +221,18 @@ public class DynamicTimedRobot extends IterativeRobotBase {
             + (currentTime - callback.expirationTime) / callback.period * callback.period;
         m_callbacks.add(callback);
       }
+
+      SmartDashboard.putNumber("Periodics/SubsystemsRunThisLoop/Number", subsystemsRunThisLoop.size());
+      SmartDashboard.putString("Periodics/SubsystemsRunThisLoop/Subsystems", subsystemsRunThisLoop.toString());
     }
+  }
+
+  private String[] toStringArray(ArrayList<String> og) {
+    String[] newArray = new String[og.size()];
+    for (int i = 0; i < og.size(); i++) {
+      newArray[i] = og.get(i);
+    }
+    return newArray;
   }
 
   /** Ends the main loop in startCompetition(). */
@@ -319,7 +345,7 @@ public class DynamicTimedRobot extends IterativeRobotBase {
             for (Subsystems key : flagged.keySet()) {
               array.add(key.toString());
             }
-            SmartDashboard.putStringArray("Periodics/Flagged", (String[]) array.toArray());
+            SmartDashboard.putStringArray("Periodics/Flagged", toStringArray(array));
           } catch (Exception e) {
             DriverStation.reportWarning(e.getMessage(), true);
           }
