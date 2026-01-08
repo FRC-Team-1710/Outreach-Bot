@@ -4,14 +4,9 @@
 
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Milliseconds;
 import static edu.wpi.first.units.Units.Seconds;
 
-import java.util.HashMap;
-
-import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.intake.Intake;
@@ -57,26 +52,18 @@ public class Superstructure {
     currentState = handleStateTransitions();
     applyStates();
 
-    if (drive.periodChanged()) {
-      consumer.accept(Subsystems.Drive, drive.getPeriod());
-      System.out.println("Drive changed period to " + drive.getPeriod());
-    }
     if (intake.periodChanged()) {
       consumer.accept(Subsystems.Intake, intake.getPeriod());
-      System.out.println("Intake changed period to " + intake.getPeriod());
     }
     if (shooter.periodChanged()) {
       consumer.accept(Subsystems.Shooter, shooter.getPeriod());
-      System.out.println("Shooter changed period to " + shooter.getPeriod());
     }
     if (hood.periodChanged()) {
       consumer.accept(Subsystems.Hood, hood.getPeriod());
-      System.out.println("Hood changed period to " + hood.getPeriod());
     }
   }
 
   private CurrentState handleStateTransitions() {
-    drive.setPeriod(Seconds.of(0.02));
     intake.setPeriod(Seconds.of(0.05));
     shooter.setPeriod(Seconds.of(0.05));
     hood.setPeriod(Seconds.of(0.05));

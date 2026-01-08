@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.Subsystems;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.PriorityQueue;
 
@@ -88,11 +89,14 @@ public class DynamicTimedRobot extends IterativeRobotBase {
 
   private long m_startTimeUs;
   private long m_loopStartTimeUs;
+  private long previousStartOfPeriodic;
 
   private final PriorityQueue<Callback> m_callbacks = new PriorityQueue<>();
 
   private final HashMap<Subsystems, Runnable> subsystemToRunnable = new HashMap<>();
   private final HashMap<Subsystems, Runnable> flagged = new HashMap<>();
+
+  private final HashMap<Subsystems, Long> previousSubsystemTimes = new HashMap<>();
 
   /** Constructor for DynamicTimedRobot. */
   protected DynamicTimedRobot() {
@@ -107,6 +111,7 @@ public class DynamicTimedRobot extends IterativeRobotBase {
   protected DynamicTimedRobot(Time period) {
     super(period.in(Seconds));
     m_startTimeUs = RobotController.getFPGATime();
+    previousStartOfPeriodic = m_loopStartTimeUs;
     addSubsystem(Subsystems.Robot, this::loopFunc, period);
     NotifierJNI.setNotifierName(m_notifier, "TimedRobot");
 
@@ -149,9 +154,18 @@ public class DynamicTimedRobot extends IterativeRobotBase {
 
       m_loopStartTimeUs = RobotController.getFPGATime();
 
+      SmartDashboard.putNumber("Periodics/" + callback.subsystem.toString() + "/TimeBetweenTriggers",
+          RobotController.getFPGATime() - previousSubsystemTimes.get(callback.subsystem));
+      previousSubsystemTimes.put(callback.subsystem, RobotController.getFPGATime());
       callback.func.run();
+
       SmartDashboard.putNumber("Periodics/" + callback.subsystem.toString() + "/Periodic",
           RobotController.getFPGATime() - m_loopStartTimeUs);
+
+      if (callback.subsystem == Subsystems.Robot) {
+        SmartDashboard.putNumber("Periodics/Total", RobotController.getFPGATime() - previousStartOfPeriodic);
+        previousStartOfPeriodic = RobotController.getFPGATime();
+      }
 
       // Increment the expiration time by the number of full periods it's behind
       // plus one to avoid rapid repeat fires from a large loop overrun. We
@@ -165,7 +179,8 @@ public class DynamicTimedRobot extends IterativeRobotBase {
       for (Subsystems subsystem : flagged.keySet()) {
         var tempTime = RobotController.getFPGATime();
         flagged.get(subsystem).run();
-        SmartDashboard.putNumber("Periodics/" + subsystem.toString() + "/Periodic", RobotController.getFPGATime() - tempTime);
+        SmartDashboard.putNumber("Periodics/" + subsystem.toString() + "/Periodic",
+            RobotController.getFPGATime() - tempTime);
       }
 
       // Process all other callbacks that are ready to run
@@ -173,15 +188,24 @@ public class DynamicTimedRobot extends IterativeRobotBase {
         callback = m_callbacks.poll();
 
         var tempTime = RobotController.getFPGATime();
+
+        SmartDashboard.putNumber("Periodics/" + callback.subsystem.toString() + "/TimeBetweenTriggers",
+            RobotController.getFPGATime() - previousSubsystemTimes.get(callback.subsystem));
+        previousSubsystemTimes.put(callback.subsystem, RobotController.getFPGATime());
         callback.func.run();
-        SmartDashboard.putNumber("Periodics/" + callback.subsystem.toString() + "/Periodic", RobotController.getFPGATime() - tempTime);
+
+        SmartDashboard.putNumber("Periodics/" + callback.subsystem.toString() + "/Periodic",
+            RobotController.getFPGATime() - tempTime);
+
+        if (callback.subsystem == Subsystems.Robot) {
+          SmartDashboard.putNumber("Periodics/Total", RobotController.getFPGATime() - previousStartOfPeriodic);
+          previousStartOfPeriodic = RobotController.getFPGATime();
+        }
 
         callback.expirationTime += callback.period
             + (currentTime - callback.expirationTime) / callback.period * callback.period;
         m_callbacks.add(callback);
       }
-      SmartDashboard.putNumber("Periodics/Total/Periodic",
-          RobotController.getFPGATime() - m_loopStartTimeUs);
     }
   }
 
@@ -236,6 +260,7 @@ public class DynamicTimedRobot extends IterativeRobotBase {
   public final void addSubsystem(Subsystems subsystem, Runnable periodic, Time period, Time offset) {
     subsystemToRunnable.put(subsystem, periodic);
     m_callbacks.add(getCallback(subsystem, periodic, period, offset));
+    previousSubsystemTimes.put(subsystem, RobotController.getFPGATime());
   }
 
   private final void addSubsystem(Subsystems subsystem, Callback callback) {
@@ -274,8 +299,8 @@ public class DynamicTimedRobot extends IterativeRobotBase {
       for (Object obj : m_callbacks.toArray()) {
         Callback callback = (Callback) obj;
         if (callback.subsystem == subsystem) {
-            subsystemOK = true;
-            break;
+          subsystemOK = true;
+          break;
         }
       }
       if (!subsystemOK) {
@@ -283,7 +308,21 @@ public class DynamicTimedRobot extends IterativeRobotBase {
         flagged.put(subsystem, subsystemToRunnable.get(subsystem));
       }
       // Log error depending on current situation (bad situation)
-      DriverStation.reportError("Trying to set " + subsystem.toString() + " to " + period.in(Milliseconds) + "ms and it failed! " + (subsystemOK ? "The callback queue has the subsystem tho, you should be alright for now" : "The callback queue does NOT have the subsystem!!! The subsystem is flagged and put in the redundancy queue of 20ms, it should be alright."), true);
+      DriverStation.reportError("Trying to set " + subsystem.toString() + " to " + period.in(Milliseconds)
+          + "ms and it failed! "
+          + (subsystemOK ? "The callback queue has the subsystem tho, you should be alright for now"
+              : "The callback queue does NOT have the subsystem!!! The subsystem is flagged and put in the redundancy queue of 20ms, it should be alright."),
+          true);
+          // I don't know if this will work and I don't want to test it
+          try {
+            var array = new ArrayList<String>() {}; 
+            for (Subsystems key : flagged.keySet()) {
+              array.add(key.toString());
+            }
+            SmartDashboard.putStringArray("Periodics/Flagged", (String[]) array.toArray());
+          } catch (Exception e) {
+            DriverStation.reportWarning(e.getMessage(), true);
+          }
     }
   }
 
