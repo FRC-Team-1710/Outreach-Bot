@@ -10,6 +10,7 @@ import static edu.wpi.first.units.Units.Seconds;
 import edu.wpi.first.hal.DriverStationJNI;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.hal.NotifierJNI;
 import edu.wpi.first.units.measure.Time;
@@ -221,6 +222,8 @@ public class DynamicTimedRobot extends IterativeRobotBase {
             + (currentTime - callback.expirationTime) / callback.period * callback.period;
         m_callbacks.add(callback);
       }
+
+      Log.log("Periodics/SubsystemsRunThisLoop/Number", Pose2d.kZero);
 
       SmartDashboard.putNumber("Periodics/SubsystemsRunThisLoop/Number", subsystemsRunThisLoop.size());
       SmartDashboard.putString("Periodics/SubsystemsRunThisLoop/Subsystems", subsystemsRunThisLoop.toString());
