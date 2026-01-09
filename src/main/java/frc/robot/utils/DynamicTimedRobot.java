@@ -341,11 +341,13 @@ public class DynamicTimedRobot extends IterativeRobotBase {
           true);
           // I don't know if this will work and I don't want to test it
           try {
-            var array = new ArrayList<String>() {}; 
-            for (Subsystems key : flagged.keySet()) {
-              array.add(key.toString());
+            String[] newArray = new String[flagged.size()];
+            int i = 0;
+            for (Subsystems flaggedSubsystem : flagged.keySet()) {
+              newArray[i] = flaggedSubsystem.toString();
+              i++;
             }
-            SmartDashboard.putStringArray("Periodics/Flagged", toStringArray(array));
+            SmartDashboard.putStringArray("Periodics/Flagged", newArray);
           } catch (Exception e) {
             DriverStation.reportWarning(e.getMessage(), true);
           }
