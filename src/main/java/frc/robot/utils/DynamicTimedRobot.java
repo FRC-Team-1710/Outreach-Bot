@@ -227,14 +227,6 @@ public class DynamicTimedRobot extends IterativeRobotBase {
     }
   }
 
-  private String[] toStringArray(ArrayList<String> og) {
-    String[] newArray = new String[og.size()];
-    for (int i = 0; i < og.size(); i++) {
-      newArray[i] = og.get(i);
-    }
-    return newArray;
-  }
-
   /** Ends the main loop in startCompetition(). */
   @Override
   public void endCompetition() {
