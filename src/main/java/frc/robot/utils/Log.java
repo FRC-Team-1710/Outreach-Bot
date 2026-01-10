@@ -47,49 +47,42 @@ public final class Log {
     throw new UnsupportedOperationException("You can't instantiate this class you bum");
   }
 
-  
   public static void log(String identifier, int value) {
     ((IntegerPublisher)
             publishers.computeIfAbsent(identifier, k -> nt.getIntegerTopic(k).publish()))
-        .set(value);
+        .set((Integer) value);
   }
 
-  
   public static void log(String identifier, long value) {
     ((IntegerPublisher)
             publishers.computeIfAbsent(identifier, k -> nt.getIntegerTopic(k).publish()))
         .set(value);
   }
 
-  
   public static void log(String identifier, float value) {
     ((FloatPublisher)
             publishers.computeIfAbsent(identifier, k -> nt.getFloatTopic(k).publish()))
         .set(value);
   }
 
-  
   public static void log(String identifier, double value) {
     ((DoublePublisher)
             publishers.computeIfAbsent(identifier, k -> nt.getDoubleTopic(k).publish()))
         .set(value);
   }
 
-  
   public static void log(String identifier, boolean value) {
     ((BooleanPublisher)
             publishers.computeIfAbsent(identifier, k -> nt.getBooleanTopic(k).publish()))
         .set(value);
   }
 
-  
   public static void log(String identifier, byte[] value) {
     ((RawPublisher)
             publishers.computeIfAbsent(identifier, k -> nt.getRawTopic(k).publish("raw")))
         .set(value);
   }
 
-  
   @SuppressWarnings("PMD.UnnecessaryCastRule")
   public static void log(String identifier, int[] value) {
     // NT backend only supports int64[], so we have to manually widen to 64 bits before sending
@@ -104,42 +97,36 @@ public final class Log {
         .set(widened);
   }
 
-  
   public static void log(String identifier, long[] value) {
     ((IntegerArrayPublisher)
             publishers.computeIfAbsent(identifier, k -> nt.getIntegerArrayTopic(k).publish()))
         .set(value);
   }
 
-  
   public static void log(String identifier, float[] value) {
     ((FloatArrayPublisher)
             publishers.computeIfAbsent(identifier, k -> nt.getFloatArrayTopic(k).publish()))
         .set(value);
   }
 
-  
   public static void log(String identifier, double[] value) {
     ((DoubleArrayPublisher)
             publishers.computeIfAbsent(identifier, k -> nt.getDoubleArrayTopic(k).publish()))
         .set(value);
   }
 
-  
   public static void log(String identifier, boolean[] value) {
     ((BooleanArrayPublisher)
             publishers.computeIfAbsent(identifier, k -> nt.getBooleanArrayTopic(k).publish()))
         .set(value);
   }
 
-  
   public static void log(String identifier, String value) {
     ((StringPublisher)
             publishers.computeIfAbsent(identifier, k -> nt.getStringTopic(k).publish()))
         .set(value);
   }
 
-  
   public static void log(String identifier, String[] value) {
     ((StringArrayPublisher)
             publishers.computeIfAbsent(identifier, k -> nt.getStringArrayTopic(k).publish()))
