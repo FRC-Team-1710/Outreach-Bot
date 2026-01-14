@@ -301,16 +301,16 @@ public class DynamicTimedRobot extends IterativeRobotBase {
       // If the callback were looking for is found
       if (callback.subsystem == subsystem) {
         // Only add it back if it was removed (shouldn't fail but jic)
-        if (m_callbacks.remove(callback)) {
+        // if (m_callbacks.remove(callback)) {
           // Set the new period
           callback.period = (long) (period.in(Seconds) * 1e6);
           // Re-add the subsystem because it was "removed"
-          addSubsystem(subsystem, callback);
+          // addSubsystem(subsystem, callback);
           // Lets us know it was successful
           subsystemOK = m_callbacks.contains(callback);
           break;
-        }
-      }
+        // }
+       }
     }
     if (!subsystemOK) {
       for (Object obj : m_callbacks.toArray()) {
