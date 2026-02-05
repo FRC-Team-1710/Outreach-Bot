@@ -52,7 +52,7 @@ public class RobotContainer {
         private final Superstructure superstructure;
 
         @NotLogged
-        private final TunableController driver = new TunableController(0);
+        private final TunableController driver = new TunableController(0).withDeadband(0.125);
 
         /** Driver Start */
         @Logged(name = "Triggers/ResetGyro", importance = Importance.INFO)

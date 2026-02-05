@@ -209,8 +209,11 @@ public class Superstructure {
     // .withX(-driver.customLeft().getY())
     // .withY(-driver.customLeft().getX())
     // .withRotation(driver.customRight().getX())).schedule();
+
     drive.drive(new Translation2d(-driver.customLeft().getY(), -driver.customLeft().getX()),
-        driver.customRight().getX(), true);
+    driver.customRight().getX(), true);
+    
+    // drive.drive(new Translation2d(0, 0), 0, true);
   }
 
   private void setState(WantedState state) {

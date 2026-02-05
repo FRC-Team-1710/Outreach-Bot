@@ -1,6 +1,9 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import edu.wpi.first.epilogue.Logged.Importance;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.RobotBase;
 
 public final class Constants {
@@ -31,6 +34,9 @@ Hood, Shooter, Drive, Intake, Robot, Superstructure, Epilogue
   public static final class Intake {
     public static final double IntakeSpeed = 0.5;
     public static final double FeedSpeed = 0.5;
+
+    public static final Angle kDown = Degrees.of(1);
+    public static final Angle kUp = Degrees.of(45);
   }
 
   public static final class Hood {

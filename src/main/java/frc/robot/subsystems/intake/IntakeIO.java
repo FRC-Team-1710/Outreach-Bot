@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Importance;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
@@ -27,4 +28,6 @@ public interface IntakeIO {
   public default void updateInputs(IntakeIOInputs inputs) {}
 
   public default void setVoltage(Voltage volts) {}
+
+  public default void setAngle(Angle angle) {}
 }

@@ -38,26 +38,31 @@ public class Intake {
 
     switch (currentState) {
       case OFF:
+      io.setAngle(Constants.Intake.kUp);
         io.setVoltage(Volts.of(0));
         break;
-        case INTAKE:
-          if (ballSecured()) {
-            io.setVoltage(Volts.of(0));
-          } else {
-            io.setVoltage(Volts.of(Constants.Intake.IntakeSpeed * 12));
-          }
-          break;
-          case SHOOTER_INTAKE:
-            if (ballSecured()) {
-              io.setVoltage(Volts.of(0));
-            } else {
-              io.setVoltage(Volts.of(Constants.Intake.IntakeSpeed * -12));
-            }
-            break;
+      case INTAKE:
+      io.setAngle(Constants.Intake.kDown);
+        if (ballSecured()) {
+          io.setVoltage(Volts.of(0));
+        } else {
+          io.setVoltage(Volts.of(Constants.Intake.IntakeSpeed * 12));
+        }
+        break;
+      case SHOOTER_INTAKE:
+      io.setAngle(Constants.Intake.kUp);
+        if (ballSecured()) {
+          io.setVoltage(Volts.of(0));
+        } else {
+          io.setVoltage(Volts.of(Constants.Intake.IntakeSpeed * -12));
+        }
+        break;
       case OUTTAKE:
+      io.setAngle(Constants.Intake.kUp);
         io.setVoltage(Volts.of(Constants.Intake.IntakeSpeed * -12));
         break;
       case FEED:
+      io.setAngle(Constants.Intake.kUp);
         io.setVoltage(Volts.of(Constants.Intake.FeedSpeed * 12));
         break;
     }
@@ -100,10 +105,7 @@ public class Intake {
 
   @NotLogged
   public boolean ballSecured() {
-    return false;
-    // return Constants.currentMode == Mode.SIM
-    //     ? (currentBallState == CurrentBallState.SECURED)
-    //     : (inputs.beamBroken);
+    return inputs.beamBroken;
   }
 
   public void advanceGamePiece() {
